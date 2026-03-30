@@ -16,3 +16,4 @@ Sovellus noudattaa MVC-mallia (Model-View-Controller):
 * **Routes:** Reitit (esim. account.js, transaction.js) ottavat vastaan pyynnöt ja tarkistavat käyttäjän oikeudet.
 * **Models:** Tiedostot (esim. card_model.js) sisältävät varsinaiset SQL-kyselyt.
 * **Middleware:** authenticateToken.js tarkistaa jokaisen suojatun pyynnön yhteydessä, että mukana on voimassa oleva JWT-token.
+<img width="786" height="1193" alt="bank_model" src="https://github.com/user-attachments/assets/4139010b-c342-4a0d-ac71-67a00c607e52" />
