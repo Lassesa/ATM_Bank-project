@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,5 +20,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    void setLanguage(const QString &lang);
 };
+
 #endif // MAINWINDOW_H
