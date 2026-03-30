@@ -9,7 +9,7 @@ const account = {
     getById(id, callback) {
         return db.query("SELECT * FROM account WHERE idaccount = ?", [id], callback);
     },
-    // Lisää uusi tili (Tämä on se, jonka sait jo toimimaan!)
+    // Lisää uusi tili 
     add(newAcc, callback) {
         return db.query(
             "INSERT INTO account (account_number, account_type, account_balance, account_limit, account_currency, account_customerid) VALUES(?,?,?,?,?,?)",

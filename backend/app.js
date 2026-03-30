@@ -1,18 +1,23 @@
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
 
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var customersRouter=require('./routes/customer');
-const accountRouter = require('./routes/account');
+dotenv.config();
+
+// Tuodaan reitit
+const indexRouter = require('./routes/index');
+const customerRouter = require('./routes/customer');
 const cardRouter = require('./routes/card');
+const accountRouter = require('./routes/account');
 const transactionRouter = require('./routes/transaction');
+const loginRouter = require('./routes/login');
 
-var app = express();
-const PORT = process.env.PORT || 3000;
+const app = express();
+
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -20,15 +25,42 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//JULKISET REITIT (Ei vaadi tokenia)
+app.use('/login', loginRouter);
+
+
+// Kaikki tämän alapuolella olevat reitit vaativat tokenin
+app.use(authenticateToken);
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.MY_TOKEN, (err, user) => {
+    if (err) return res.sendStatus(403);
+
+    // Tallennetaan käyttäjän tiedot (card_number, role) pyyntöön
+    req.user = user; 
+    next();
+  });
+}
+
+// SUOJATUT REITIT 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/customer',customersRouter);
-app.use('/account', accountRouter);
+app.use('/customer', customerRouter);
 app.use('/card', cardRouter);
+app.use('/account', accountRouter);
 app.use('/transaction', transactionRouter);
 
-app.listen(PORT, function(){
-    console.log("Palvelin kuuntelee porttia: " + PORT);
+//PALVELIMEN KÄYNNISTYS
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+
+  console.log(`Palvelin kuuntelee porttia: ${PORT}`);
+
 });
 
 module.exports = app;
