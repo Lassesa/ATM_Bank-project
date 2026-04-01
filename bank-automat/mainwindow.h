@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QString>
+#include <QKeyEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -22,6 +23,15 @@ private:
     Ui::MainWindow *ui;
 
     void setLanguage(const QString &lang);
+    enum InputMode {
+        PinMode,
+        AmountMode
+    };
+
+    InputMode currentMode;
+
+    void handleDigit(const QString &digit);
+    void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // MAINWINDOW_H
