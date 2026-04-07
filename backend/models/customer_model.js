@@ -41,7 +41,7 @@ const customer={
             newC.politicalstatus,
             newC.socialsecnum,
             newC.birthdate,
-            id // Tämä menee viimeisen kysymysmerkin kohdalle 
+            id 
         ],
         callback);
     },
