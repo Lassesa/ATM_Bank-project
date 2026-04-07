@@ -98,16 +98,30 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Connect Cancel button
     connect(ui->button_1red_CANCEL, &QPushButton::clicked, this, [this]() {
+        QWidget* current = ui->display->currentWidget();
+
         // Return from PIN page to Welcome page
-        if (ui->display->currentWidget() == ui->page2_Pin) {
+        if (current == ui->page2_Pin ||
+            current == ui->page1_Welcome) {
             ui->pinInput->clear();
-            ui->display->setCurrentWidget(ui->page1_Welcome);
+            ui->display->setCurrentWidget(ui->page8_Exit);
         }
         // Return from Main Menu to Welcome page
-        else if (ui->display->currentWidget() == ui->page3_Main) {
-            ui->display->setCurrentWidget(ui->page1_Welcome);
+        else if (current == ui->page3_Main) {
+            ui->display->setCurrentWidget(ui->page8_Exit);
+        }
+        // Return from transaction pages to Main Menu
+        else if (
+            current == ui->page4_Withdraw ||
+            current == ui->page5_Balance ||
+            current == ui->page6_Transfer ||
+            current == ui->page7_Donation ||
+            current == ui->page9_Other
+            ) {
+            ui->display->setCurrentWidget(ui->page3_Main);
         }
     });
+
 
     // Connect OK button
     connect(ui->button_3green_OK, &QPushButton::clicked, this, [this]() {
@@ -150,10 +164,52 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
-    // main menu options
-    connect(ui->btn_main_choise_3, &QPushButton::clicked, this, [this]() {
+    // MAIN MENU OPTIONS options
+    connect(ui->btn_main_choice_1, &QPushButton::clicked, this, [this]() {
+        selectAmount(50);
+        showPage(ui->page4_Withdraw);
+
+    });
+
+    connect(ui->btn_main_choice_2, &QPushButton::clicked, this, [this]() {
+        selectAmount(100);
         showPage(ui->page4_Withdraw);
     });
+
+    connect(ui->btn_main_choice_3, &QPushButton::clicked, this, [this]() {
+        selectAmount(0);
+        showPage(ui->page4_Withdraw);
+    });
+
+    connect(ui->btn_main_choice_4, &QPushButton::clicked, this, [this]() {
+        showPage(ui->page5_Balance);
+    });
+
+    connect(ui->btn_main_choice_5, &QPushButton::clicked, this, [this]() {
+        showPage(ui->page6_Transfer);
+    });
+
+    connect(ui->btn_main_choice_6, &QPushButton::clicked, this, [this]() {
+        showPage(ui->page7_Donation);
+    });
+
+    connect(ui->btn_main_choice_7, &QPushButton::clicked, this, [this]() {
+        showPage(ui->page8_Exit);
+    });
+
+    connect(ui->btn_main_choice_8, &QPushButton::clicked, this, [this]() {
+        showPage(ui->page9_Other);
+    });
+
+
+    // Set initial language
+    setLanguage("EN");
+
+    // Show Welcome page at startup
+    ui->display->setCurrentWidget(ui->page1_Welcome);
+
+
+    // CONTRAST
 
     connect(ui->btnContrast, &QPushButton::clicked, this, [this]() {
         highContrast = !highContrast;
@@ -166,16 +222,9 @@ MainWindow::MainWindow(QWidget *parent)
             ui->btnContrast->setText("🌙");
         }
     });
-
-
-
-    // Set initial language
-    setLanguage("EN");
-
-    // Show Welcome page at startup
-    ui->display->setCurrentWidget(ui->page1_Welcome);
 }
 
+// LANGUAGES
 void MainWindow::setLanguage(const QString &lang)
 {
     // Update selected language button state
@@ -198,6 +247,29 @@ void MainWindow::setLanguage(const QString &lang)
 
         ui->labelWelcome_Balance->setText("Account balance");
         ui->labelInstruction_Balance->setText("View your current available balance");
+
+        ui->labelWelcome_Transfer->setText("Transfer Money");
+        ui->labelInstruction_Transfer->setText("Send money to another account");
+
+        ui->labelWelcome_Donation->setText("Donation");
+        ui->labelInstruction_Donation->setText("Support a cause or organization");
+
+        ui->labelWelcome_Exit->setText("Thank you!");
+        ui->labelInstruction_Exit->setText("Please remember to take your card");
+
+        ui->labelWelcome_Other->setText("Other");
+        ui->labelInstruction_Other->setText("Access more features and settings");
+
+        ui->btn_main_choice_1->setText("50 €");
+        ui->btn_main_choice_2->setText("100 €");
+        ui->btn_main_choice_3->setText("3 Other amount");
+        ui->btn_main_choice_4->setText("4 Balance");
+        ui->btn_main_choice_5->setText("5 Transfer");
+        ui->btn_main_choice_6->setText("6 Donation");
+        ui->btn_main_choice_7->setText("7 Exit");
+        ui->btn_main_choice_8->setText("8 More");
+
+
     }
     else if (lang == "PL") {
         ui->labelWelcome->setText("Witamy w S/R Banku");
@@ -214,6 +286,27 @@ void MainWindow::setLanguage(const QString &lang)
 
         ui->labelWelcome_Balance->setText("Saldo konta");
         ui->labelInstruction_Balance->setText("Sprawdź aktualne dostępne saldo");
+
+        ui->labelWelcome_Transfer->setText("Przelew");
+        ui->labelInstruction_Transfer->setText("Wyślij pieniądze na inne konto");
+
+        ui->labelWelcome_Donation->setText("Darowizna");
+        ui->labelInstruction_Donation->setText("Wesprzyj wybraną organizację");
+
+        ui->labelWelcome_Exit->setText("Dziękujemy!");
+        ui->labelInstruction_Exit->setText("Pamiętaj, aby zabrać kartę");
+
+        ui->labelWelcome_Other->setText("Inne usługi");
+        ui->labelInstruction_Other->setText("Dostęp do dodatkowych usług bankowych");
+
+        ui->btn_main_choice_1->setText("50 €");
+        ui->btn_main_choice_2->setText("100 €");
+        ui->btn_main_choice_3->setText("3 Inna kwota");
+        ui->btn_main_choice_4->setText("4 Saldo");
+        ui->btn_main_choice_5->setText("5 Przelew");
+        ui->btn_main_choice_6->setText("6 Darowizna");
+        ui->btn_main_choice_7->setText("7 Wyjście");
+        ui->btn_main_choice_8->setText("8 Więcej");
     }
     else if (lang == "FI") {
         ui->labelWelcome->setText("Tervetuloa S/R Pankkiin");
@@ -230,6 +323,27 @@ void MainWindow::setLanguage(const QString &lang)
 
         ui->labelWelcome_Balance->setText("Tilin saldo");
         ui->labelInstruction_Balance->setText("Näet tilisi tämänhetkisen saldon");
+
+        ui->labelWelcome_Transfer->setText("Tilisiirto");
+        ui->labelInstruction_Transfer->setText("Lähetä rahaa toiselle tilille");
+
+        ui->labelWelcome_Donation->setText("Lahjoitus");
+        ui->labelInstruction_Donation->setText("Tue valitsemaasi kohdetta");
+
+        ui->labelWelcome_Exit->setText("Kiitos!");
+        ui->labelInstruction_Exit->setText("Muista ottaa korttisi");
+
+        ui->labelWelcome_Other->setText("Muut palvelut");
+        ui->labelInstruction_Other->setText("Käytä muita pankkipalveluita");
+
+        ui->btn_main_choice_1->setText("50 €");
+        ui->btn_main_choice_2->setText("100 €");
+        ui->btn_main_choice_3->setText("3 Muu summa");
+        ui->btn_main_choice_4->setText("4 Saldo");
+        ui->btn_main_choice_5->setText("5 Siirto");
+        ui->btn_main_choice_6->setText("6 Lahjoitus");
+        ui->btn_main_choice_7->setText("7 Poistu");
+        ui->btn_main_choice_8->setText("8 Lisää");
     }
 }
 
@@ -354,7 +468,6 @@ void MainWindow::showPage(QWidget *page)
 
 void MainWindow::applyHighContrastTheme()
 {
-    ui->display->setStyleSheet("background-color: black; border-radius: 28px;");
 
     applyMonitorStyleToPage(ui->page1_Welcome, true);
     applyMonitorStyleToPage(ui->page2_Pin, true);
@@ -364,12 +477,13 @@ void MainWindow::applyHighContrastTheme()
     applyMonitorStyleToPage(ui->page6_Transfer, true);
     applyMonitorStyleToPage(ui->page7_Donation, true);
     applyMonitorStyleToPage(ui->page8_Exit, true);
+    applyMonitorStyleToPage(ui->page9_Other, true);
 }
 
 
 void MainWindow::applyDefaultTheme()
 {
-    ui->display->setStyleSheet("");
+    // Restore monitor background
 
     applyMonitorStyleToPage(ui->page1_Welcome, false);
     applyMonitorStyleToPage(ui->page2_Pin, false);
@@ -379,6 +493,9 @@ void MainWindow::applyDefaultTheme()
     applyMonitorStyleToPage(ui->page6_Transfer, false);
     applyMonitorStyleToPage(ui->page7_Donation, false);
     applyMonitorStyleToPage(ui->page8_Exit, false);
+    applyMonitorStyleToPage(ui->page9_Other, true);
+
+    ui->display->update();
 }
 
 void MainWindow::applyMonitorStyleToPage(QWidget *page, bool highContrastEnabled)
@@ -456,6 +573,18 @@ void MainWindow::applyMonitorStyleToPage(QWidget *page, bool highContrastEnabled
             button->setStyleSheet("");
         }
     }
+}
+
+void MainWindow::selectAmount(int amount)
+{
+    selectedAmount = amount;
+    ui->amountInput->setText(formatAmount(amount));
+    showPage(ui->page4_Withdraw);
+}
+
+QString MainWindow::formatAmount(int amount)
+{
+    return QString::number(amount) + " EUR";
 }
 
 MainWindow::~MainWindow()

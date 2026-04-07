@@ -31,12 +31,13 @@ private:
 
     Ui::MainWindow *ui;
     InputMode currentMode;
-
     QSerialPort *serial;
     QString currentCardUid;
+    QString defaultStyle;
 
     bool highContrast = false;
-    QString defaultStyle;
+    int selectedAmount = 0;
+
 
     void setLanguage(const QString &lang);
     void handleDigit(const QString &digit);
@@ -47,6 +48,9 @@ private:
     void applyHighContrastTheme();
     void applyDefaultTheme();
     void applyMonitorStyleToPage(QWidget *page, bool highContrastEnabled);
+
+    void selectAmount(int amount);
+    QString formatAmount(int amount);
 
 };
 
