@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     , serial(new QSerialPort(this))
 {
     ui->setupUi(this);
+    ui->pinInput->setCursor(Qt::BlankCursor);
     defaultStyle = this->styleSheet();
 
     // Start RFID / serial reader
