@@ -2,8 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QString>
 #include <QKeyEvent>
+#include <QSerialPort>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,19 +20,34 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private:
-    Ui::MainWindow *ui;
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
-    void setLanguage(const QString &lang);
+private:
     enum InputMode {
         PinMode,
         AmountMode
     };
 
+    Ui::MainWindow *ui;
     InputMode currentMode;
 
+    QSerialPort *serial;
+    QString currentCardUid;
+
+    bool highContrast = false;
+    QString defaultStyle;
+
+    void setLanguage(const QString &lang);
     void handleDigit(const QString &digit);
-    void keyPressEvent(QKeyEvent *event);
+    void setupSerialReader();
+    void readCardData();
+    void showPage(QWidget *page);
+
+    void applyHighContrastTheme();
+    void applyDefaultTheme();
+    void applyMonitorStyleToPage(QWidget *page, bool highContrastEnabled);
+
 };
 
 #endif // MAINWINDOW_H

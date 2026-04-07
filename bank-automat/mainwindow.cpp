@@ -1,16 +1,25 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
 #include <QIcon>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QKeyEvent>
+#include <QSerialPort>
+#include <QDebug>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , serial(new QSerialPort(this))
 {
     ui->setupUi(this);
+    defaultStyle = this->styleSheet();
+
+    // Start RFID / serial reader
+    setupSerialReader();
 
     // Set application window icon
     this->setWindowIcon(QIcon(":/logo.svg/logo.svg"));
@@ -22,7 +31,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pinInput->clear();
     ui->pinInput->setMaxLength(4);
     ui->pinInput->setEchoMode(QLineEdit::Password);
-
 
     // Configure amount input for future use
     ui->amountInput->setText("0 €");
@@ -66,11 +74,25 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Connect Clear button
     connect(ui->button_2yellow_CLEAR, &QPushButton::clicked, this, [this]() {
-        // Clear only works on the PIN page for now
         if (ui->display->currentWidget() == ui->page2_Pin) {
             QString text = ui->pinInput->text();
-            text.chop(1); // Remove last character
+            text.chop(1);
             ui->pinInput->setText(text);
+        }
+        else if (ui->display->currentWidget() == ui->page4_Withdraw) {
+            QString text = ui->amountInput->text();
+            text.remove("€");
+            text = text.trimmed();
+
+            if (!text.isEmpty()) {
+                text.chop(1);
+            }
+
+            if (text.isEmpty()) {
+                ui->amountInput->setText("0 €");
+            } else {
+                ui->amountInput->setText(text + " €");
+            }
         }
     });
 
@@ -89,14 +111,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Connect OK button
     connect(ui->button_3green_OK, &QPushButton::clicked, this, [this]() {
-        // Simulate card insertion: Welcome -> PIN page
+        // Welcome page -> PIN page
         if (ui->display->currentWidget() == ui->page1_Welcome) {
             ui->display->setCurrentWidget(ui->page2_Pin);
             currentMode = PinMode;
             ui->pinInput->clear();
             ui->pinInput->setFocus();
         }
-        // Check PIN on PIN page
+        // PIN page -> Main page
         else if (ui->display->currentWidget() == ui->page2_Pin) {
             if (ui->pinInput->text() == "1234") {
                 ui->pinInput->clear();
@@ -106,7 +128,46 @@ MainWindow::MainWindow(QWidget *parent)
                 ui->pinInput->clear();
             }
         }
+        // Withdraw page -> process amount
+        else if (ui->display->currentWidget() == ui->page4_Withdraw) {
+            QString amountText = ui->amountInput->text();
+            amountText.remove("€");
+            amountText = amountText.trimmed();
+
+            bool ok;
+            int amount = amountText.toInt(&ok);
+
+            if (ok && amount > 0) {
+                qDebug() << "Withdraw amount:" << amount;
+
+                // Temporary behavior after successful input
+                ui->amountInput->setText("0 €");
+                ui->display->setCurrentWidget(ui->page3_Main);
+            } else {
+                // Invalid amount: reset field
+                ui->amountInput->setText("0 €");
+            }
+        }
     });
+
+    // main menu options
+    connect(ui->btn_main_choise_3, &QPushButton::clicked, this, [this]() {
+        showPage(ui->page4_Withdraw);
+    });
+
+    connect(ui->btnContrast, &QPushButton::clicked, this, [this]() {
+        highContrast = !highContrast;
+
+        if (highContrast) {
+            applyHighContrastTheme();
+            ui->btnContrast->setText("☀️");
+        } else {
+            applyDefaultTheme();
+            ui->btnContrast->setText("🌙");
+        }
+    });
+
+
 
     // Set initial language
     setLanguage("EN");
@@ -134,6 +195,9 @@ void MainWindow::setLanguage(const QString &lang)
 
         ui->labelWelcome_Withdraw->setText("Withdraw Cash");
         ui->labelInstruction_Withdraw->setText("Enter amount and press OK");
+
+        ui->labelWelcome_Balance->setText("Account balance");
+        ui->labelInstruction_Balance->setText("View your current available balance");
     }
     else if (lang == "PL") {
         ui->labelWelcome->setText("Witamy w S/R Banku");
@@ -147,6 +211,9 @@ void MainWindow::setLanguage(const QString &lang)
 
         ui->labelWelcome_Withdraw->setText("Wypłata gotówki");
         ui->labelInstruction_Withdraw->setText("Wpisz kwotę i naciśnij OK");
+
+        ui->labelWelcome_Balance->setText("Saldo konta");
+        ui->labelInstruction_Balance->setText("Sprawdź aktualne dostępne saldo");
     }
     else if (lang == "FI") {
         ui->labelWelcome->setText("Tervetuloa S/R Pankkiin");
@@ -160,18 +227,35 @@ void MainWindow::setLanguage(const QString &lang)
 
         ui->labelWelcome_Withdraw->setText("Nosta käteistä");
         ui->labelInstruction_Withdraw->setText("Syötä summa ja paina OK");
+
+        ui->labelWelcome_Balance->setText("Tilin saldo");
+        ui->labelInstruction_Balance->setText("Näet tilisi tämänhetkisen saldon");
     }
 }
 
 void MainWindow::handleDigit(const QString &digit)
 {
-    // Only allow PIN input on the PIN page
+    // PIN page
     if (ui->display->currentWidget() == ui->page2_Pin) {
         QString currentText = ui->pinInput->text();
 
         if (currentText.length() < 4) {
             ui->pinInput->setText(currentText + digit);
         }
+    }
+    // Withdraw page
+    else if (ui->display->currentWidget() == ui->page4_Withdraw) {
+        QString currentText = ui->amountInput->text();
+
+        // remove euro sign and spaces
+        currentText.remove("€");
+        currentText = currentText.trimmed();
+
+        if (currentText == "0") {
+            currentText = "";
+        }
+
+        ui->amountInput->setText(currentText + digit + " €");
     }
 }
 
@@ -199,6 +283,179 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
 
     QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::setupSerialReader()
+{
+    // Configure the serial port used by the RFID reader
+    serial->setPortName("/dev/cu.usbmodem14521201");
+    serial->setBaudRate(QSerialPort::Baud115200);
+    serial->setDataBits(QSerialPort::Data8);
+    serial->setParity(QSerialPort::NoParity);
+    serial->setStopBits(QSerialPort::OneStop);
+    serial->setFlowControl(QSerialPort::NoFlowControl);
+
+    if (serial->open(QIODevice::ReadOnly)) {
+        // When new serial data arrives, process it
+        connect(serial, &QSerialPort::readyRead,
+                this, &MainWindow::readCardData);
+
+        qDebug() << "Serial port opened successfully.";
+    } else {
+        qDebug() << "Failed to open serial port:" << serial->errorString();
+    }
+}
+
+void MainWindow::readCardData()
+{
+    // Store incoming serial data until a complete line is received
+    static QString buffer;
+    buffer += QString::fromUtf8(serial->readAll());
+
+    // Process complete lines from the buffer
+    while (buffer.contains('\n')) {
+        int endIndex = buffer.indexOf('\n');
+        QString line = buffer.left(endIndex).trimmed();
+        buffer.remove(0, endIndex + 1);
+
+        qDebug() << "Received line:" << line;
+
+        // Ignore empty lines and prompt characters
+        if (line.isEmpty() || line == ">") {
+            continue;
+        }
+
+        // Treat the received line as the scanned card value
+        currentCardUid = line;
+
+        qDebug() << "Scanned card:" << currentCardUid;
+
+        // Stay on the welcome page
+        ui->display->setCurrentWidget(ui->page1_Welcome);
+
+        // Show status message
+        ui->labelInstruction->setText("Card detected");
+
+        // Show the most recently scanned card value
+        ui->CardNumberDisplay->setText(currentCardUid);
+        ui->CardNumberDisplay->update();
+
+        qDebug() << "Displayed text:" << ui->CardNumberDisplay->text();
+    }
+}
+
+void MainWindow::showPage(QWidget *page)
+{
+    ui->display->setCurrentWidget(page);
+}
+
+
+// Contrast Edit
+
+void MainWindow::applyHighContrastTheme()
+{
+    ui->display->setStyleSheet("background-color: black; border-radius: 28px;");
+
+    applyMonitorStyleToPage(ui->page1_Welcome, true);
+    applyMonitorStyleToPage(ui->page2_Pin, true);
+    applyMonitorStyleToPage(ui->page3_Main, true);
+    applyMonitorStyleToPage(ui->page4_Withdraw, true);
+    applyMonitorStyleToPage(ui->page5_Balance, true);
+    applyMonitorStyleToPage(ui->page6_Transfer, true);
+    applyMonitorStyleToPage(ui->page7_Donation, true);
+    applyMonitorStyleToPage(ui->page8_Exit, true);
+}
+
+
+void MainWindow::applyDefaultTheme()
+{
+    ui->display->setStyleSheet("");
+
+    applyMonitorStyleToPage(ui->page1_Welcome, false);
+    applyMonitorStyleToPage(ui->page2_Pin, false);
+    applyMonitorStyleToPage(ui->page3_Main, false);
+    applyMonitorStyleToPage(ui->page4_Withdraw, false);
+    applyMonitorStyleToPage(ui->page5_Balance, false);
+    applyMonitorStyleToPage(ui->page6_Transfer, false);
+    applyMonitorStyleToPage(ui->page7_Donation, false);
+    applyMonitorStyleToPage(ui->page8_Exit, false);
+}
+
+void MainWindow::applyMonitorStyleToPage(QWidget *page, bool highContrastEnabled)
+{
+    if (!page) return;
+
+    // Page background
+    if (highContrastEnabled) {
+        page->setStyleSheet("background-color: black;");
+    } else {
+        page->setStyleSheet("background: transparent;");
+    }
+
+    // Labels
+    const auto labels = page->findChildren<QLabel *>();
+    for (QLabel *label : labels) {
+        if (highContrastEnabled) {
+            label->setStyleSheet("color: white; background: transparent; border: none;");
+        } else {
+            label->setStyleSheet("");
+        }
+    }
+
+    // LineEdits
+    const auto edits = page->findChildren<QLineEdit *>();
+    for (QLineEdit *edit : edits) {
+        if (highContrastEnabled) {
+            edit->setStyleSheet(
+                "background-color: black;"
+                "color: white;"
+                "border: 2px solid white;"
+                "border-radius: 10px;"
+                "padding: 6px;"
+                );
+        } else {
+            edit->setStyleSheet("");
+        }
+    }
+
+    // ListWidgets
+    const auto lists = page->findChildren<QListWidget *>();
+    for (QListWidget *list : lists) {
+        if (highContrastEnabled) {
+            list->setStyleSheet(
+                "background-color: black;"
+                "color: white;"
+                "border: 2px solid white;"
+                );
+        } else {
+            list->setStyleSheet("");
+        }
+    }
+
+    // Only buttons inside monitor pages
+    const auto buttons = page->findChildren<QPushButton *>();
+    for (QPushButton *button : buttons) {
+        const QString name = button->objectName();
+
+        // Do not touch numpad or system buttons
+        if (name.startsWith("num_") ||
+            name == "button_1red_CANCEL" ||
+            name == "button_2yellow_CLEAR" ||
+            name == "button_3green_OK") {
+            continue;
+        }
+
+        if (highContrastEnabled) {
+            button->setStyleSheet(
+                "background-color: black;"
+                "color: white;"
+                "border: 2px solid white;"
+                "border-radius: 14px;"
+                );
+        } else {
+            button->setStyleSheet("");
+        }
+    }
 }
 
 MainWindow::~MainWindow()

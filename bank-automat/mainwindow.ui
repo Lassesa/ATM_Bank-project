@@ -35,13 +35,13 @@ QLabel {
     color: #1E293B;
 }
 
-QLabel#labelWelcome, QLabel#labelWelcome_PIN, QLabel#labelWelcome_Main, QLabel#labelWelcome_Withdraw {
+QLabel#labelWelcome, QLabel#labelWelcome_PIN, QLabel#labelWelcome_Main, QLabel#labelWelcome_Withdraw, QLabel#labelWelcome_Balance {
     font-size: 40px;
     font-weight: 800;
     color: #0F172A;
 }
 
-QLabel#labelInstruction, QLabel#labelInstruction_PIN, QLabel#labelInstruction_Main, QLabel#labelInstruction_Withdraw  {
+QLabel#labelInstruction, QLabel#labelInstruction_PIN, QLabel#labelInstruction_Main, QLabel#labelInstruction_Withdraw, QLabel#labelInstruction_Balance  {
     font-size: 20px;
     font-weight: 600;
     color: #475569;
@@ -145,13 +145,25 @@ QPushButton {
 #btn_main_choise_5,
 #btn_main_choise_6,
 #btn_main_choise_7,
-#btn_main_choise_8 {
+#btn_main_choise_8,
+#Balance_btn_choise_1 {
+
+ background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #F472B6,
+        stop:1 #E83E6D
+    );
+    color: white;
+    border-radius: 16px;
+    padding: 16px;
+    font-weight: 800;
+/*
     background-color: blue;
     color: white;
     border-radius: 16px;
     padding: 16px;
     font-size: 12px;
-    font-weight: 750;
+    font-weight: 750; */
 }
 
 /* bigger (fast cash / main actions) */
@@ -171,7 +183,8 @@ QPushButton {
 #btn_main_choise_5:hover,
 #btn_main_choise_6:hover,
 #btn_main_choise_7:hover,
-#btn_main_choise_8:hover {
+#btn_main_choise_8:hover,
+#Balance_btn_choise_1:hover{
     background-color: #1D4ED8;
 }
 
@@ -183,7 +196,8 @@ QPushButton {
 #btn_main_choise_5:pressed,
 #btn_main_choise_6:pressed,
 #btn_main_choise_7:pressed,
-#btn_main_choise_8:pressed {
+#btn_main_choise_8:pressed,
+#Balance_btn_choise_1:pressed {
     background-color: #1E40AF;
 }</string>
    </property>
@@ -224,7 +238,7 @@ QPushButton {
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>31</x>
@@ -252,6 +266,52 @@ QPushButton {
          </widget>
         </item>
        </layout>
+      </widget>
+      <widget class="QLabel" name="CardNumberText">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>154</y>
+         <width>559</width>
+         <height>48</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Card Number:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="CardNumberDisplay">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>190</y>
+         <width>191</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: #1E293B;
+color: white;
+font-size: 18px;
+font-weight: bold;
+padding: 6px;
+border-radius: 6px;</string>
+       </property>
+       <property name="maxLength">
+        <number>32</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignCenter</set>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="placeholderText">
+        <string/>
+       </property>
       </widget>
      </widget>
     </widget>
@@ -337,7 +397,134 @@ QPushButton {
      </widget>
     </widget>
     <widget class="QWidget" name="page8_Exit"/>
-    <widget class="QWidget" name="page5_Balance"/>
+    <widget class="QWidget" name="page5_Balance">
+     <property name="styleSheet">
+      <string notr="true">QListWidget {
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    color: #1E293B;
+}</string>
+     </property>
+     <widget class="QWidget" name="layoutWidget_23">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>60</y>
+        <width>561</width>
+        <height>86</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Balance">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Balance">
+         <property name="text">
+          <string>View your current available balance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Balance">
+         <property name="text">
+          <string>Account balance</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QLabel" name="Balance_TitleAccountSelect">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>160</y>
+        <width>131</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Main account</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Balance_Amount">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>200</y>
+        <width>211</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font-size: 36px; font-weight: 800; color: #0F172A;
+</string>
+      </property>
+      <property name="text">
+       <string>AMOUNT</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="Balance_btn_choise_1">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>180</y>
+        <width>161</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Other Accounts</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>170</y>
+        <width>266</width>
+        <height>220</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="Balance_grid_transactions">
+       <property name="labelAlignment">
+        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="Balance_TitleRecentTransactions">
+         <property name="text">
+          <string>Last 3 transactions</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QListWidget" name="Balance_ListRecentTransactions">
+         <item>
+          <property name="text">
+           <string>A</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>B</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>C</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>D</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
     <widget class="QWidget" name="page6_Transfer"/>
     <widget class="QWidget" name="page7_Donation"/>
     <widget class="QWidget" name="page3_Main">
@@ -391,7 +578,7 @@ QPushButton {
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>30</x>
@@ -482,15 +669,8 @@ QPushButton {
        <zorder>btn_main_choise_2</zorder>
        <zorder>btn_main_choise_8</zorder>
       </widget>
+      <zorder>layoutWidget</zorder>
       <zorder>layoutWidget_18</zorder>
-      <zorder>btn_main_choise_7</zorder>
-      <zorder>btn_main_choise_1</zorder>
-      <zorder>btn_main_choise_3</zorder>
-      <zorder>btn_main_choise_6</zorder>
-      <zorder>btn_main_choise_5</zorder>
-      <zorder>btn_main_choise_4</zorder>
-      <zorder>btn_main_choise_2</zorder>
-      <zorder>btn_main_choise_8</zorder>
      </widget>
     </widget>
     <widget class="QWidget" name="page2_Pin">
@@ -534,16 +714,17 @@ QPushButton {
          </widget>
         </item>
        </layout>
-       <zorder>labelInstruction_PIN</zorder>
-       <zorder>labelWelcome_PIN</zorder>
       </widget>
       <widget class="QLineEdit" name="pinInput">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="geometry">
         <rect>
-         <x>290</x>
+         <x>250</x>
          <y>160</y>
-         <width>191</width>
-         <height>51</height>
+         <width>221</width>
+         <height>71</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -602,65 +783,6 @@ QPushButton {
      <property name="bottomMargin">
       <number>5</number>
      </property>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="button_1red_CANCEL">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>55</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">#button_1red_CANCEL {
-    background-color: #c62828;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    border-radius: 12px;
-}
-
-#button_1red_CANCEL:hover {
-    background-color: #e53935;
-}
-
-#button_1red_CANCEL:pressed {
-    background-color: #8e0000;
-}</string>
-       </property>
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="button_2yellow_CLEAR">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>55</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">#button_2yellow_CLEAR {
-    background-color: #f9a825;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    border-radius: 12px;
-}
-#button_2yellow_CLEAR:hover {
-    background-color: #fdd835;
-}
-#button_2yellow_CLEAR:pressed {
-    background-color: #c17900;
-}
-</string>
-       </property>
-       <property name="text">
-        <string>Clear</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="1">
       <widget class="QPushButton" name="button_3green_OK">
        <property name="minimumSize">
@@ -688,6 +810,36 @@ QPushButton {
        </property>
        <property name="text">
         <string>OK</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="button_1red_CANCEL">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>55</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">#button_1red_CANCEL {
+    background-color: #c62828;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    border-radius: 12px;
+}
+
+#button_1red_CANCEL:hover {
+    background-color: #e53935;
+}
+
+#button_1red_CANCEL:pressed {
+    background-color: #8e0000;
+}</string>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
        </property>
       </widget>
      </item>
@@ -779,6 +931,35 @@ QPushButton {
        </item>
       </layout>
      </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="button_2yellow_CLEAR">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>55</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">#button_2yellow_CLEAR {
+    background-color: #f9a825;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    border-radius: 12px;
+}
+#button_2yellow_CLEAR:hover {
+    background-color: #fdd835;
+}
+#button_2yellow_CLEAR:pressed {
+    background-color: #c17900;
+}
+</string>
+       </property>
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QLabel" name="logo">
@@ -831,10 +1012,10 @@ QPushButton {
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="2">
-      <widget class="QPushButton" name="btnLanguagePolish">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="btnLanguageFinnish">
        <property name="text">
-        <string>PL</string>
+        <string>FI</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -844,10 +1025,10 @@ QPushButton {
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="btnLanguageFinnish">
+     <item row="0" column="2">
+      <widget class="QPushButton" name="btnLanguagePolish">
        <property name="text">
-        <string>FI</string>
+        <string>PL</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -872,14 +1053,25 @@ QPushButton {
      </item>
     </layout>
    </widget>
+   <widget class="QPushButton" name="btnContrast">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>20</y>
+      <width>61</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>👁️</string>
+    </property>
+   </widget>
    <zorder>display</zorder>
    <zorder>TouchPanel</zorder>
    <zorder>logo</zorder>
-   <zorder>btnLanguagePolish</zorder>
-   <zorder>btnLanguageFinnish</zorder>
-   <zorder>btnLanguageEnglish</zorder>
    <zorder>LanguageSelection</zorder>
    <zorder>foundersLabel</zorder>
+   <zorder>btnContrast</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
