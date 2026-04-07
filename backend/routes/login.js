@@ -7,6 +7,8 @@ const login = require('../models/login_model');
 router.post('/', function(request, response) {
   const { card_number, card_pin } = request.body;
 
+  
+
   // 1. Tarkistetaan, että molemmat kentät on täytetty Postmanissa
   if (card_number && card_pin) {
     
@@ -32,18 +34,25 @@ router.post('/', function(request, response) {
               console.log("Admin-kirjautuminen havaittu!");
             }
 
-            // 4. Luodaan JWT-token, jossa on card_number ja role mukana
+            // 4. Luodaan JWT-token, jossa on card_number, role ja idaccount mukana
             const token = jwt.sign(
               { 
                 card_number: card_number, 
-                role: userRole 
+                role: userRole,
+                // Napataan idaccount tietokantakyselystä (dbResult[0])
+                idaccount: dbResult[0].idaccount
+                
               }, 
-              process.env.MY_TOKEN, // Lukee salaisuuden .env-tiedostosta
-              { expiresIn: '1h' }    // Token vanhenee tunnissa
+              process.env.MY_TOKEN,
+              { expiresIn: '1h' }
             );
 
-            // 5. Lähetetään token takaisin Postmaniin
-            response.send(token);
+            // 5. Lähetetään JSON-objekti, jossa on token ja id_account erikseen
+            // Tämä on se kohta, jota Qt-sovelluksesi odottaa
+            response.json({
+              token: token,
+              idaccount: dbResult[0].idaccount
+            });
 
           } else {
             // Väärä salasana

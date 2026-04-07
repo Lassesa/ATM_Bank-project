@@ -92,4 +92,31 @@ router.delete('/:id', (req, res) => {
     });
 });
 
+// HAE KIRJAUTUNEEN KORTIN SALDO
+router.get('/balance/me', function(request, response) {
+    const cardNumber = request.user.card_number;
+
+    card.getById(cardNumber, function(err, cardResult) {
+        if (err || !cardResult || cardResult.length === 0) {
+            return response.status(404).json({ error: "Korttia ei löytynyt." });
+        }
+
+        // TÄSSÄ SE KORJAUS: Käytetään card_owner -kenttää
+        const customerId = cardResult[0].card_owner; 
+        
+        console.log("Haetaan tilit asiakkaalle ID:", customerId);
+
+        account.getByCustomerId(customerId, function(err, accountResults) {
+            if (err || !accountResults || accountResults.length === 0) {
+                return response.status(404).json({ error: "Asiakkaalla ei ole tilejä." });
+            }
+
+            // Palautetaan ensimmäinen tili (miljoonatili, jos se on listan eka)
+            // Varmista että lähetät kentän nimellä 'balance' tai 'account_balance' 
+            // sen mukaan, kumpaa Qt-koodisi nyt lukee!
+            response.json(accountResults[0]); 
+        });
+    });
+});
+
 module.exports = router;

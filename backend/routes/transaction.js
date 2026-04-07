@@ -18,7 +18,8 @@ router.get('/:id', function(request, response) {
 
         const authorizedAccountId = cardResult[0].card_account;
 
-        if (user.role === 'admin' || authorizedAccountId.toString() === requestedAccountId.toString()) {
+        // Käytetään Number-muunnosta, jotta vertailu ei kaadu tyyppieroihin
+        if (user.role === 'admin' || Number(authorizedAccountId) === Number(requestedAccountId)) {
             transaction.getByAccountId(requestedAccountId, function(err, result) {
                 if (err) response.status(500).json(err);
                 else response.json(result);
@@ -37,44 +38,56 @@ router.post('/withdrawal', function(request, response) {
     const user = request.user;
 
     card.getById(user.card_number, function(err, cardResult) {
-        if (err || !cardResult || cardResult.length === 0) return response.sendStatus(403);
+        if (err || !cardResult || cardResult.length === 0) {
+            return response.status(403).json({ error: "Korttia ei löytynyt." });
+        }
 
         const authorizedAccountId = cardResult[0].card_account;
 
-        if (user.role !== 'admin' && authorizedAccountId.toString() !== id_account.toString()) {
-            return response.status(403).json({ error: "Voit nostaa rahaa vain omalta tililtäsi." });
+        // DEBUG: Tulostetaan bäckärin konsoliin molemmat arvot
+        console.log("NOSTO-VERTAILU -> Kortin tili:", authorizedAccountId, "Pyydetty tili:", id_account);
+
+        // Pakotetaan molemmat numeroiksi Number()-funktiolla
+        if (user.role !== 'admin' && Number(authorizedAccountId) !== Number(id_account)) {
+            return response.status(403).json({ 
+                error: "Voit nostaa rahaa vain omalta tililtäsi.",
+                debug: { requested: id_account, authorized: authorizedAccountId }
+            });
         }
 
         transactionHandler.withdrawal({ id_account, amount }, function(err, dbResult) {
             if (err) response.status(500).json(err);
             else {
                 const result = dbResult[0][0];
-                if (result.result === 'Success') response.json({ message: "Nosto onnistui!" });
-                else response.status(400).json({ message: "Nosto epäonnistui: Kate ei riitä." });
+                if (result.result === 'Success') {
+                    response.json({ message: "Nosto onnistui!" });
+                } else {
+                    response.status(400).json({ message: "Nosto epäonnistui: Kate ei riitä." });
+                }
             }
         });
     });
 });
 
 /**
- * 3. RAHAN NOSTO (CREDIT) - UUSI!
+ * 3. RAHAN NOSTO (CREDIT)
  */
 router.post('/credit-withdrawal', function(request, response) {
     const { id_account, amount } = request.body;
     const user = request.user;
 
     card.getById(user.card_number, function(err, cardResult) {
-        if (err || !cardResult || cardResult.length === 0) return response.sendStatus(403);
+        if (err || !cardResult || cardResult.length === 0) {
+            return response.status(403).json({ error: "Korttia ei löytynyt." });
+        }
 
         const authorizedAccountId = cardResult[0].card_account;
-        const cardType = cardResult[0].card_type; // 'debit' tai 'credit'
+        const cardType = cardResult[0].card_type;
 
-        // Tarkistetaan oikeus tiliin
-        if (user.role !== 'admin' && authorizedAccountId.toString() !== id_account.toString()) {
+        if (user.role !== 'admin' && Number(authorizedAccountId) !== Number(id_account)) {
             return response.status(403).json({ error: "Voit nostaa rahaa vain omalta tililtäsi." });
         }
 
-        // Tarkistetaan, että kortti on tyyppiä credit
         if (user.role !== 'admin' && cardType !== 'credit') {
             return response.status(403).json({ error: "Korttisi ei salli credit-nostoja." });
         }
@@ -83,8 +96,11 @@ router.post('/credit-withdrawal', function(request, response) {
             if (err) response.status(500).json(err);
             else {
                 const result = dbResult[0][0];
-                if (result.result === 'Success') response.json({ message: "Credit-nosto onnistui!" });
-                else response.status(400).json({ message: "Credit-nosto epäonnistui: Luottoraja ylittyi." });
+                if (result.result === 'Success') {
+                    response.json({ message: "Credit-nosto onnistui!" });
+                } else {
+                    response.status(400).json({ message: "Credit-nosto epäonnistui: Luottoraja ylittyi." });
+                }
             }
         });
     });
@@ -98,11 +114,13 @@ router.post('/transfer', function(request, response) {
     const user = request.user;
 
     card.getById(user.card_number, function(err, cardResult) {
-        if (err || !cardResult || cardResult.length === 0) return response.sendStatus(403);
+        if (err || !cardResult || cardResult.length === 0) {
+            return response.status(403).json({ error: "Korttia ei löytynyt." });
+        }
 
         const authorizedAccountId = cardResult[0].card_account;
 
-        if (user.role !== 'admin' && authorizedAccountId.toString() !== source_id.toString()) {
+        if (user.role !== 'admin' && Number(authorizedAccountId) !== Number(source_id)) {
             return response.status(403).json({ error: "Voit siirtää rahaa vain omalta tililtäsi." });
         }
 
@@ -110,8 +128,11 @@ router.post('/transfer', function(request, response) {
             if (err) response.status(500).json(err);
             else {
                 const result = dbResult[0][0];
-                if (result.result === 'Success') response.json({ message: "Siirto onnistui!" });
-                else response.status(400).json({ message: "Siirto epäonnistui: " + result.result });
+                if (result.result === 'Success') {
+                    response.json({ message: "Siirto onnistui!" });
+                } else {
+                    response.status(400).json({ message: "Siirto epäonnistui: " + result.result });
+                }
             }
         });
     });

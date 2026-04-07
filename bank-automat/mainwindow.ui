@@ -218,7 +218,7 @@ QPushButton {
      <enum>QFrame::Shape::NoFrame</enum>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="page1_Welcome">
      <widget class="QWidget" name="layoutWidget">
@@ -227,7 +227,7 @@ QPushButton {
         <x>30</x>
         <y>50</y>
         <width>571</width>
-        <height>86</height>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout">
@@ -250,13 +250,13 @@ QPushButton {
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>30</x>
         <y>150</y>
         <width>188</width>
-        <height>61</height>
+        <height>67</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="CardNumberGrid">
@@ -304,7 +304,7 @@ border-radius: 6px;</string>
         <x>30</x>
         <y>50</y>
         <width>561</width>
-        <height>86</height>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_PIN">
@@ -381,7 +381,7 @@ border-radius: 6px;</string>
         <x>30</x>
         <y>135</y>
         <width>701</width>
-        <height>140</height>
+        <height>148</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -472,7 +472,7 @@ border-radius: 6px;</string>
         <x>30</x>
         <y>50</y>
         <width>961</width>
-        <height>86</height>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Main">
@@ -503,7 +503,7 @@ border-radius: 6px;</string>
         <x>30</x>
         <y>50</y>
         <width>561</width>
-        <height>86</height>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Withdraw">
@@ -535,13 +535,13 @@ border-radius: 6px;</string>
         <height>111</height>
        </rect>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>30</x>
          <y>30</y>
          <width>401</width>
-         <height>63</height>
+         <height>68</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="AmountGrid">
@@ -611,6 +611,11 @@ border-radius: 6px;</string>
     border: none;
     font-size: 16px;
     color: #1E293B;
+}
+
+QListWidget#BalanceListRecentTransactions {
+    font-size: 10px;
+    color: #0F172A;
 }</string>
      </property>
      <widget class="QLabel" name="Balance_TitleAccountSelect">
@@ -662,7 +667,7 @@ border-radius: 6px;</string>
         <x>30</x>
         <y>50</y>
         <width>561</width>
-        <height>86</height>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Balance">
@@ -685,13 +690,13 @@ border-radius: 6px;</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>270</x>
+        <x>260</x>
         <y>170</y>
-        <width>266</width>
-        <height>220</height>
+        <width>311</width>
+        <height>112</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="Balance_grid_transactions">
@@ -705,26 +710,11 @@ border-radius: 6px;</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="1" column="0" colspan="2">
         <widget class="QListWidget" name="Balance_ListRecentTransactions">
          <item>
           <property name="text">
-           <string>A</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>B</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>C</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>D</string>
+           <string>New Item</string>
           </property>
          </item>
         </widget>
@@ -739,7 +729,7 @@ border-radius: 6px;</string>
         <x>30</x>
         <y>50</y>
         <width>630</width>
-        <height>86</height>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Transfer">
@@ -770,7 +760,7 @@ border-radius: 6px;</string>
         <x>30</x>
         <y>50</y>
         <width>561</width>
-        <height>86</height>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Donation">
@@ -801,7 +791,7 @@ border-radius: 6px;</string>
         <x>30</x>
         <y>50</y>
         <width>613</width>
-        <height>86</height>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Exit">
@@ -832,7 +822,7 @@ border-radius: 6px;</string>
         <x>30</x>
         <y>50</y>
         <width>613</width>
-        <height>86</height>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Other">
@@ -1077,7 +1067,7 @@ border-radius: 6px;</string>
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/logo.svg/logo.svg</pixmap>
+     <pixmap>:/logo.svg/logo.svg</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
@@ -1174,8 +1164,6 @@ border-radius: 6px;</string>
    <zorder>LanguageSelection</zorder>
    <zorder>foundersLabel</zorder>
    <zorder>btnContrast</zorder>
-   <zorder>CardNumberText</zorder>
-   <zorder>CardNumberDisplay</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
@@ -1196,8 +1184,6 @@ border-radius: 6px;</string>
   <tabstop>button_3green_OK</tabstop>
   <tabstop>num_5</tabstop>
  </tabstops>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
