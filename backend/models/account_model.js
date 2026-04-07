@@ -2,6 +2,10 @@ const db = require('../database');
 
 const account = {
     // Hae kaikki tilit
+    getByCustomerId(customerId, callback) {
+        return db.query("SELECT * FROM account WHERE account_customerid = ?", [customerId], callback);
+    },
+    
     getAll(callback) {
         return db.query("SELECT * FROM account", callback);
     },

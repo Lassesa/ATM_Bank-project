@@ -2,9 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QKeyEvent>
-#include <QSerialPort>
 #include <QString>
+#include <QKeyEvent>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QtSerialPort/QSerialPort>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -37,13 +42,22 @@ private:
 
     bool highContrast = false;
     int selectedAmount = 0;
+    int accountId;
 
+    QNetworkAccessManager *networkManager;
+    QString sessionToken; // Tähän tallennetaan bäckäriltä saatu JWT-token
+    QString sessionCardNumber;
+    void makeLoginRequest(QString cardNum, QString pin);
 
     void setLanguage(const QString &lang);
     void handleDigit(const QString &digit);
     void setupSerialReader();
     void readCardData();
     void showPage(QWidget *page);
+
+    void updateBalanceDisplay();
+    void updateTransactionsDisplay();
+    void makeWithdrawalRequest(int amount, QString description);
 
     void applyHighContrastTheme();
     void applyDefaultTheme();

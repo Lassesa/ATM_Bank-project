@@ -1,10 +1,11 @@
 const db = require('../database'); 
 
 const login = {
-  // Funktio hakee kortin tiedot tietokannasta kortin numeron perusteella
+  // Funktio hakee nyt sekä PIN-koodin että siihen liitetyn tilin ID:n
   checkPin: function(card_number, callback) {
     return db.query(
-      'SELECT card_pin FROM card WHERE card_number = ?', 
+      // Lisätään card_account hakuun ja annetaan sille alias 'idaccount'
+      'SELECT card_pin, card_account AS idaccount FROM card WHERE card_number = ?', 
       [card_number], 
       callback
     );

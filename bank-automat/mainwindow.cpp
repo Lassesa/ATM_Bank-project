@@ -9,12 +9,14 @@
 #include <QSerialPort>
 #include <QDebug>
 #include <QTimer>
+#include <QJsonArray>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , serial(new QSerialPort(this))
 {
+    networkManager = new QNetworkAccessManager(this);
     ui->setupUi(this);
     ui->pinInput->setCursor(Qt::BlankCursor);
     defaultStyle = this->styleSheet();
@@ -126,22 +128,27 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Connect OK button
     connect(ui->button_3green_OK, &QPushButton::clicked, this, [this]() {
-        // Welcome page -> PIN page
+        // 1. Jos ollaan tervetuloa-sivulla, siirrytään PIN-sivulle
         if (ui->display->currentWidget() == ui->page1_Welcome) {
             ui->display->setCurrentWidget(ui->page2_Pin);
-            currentMode = PinMode;
             ui->pinInput->clear();
             ui->pinInput->setFocus();
         }
-        // PIN page -> Main page
+        // 2. JOS OLLAAN PIN-SIVULLA, TEHDÄÄN KIRJAUTUMISPYYNTÖ
         else if (ui->display->currentWidget() == ui->page2_Pin) {
-            if (ui->pinInput->text() == "1234") {
-                ui->pinInput->clear();
-                ui->display->setCurrentWidget(ui->page3_Main);
-            } else {
-                // Wrong PIN: clear input and stay on PIN page
-                ui->pinInput->clear();
+            // LUETAAN ARVOT DYNAAMISESTI KÄYTTÖLIITTYMÄSTÄ
+            QString currentCard = ui->CardNumberDisplay->text().trimmed();
+            QString currentPin = ui->pinInput->text().trimmed();
+
+            if (currentCard.isEmpty() || currentPin.isEmpty()) {
+                qDebug() << "Virhe: Korttinumero tai PIN puuttuu käyttöliittymästä!";
+                return;
             }
+
+            qDebug() << "Lähetetään bäckärille kortti:" << currentCard << "ja PIN:" << currentPin;
+
+            // Kutsutaan metodia syötetyillä arvoilla
+            makeLoginRequest(currentCard, currentPin);
         }
         // Withdraw page -> process amount
         else if (ui->display->currentWidget() == ui->page4_Withdraw) {
@@ -153,13 +160,9 @@ MainWindow::MainWindow(QWidget *parent)
             int amount = amountText.toInt(&ok);
 
             if (ok && amount > 0) {
-                qDebug() << "Withdraw amount:" << amount;
-
-                // Temporary behavior after successful input
-                ui->amountInput->setText("0 €");
-                ui->display->setCurrentWidget(ui->page3_Main);
+                // Kutsutaan bäckäriä!
+                makeWithdrawalRequest(amount, "ATM WITHDRAW");
             } else {
-                // Invalid amount: reset field
                 ui->amountInput->setText("0 €");
             }
         }
@@ -183,6 +186,8 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     connect(ui->btn_main_choice_4, &QPushButton::clicked, this, [this]() {
+        updateBalanceDisplay();
+        updateTransactionsDisplay();
         showPage(ui->page5_Balance);
     });
 
@@ -403,7 +408,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::setupSerialReader()
 {
     // Configure the serial port used by the RFID reader
-    serial->setPortName("/dev/cu.usbmodem14521201");
+    serial->setPortName("com5");
     serial->setBaudRate(QSerialPort::Baud115200);
     serial->setDataBits(QSerialPort::Data8);
     serial->setParity(QSerialPort::NoParity);
@@ -586,6 +591,221 @@ void MainWindow::selectAmount(int amount)
 QString MainWindow::formatAmount(int amount)
 {
     return QString::number(amount) + " EUR";
+}
+
+void MainWindow::makeLoginRequest(QString cardNum, QString pin) {
+    QUrl url("http://localhost:3000/login");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject json;
+    json["card_number"] = cardNum;
+    json["card_pin"] = pin;
+
+    QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray responseData = reply->readAll();
+
+            // TÄRKEÄ: Tulostetaan konsoliin mitä bäckäri oikeasti sanoi
+            qDebug() << "RAW DATA BÄCKÄRILTÄ:" << responseData;
+
+            QJsonDocument resDoc = QJsonDocument::fromJson(responseData);
+
+            if (!resDoc.isNull() && resDoc.isObject()) {
+                QJsonObject resObj = resDoc.object();
+
+                // 1. Tallennetaan token
+                this->sessionToken = resObj.value("token").toString();
+
+                // 2. Haetaan idaccount joustavasti (tarkistetaan eri vaihtoehdot)
+                QJsonValue idVal;
+                if (resObj.contains("idaccount")) {
+                    idVal = resObj.value("idaccount");
+                } else if (resObj.contains("id_account")) {
+                    idVal = resObj.value("id_account");
+                }
+
+                // Muutetaan arvo numeroksi, oli se sitten JSON-numero tai merkkijono "8"
+                if (idVal.isDouble()) {
+                    this->accountId = idVal.toInt();
+                } else {
+                    this->accountId = idVal.toString().toInt();
+                }
+
+                qDebug() << "Kirjautuminen onnistui!";
+                qDebug() << "Tallennettu Account ID:" << this->accountId;
+                qDebug() << "Token alku:" << this->sessionToken.left(10) << "...";
+
+                // 3. Siirrytään päävalikkoon
+                ui->display->setCurrentWidget(ui->page3_Main);
+                ui->pinInput->clear();
+
+            } else {
+                qDebug() << "Virhe: Bäckäri ei palauttanut kelvollista JSON-objektia.";
+            }
+
+        } else {
+            // Jos kirjautuminen epäonnistuu (esim. 401 Unauthorized)
+            QByteArray errorData = reply->readAll();
+            qDebug() << "Kirjautumisvirhe:" << reply->errorString();
+            qDebug() << "Virheviesti bäckäriltä:" << errorData;
+
+            // Voit näyttää tässä myös QMessageBoxin käyttäjälle
+            ui->pinInput->clear();
+        }
+
+        reply->deleteLater();
+    });
+}
+
+void MainWindow::updateBalanceDisplay()
+{
+    // 1. Osoite bäckärin reittiin
+    QUrl url("http://localhost:3000/account/balance/me");
+    QNetworkRequest request(url);
+
+    // 2. Lisätään Bearer Token tunnistautumista varten (haettu kirjautumisen yhteydessä)
+    request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
+
+    qDebug() << "Käynnistetään saldon haku reitistä:" << url.toString();
+
+    // 3. Lähetetään GET-pyyntö
+    QNetworkReply *reply = networkManager->get(request);
+
+    // 4. Käsitellään vastaus, kun se valmistuu
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            // Luetaan vastaus bäckäriltä
+            QByteArray responseData = reply->readAll();
+            qDebug() << "Bäckärin raakadata:" << responseData;
+
+            // Muutetaan JSON-dokumentiksi
+            QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+            QJsonObject obj;
+
+            // TARKISTUS: Onko vastaus taulukko [ {...} ] vai suora objekti { ... }
+            if (jsonDoc.isArray()) {
+                // Jos bäckäri palauttaa listan, otetaan ensimmäinen alkio
+                obj = jsonDoc.array().first().toObject();
+            } else {
+                // Jos bäckäri palauttaa suoraan objektin (kuten logisi näytti)
+                obj = jsonDoc.object();
+            }
+
+            // TARKISTUS: Löytyykö kenttä 'account_balance'
+            if (obj.contains("account_balance")) {
+                // Käytetään toVariant().toDouble(), koska SQL-decimal voi tulla merkkijonona
+                double balance = obj.value("account_balance").toVariant().toDouble();
+
+                // Päivitetään käyttöliittymä (label) kahdella desimaalilla
+                ui->Balance_Amount->setText(QString::number(balance, 'f', 2) + " €");
+
+                qDebug() << "SALDO PÄIVITETTY ONNISTUNEESTI:" << balance;
+            } else {
+                // Jos kenttää ei löydy, tulostetaan debugiin mitä oikeasti saatiin
+                qDebug() << "VIRHE: Kenttää 'account_balance' ei löytynyt! Avaimet:" << obj.keys();
+                ui->Balance_Amount->setText("Virhe");
+            }
+
+        } else {
+            // Jos tulee verkkovirhe (esim. 404, 401 tai 500)
+            qDebug() << "Saldohaku epäonnistui:" << reply->errorString();
+            qDebug() << "Palvelimen virheviesti:" << reply->readAll();
+            ui->Balance_Amount->setText("Yhteysvirhe");
+        }
+
+        // Muistinhallinta: poistetaan reply-olio, kun se on käsitelty
+        reply->deleteLater();
+    });
+
+
+}
+
+void MainWindow::updateTransactionsDisplay()
+{
+    // Muodostetaan URL käyttäen nykyistä accountId:tä
+    QString urlStr = QString("http://localhost:3000/transaction/%1").arg(this->accountId);
+    QUrl url(urlStr);
+    QNetworkRequest request(url);
+
+    // Authorization-header Bearer-tokenilla
+    request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
+
+    QNetworkReply *reply = networkManager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        // Tyhjennetään QListWidget vanhoista riveistä
+        ui->Balance_ListRecentTransactions->clear();
+
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray responseData = reply->readAll();
+            QJsonArray transArray = QJsonDocument::fromJson(responseData).array();
+
+            if (transArray.isEmpty()) {
+                ui->Balance_ListRecentTransactions->addItem("Ei aiempia tapahtumia.");
+            } else {
+                // Otetaan 3 viimeisintä tapahtumaa
+                int count = qMin(transArray.size(), 3);
+
+                for (int i = 0; i < count; ++i) {
+                    QJsonObject obj = transArray.at(i).toObject();
+
+                    // Haetaan arvot JSON-kentistä (varmista että nimet täsmäävät SQL-tauluun)
+                    double amount = obj.value("transaction_amount").toVariant().toDouble();
+                    QString dateStr = obj.value("transaction_date").toString().left(10);
+
+                    // HAETAAN KUVAUS: Esim. "Withdraw", "Donation" tai "Transfer"
+                    QString description = obj.value("transaction_description").toString();
+                    if(description.isEmpty()) description = "ATM WITHDRAW"; // Varalla, jos tyhjä
+
+                    // Muotoillaan rivi: PVM - KUVAUS (max 15 merkkiä) - SUMMA
+                    // Käytetään \t (tabulaattoria) tai välilyöntejä sarakkeiden erottamiseen
+                    QString row = QString("%1  %2  %3 €")
+                                      .arg(dateStr)
+                                      .arg(description.left(15).trimmed().toUpper()) // Lyhennetään ja muutetaan isoksi
+                                      .arg(QString::number(amount, 'f', 2));
+
+                    // Lisätään rivi listaan
+                    ui->Balance_ListRecentTransactions->addItem(row);
+                }
+            }
+        } else {
+            qDebug() << "Tapahtumien haku epäonnistui:" << reply->errorString();
+            ui->Balance_ListRecentTransactions->addItem("Tapahtumia ei voitu ladata.");
+        }
+
+        reply->deleteLater();
+    });
+}
+
+void MainWindow::makeWithdrawalRequest(int amount, QString description)
+{
+    QUrl url("http://localhost:3000/transaction/withdrawal");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
+
+    QJsonObject json;
+    json["id_account"] = this->accountId;
+    json["amount"] = amount;
+    // LISÄTTY: Lähetetään kuvaus bäckärille
+    json["description"] = description;
+
+    QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, description]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            qDebug() << "Onnistunut tapahtuma:" << description;
+            updateBalanceDisplay();
+            updateTransactionsDisplay(); // Päivittää listan heti
+            ui->display->setCurrentWidget(ui->page3_Main);
+        } else {
+            qDebug() << "Virhe tapahtumassa";
+        }
+        reply->deleteLater();
+    });
 }
 
 MainWindow::~MainWindow()
