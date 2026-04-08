@@ -66,6 +66,10 @@ private:
     void selectAmount(int amount);
     QString formatAmount(int amount);
 
+    QString msgInvalidAmount;
+    QString msgWithdrawSuccess;
+    QString msgNetError;
+
 };
 
 #endif // MAINWINDOW_H

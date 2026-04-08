@@ -276,6 +276,12 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_7->setText("7 Exit");
         ui->btn_main_choice_8->setText("8 More");
 
+        msgInvalidAmount = "ERROR: Amount must be multiples of 10.";
+        msgWithdrawSuccess = "Success! Please take your cash.";
+        msgNetError = "Connection error to bank.";
+
+
+
 
     }
     else if (lang == "PL") {
@@ -314,6 +320,10 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_6->setText("6 Darowizna");
         ui->btn_main_choice_7->setText("7 Wyjście");
         ui->btn_main_choice_8->setText("8 Więcej");
+
+        msgInvalidAmount = "BŁĄD: Kwota musi być wielokrotnością 10.";
+        msgWithdrawSuccess = "Sukces! Proszę odebrać gotówkę.";
+        msgNetError = "Błąd połączenia z bankiem.";
     }
     else if (lang == "FI") {
         ui->labelWelcome->setText("Tervetuloa S/R Pankkiin");
@@ -351,6 +361,10 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_6->setText("6 Lahjoitus");
         ui->btn_main_choice_7->setText("7 Poistu");
         ui->btn_main_choice_8->setText("8 Lisää");
+
+        msgInvalidAmount = "VIRHE: Summan on oltava 10, 20, 50...";
+        msgWithdrawSuccess = "Nosto onnistui! Otathan rahat.";
+        msgNetError = "Yhteysvirhe pankkiin.";
     }
 }
 
@@ -783,19 +797,16 @@ void MainWindow::updateTransactionsDisplay()
 
 void MainWindow::makeWithdrawalRequest(int amount, QString description)
 {
-    // Tallennetaan alkuperäinen ohjeteksti, jotta se voidaan palauttaa myöhemmin
-    // Esim. "Syötä summa ja paina OK"
     QString originalText = ui->labelInstruction_Withdraw->text();
 
-    // 1. Tarkistus automaatin puolella (jaollisuus)
+    // 1. Tarkistus automaatin puolella (Käytetään msgInvalidAmount muuttujaa!)
     if (amount <= 0 || amount % 10 != 0) {
-        ui->labelInstruction_Withdraw->setText(" VIRHE: Summan on oltava 10, 20, 50...");
+        ui->labelInstruction_Withdraw->setText(msgInvalidAmount); // <-- KORJATTU TÄHÄN
         ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
 
-        // Palautetaan normaali teksti 3 sekunnin päästä
         QTimer::singleShot(3000, [this, originalText]() {
             ui->labelInstruction_Withdraw->setText(originalText);
-            ui->labelInstruction_Withdraw->setStyleSheet(""); // Palauttaa oletustyylin
+            ui->labelInstruction_Withdraw->setStyleSheet("");
         });
         return;
     }
@@ -814,8 +825,8 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, originalText]() {
         if (reply->error() == QNetworkReply::NoError) {
-            // ONNISTUMINEN
-            ui->labelInstruction_Withdraw->setText(" Nosto onnistui! Otathan rahat.");
+            // ONNISTUMINEN (Käytetään msgWithdrawSuccess muuttujaa!)
+            ui->labelInstruction_Withdraw->setText(msgWithdrawSuccess); // <-- KORJATTU TÄHÄN
             ui->labelInstruction_Withdraw->setStyleSheet("color: green; font-weight: bold;");
 
             QTimer::singleShot(2000, [this, originalText]() {
@@ -826,14 +837,14 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
                 ui->display->setCurrentWidget(ui->page3_Main);
             });
         } else {
-            // VIRHE BÄCKÄRILTÄ (esim. ei katetta)
+            // VIRHE (Käytetään msgNetError jos bäckäri ei vastaa järkevästi)
             QByteArray responseData = reply->readAll();
             QJsonDocument doc = QJsonDocument::fromJson(responseData);
             QString errorMsg = doc.object().value("message").toString();
 
-            if (errorMsg.isEmpty()) errorMsg = "Yhteysvirhe pankkiin.";
+            if (errorMsg.isEmpty()) errorMsg = msgNetError; // <-- KORJATTU TÄHÄN
 
-            ui->labelInstruction_Withdraw->setText(" " + errorMsg);
+            ui->labelInstruction_Withdraw->setText(errorMsg);
             ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
 
             QTimer::singleShot(4000, [this, originalText]() {
