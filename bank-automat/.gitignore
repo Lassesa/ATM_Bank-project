@@ -1,3 +1,4 @@
 .qtcreator/
 db_config.h
 
+*.autosave
