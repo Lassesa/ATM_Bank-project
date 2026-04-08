@@ -1,15 +1,34 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+// =====================================================
+// Qt Core / Widgets
+// =====================================================
+
 #include <QMainWindow>
 #include <QString>
+#include <QWidget>
 #include <QKeyEvent>
+
+// =====================================================
+// Qt Network / JSON
+// =====================================================
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
+
+// =====================================================
+// Qt Serial Port
+// =====================================================
+
 #include <QtSerialPort/QSerialPort>
-#include <QTimer>
+
+// =====================================================
+// Qt Utility Classes
+// =====================================================
 
 #include <QButtonGroup>
 
@@ -31,46 +50,77 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
+    // =====================================================
+    // Input Mode
+    // =====================================================
     enum InputMode {
         PinMode,
         AmountMode
     };
 
+    // =====================================================
+    // UI / Core Objects
+    // =====================================================
     Ui::MainWindow *ui;
-    InputMode currentMode;
     QSerialPort *serial;
-    QString currentCardUid;
-    QString defaultStyle;
-
-    bool highContrast = false;
-    int selectedAmount = 0;
-    int accountId;
-
     QNetworkAccessManager *networkManager;
-    QString sessionToken; // Tähän tallennetaan bäckäriltä saatu JWT-token
-    QString sessionCardNumber;
-    void makeLoginRequest(QString cardNum, QString pin);
 
+    // =====================================================
+    // Runtime State
+    // =====================================================
+    InputMode currentMode = PinMode;
+    QString currentCardUid;
+    QString sessionToken;
+    QString sessionCardNumber;
+
+    int selectedAmount = 0;
+    int accountId = 0;
+
+    // =====================================================
+    // Donation Button Groups
+    // =====================================================
+    QButtonGroup *donationOrgGroup;
+    QButtonGroup *donationAmountGroup;
+
+    // =====================================================
+    // Setup / Connections
+    // =====================================================
+    void connectSignals();
+
+    // =====================================================
+    // Language Handling
+    // =====================================================
     void setLanguage(const QString &lang);
+
+    // =====================================================
+    // Input Handling
+    // =====================================================
     void handleDigit(const QString &digit);
+
+    // =====================================================
+    // Serial Card Reader
+    // =====================================================
     void setupSerialReader();
     void readCardData();
+
+    // =====================================================
+    // Navigation
+    // =====================================================
     void showPage(QWidget *page);
 
+    // =====================================================
+    // Backend Requests
+    // =====================================================
+    void makeLoginRequest(QString cardNum, QString pin);
     void updateBalanceDisplay();
     void updateTransactionsDisplay();
     void makeWithdrawalRequest(int amount, QString description);
 
-    void applyHighContrastTheme();
-    void applyDefaultTheme();
-    void applyMonitorStyleToPage(QWidget *page, bool highContrastEnabled);
-
+    // =====================================================
+    // Amount Helpers
+    // =====================================================
     void selectAmount(int amount);
     QString formatAmount(int amount);
-
-    QButtonGroup *donationOrgGroup;
-    QButtonGroup *donationAmountGroup;
-
 };
 
 #endif // MAINWINDOW_H
