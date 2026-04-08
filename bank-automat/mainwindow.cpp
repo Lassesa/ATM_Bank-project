@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QMessageBox>
 
 
 #include <QIcon>
@@ -408,7 +409,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::setupSerialReader()
 {
     // Configure the serial port used by the RFID reader
-    serial->setPortName("com5");
+    serial->setPortName("com4");
     serial->setBaudRate(QSerialPort::Baud115200);
     serial->setDataBits(QSerialPort::Data8);
     serial->setParity(QSerialPort::NoParity);
@@ -782,6 +783,23 @@ void MainWindow::updateTransactionsDisplay()
 
 void MainWindow::makeWithdrawalRequest(int amount, QString description)
 {
+    // Tallennetaan alkuperäinen ohjeteksti, jotta se voidaan palauttaa myöhemmin
+    // Esim. "Syötä summa ja paina OK"
+    QString originalText = ui->labelInstruction_Withdraw->text();
+
+    // 1. Tarkistus automaatin puolella (jaollisuus)
+    if (amount <= 0 || amount % 10 != 0) {
+        ui->labelInstruction_Withdraw->setText(" VIRHE: Summan on oltava 10, 20, 50...");
+        ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
+
+        // Palautetaan normaali teksti 3 sekunnin päästä
+        QTimer::singleShot(3000, [this, originalText]() {
+            ui->labelInstruction_Withdraw->setText(originalText);
+            ui->labelInstruction_Withdraw->setStyleSheet(""); // Palauttaa oletustyylin
+        });
+        return;
+    }
+
     QUrl url("http://localhost:3000/transaction/withdrawal");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -790,19 +808,38 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
     QJsonObject json;
     json["id_account"] = this->accountId;
     json["amount"] = amount;
-    // LISÄTTY: Lähetetään kuvaus bäckärille
     json["description"] = description;
 
     QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply, description]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, originalText]() {
         if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Onnistunut tapahtuma:" << description;
-            updateBalanceDisplay();
-            updateTransactionsDisplay(); // Päivittää listan heti
-            ui->display->setCurrentWidget(ui->page3_Main);
+            // ONNISTUMINEN
+            ui->labelInstruction_Withdraw->setText(" Nosto onnistui! Otathan rahat.");
+            ui->labelInstruction_Withdraw->setStyleSheet("color: green; font-weight: bold;");
+
+            QTimer::singleShot(2000, [this, originalText]() {
+                updateBalanceDisplay();
+                updateTransactionsDisplay();
+                ui->labelInstruction_Withdraw->setText(originalText);
+                ui->labelInstruction_Withdraw->setStyleSheet("");
+                ui->display->setCurrentWidget(ui->page3_Main);
+            });
         } else {
-            qDebug() << "Virhe tapahtumassa";
+            // VIRHE BÄCKÄRILTÄ (esim. ei katetta)
+            QByteArray responseData = reply->readAll();
+            QJsonDocument doc = QJsonDocument::fromJson(responseData);
+            QString errorMsg = doc.object().value("message").toString();
+
+            if (errorMsg.isEmpty()) errorMsg = "Yhteysvirhe pankkiin.";
+
+            ui->labelInstruction_Withdraw->setText(" " + errorMsg);
+            ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
+
+            QTimer::singleShot(4000, [this, originalText]() {
+                ui->labelInstruction_Withdraw->setText(originalText);
+                ui->labelInstruction_Withdraw->setStyleSheet("");
+            });
         }
         reply->deleteLater();
     });

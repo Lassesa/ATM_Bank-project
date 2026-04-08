@@ -205,8 +205,8 @@ QPushButton {
    <widget class="QStackedWidget" name="display">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>19</y>
+      <x>0</x>
+      <y>10</y>
       <width>751</width>
       <height>281</height>
      </rect>
@@ -218,7 +218,7 @@ QPushButton {
      <enum>QFrame::Shape::NoFrame</enum>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="page1_Welcome">
      <widget class="QWidget" name="layoutWidget">
@@ -667,7 +667,7 @@ QListWidget#BalanceListRecentTransactions {
         <x>30</x>
         <y>50</y>
         <width>561</width>
-        <height>89</height>
+        <height>90</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Balance">
@@ -1067,7 +1067,7 @@ QListWidget#BalanceListRecentTransactions {
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap>:/logo.svg/logo.svg</pixmap>
+     <pixmap resource="resources.qrc">:/logo.svg/logo.svg</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
@@ -1184,6 +1184,8 @@ QListWidget#BalanceListRecentTransactions {
   <tabstop>button_3green_OK</tabstop>
   <tabstop>num_5</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
