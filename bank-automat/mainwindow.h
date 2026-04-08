@@ -11,6 +11,8 @@
 #include <QtSerialPort/QSerialPort>
 #include <QTimer>
 
+#include <QButtonGroup>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -65,6 +67,9 @@ private:
 
     void selectAmount(int amount);
     QString formatAmount(int amount);
+
+    QButtonGroup *donationOrgGroup;
+    QButtonGroup *donationAmountGroup;
 
 };
 

@@ -11,6 +11,12 @@
 #include <QTimer>
 #include <QJsonArray>
 
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -18,6 +24,39 @@ MainWindow::MainWindow(QWidget *parent)
 {
     networkManager = new QNetworkAccessManager(this);
     ui->setupUi(this);
+
+
+    // Donation button groups
+    donationOrgGroup = new QButtonGroup(this);
+    donationAmountGroup = new QButtonGroup(this);
+
+    // Only one selected in each group
+    donationOrgGroup->setExclusive(true);
+    donationAmountGroup->setExclusive(true);
+
+    // Make buttons checkable
+    ui->btn_donation_choice_1->setCheckable(true);
+    ui->btn_donation_choice_2->setCheckable(true);
+    ui->btn_donation_choice_3->setCheckable(true);
+    ui->btn_donation_choice_4->setCheckable(true);
+
+    ui->btn_amount_choice_1->setCheckable(true);
+    ui->btn_amount_choice_2->setCheckable(true);
+    ui->btn_amount_choice_3->setCheckable(true);
+    ui->btn_amount_choice_4->setCheckable(true);
+
+    // Add organization buttons to group
+    donationOrgGroup->addButton(ui->btn_donation_choice_1, 1);
+    donationOrgGroup->addButton(ui->btn_donation_choice_2, 2);
+    donationOrgGroup->addButton(ui->btn_donation_choice_3, 3);
+    donationOrgGroup->addButton(ui->btn_donation_choice_4, 4);
+
+    // Add amount buttons to group
+    donationAmountGroup->addButton(ui->btn_amount_choice_1, 5);
+    donationAmountGroup->addButton(ui->btn_amount_choice_2, 10);
+    donationAmountGroup->addButton(ui->btn_amount_choice_3, 20);
+    donationAmountGroup->addButton(ui->btn_amount_choice_4, 50);
+
     ui->pinInput->setCursor(Qt::BlankCursor);
     defaultStyle = this->styleSheet();
 
@@ -275,6 +314,11 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_7->setText("7 Exit");
         ui->btn_main_choice_8->setText("8 More");
 
+        ui->btn_donation_choice_1->setText("Red Cross");
+        ui->btn_donation_choice_2->setText("Cancer Foundation");
+        ui->btn_donation_choice_3->setText("UNICEF");
+        ui->btn_donation_choice_4->setText("Hair transplant for Arttu");
+
 
     }
     else if (lang == "PL") {
@@ -313,6 +357,11 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_6->setText("6 Darowizna");
         ui->btn_main_choice_7->setText("7 Wyjście");
         ui->btn_main_choice_8->setText("8 Więcej");
+
+        ui->btn_donation_choice_1->setText("Czerwony Krzyż");
+        ui->btn_donation_choice_2->setText("Fundacja Onkologiczna");
+        ui->btn_donation_choice_3->setText("UNICEF");
+        ui->btn_donation_choice_4->setText("Przeszczep włosów dla Arttu");
     }
     else if (lang == "FI") {
         ui->labelWelcome->setText("Tervetuloa S/R Pankkiin");
@@ -350,6 +399,11 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_6->setText("6 Lahjoitus");
         ui->btn_main_choice_7->setText("7 Poistu");
         ui->btn_main_choice_8->setText("8 Lisää");
+
+        ui->btn_donation_choice_1->setText("Punainen Risti");
+        ui->btn_donation_choice_2->setText("Syöpäsäätiö");
+        ui->btn_donation_choice_3->setText("UNICEF");
+        ui->btn_donation_choice_4->setText("Artulle hiussiirto");
     }
 }
 
@@ -407,8 +461,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::setupSerialReader()
 {
-    // Configure the serial port used by the RFID reader
-    serial->setPortName("com5");
+    //Configure the serial port used by the RFID reader
+    // LIST OF PORTS
+    // serial->setPortName("com5"); // Lasse
+
+    serial->setPortName("/dev/tty.usbmodem146301"); // Kajetan
+
+    // END OF LIST
+
     serial->setBaudRate(QSerialPort::Baud115200);
     serial->setDataBits(QSerialPort::Data8);
     serial->setParity(QSerialPort::NoParity);
