@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //JULKISET REITIT (Ei vaadi tokenia)
 app.use('/login', loginRouter);
-
+app.use('/card', cardRouter);
 
 // Kaikki tämän alapuolella olevat reitit vaativat tokenin
 app.use(authenticateToken);
@@ -50,7 +50,6 @@ function authenticateToken(req, res, next) {
 // SUOJATUT REITIT 
 app.use('/', indexRouter);
 app.use('/customer', customerRouter);
-app.use('/card', cardRouter);
 app.use('/account', accountRouter);
 app.use('/transaction', transactionRouter);
 
