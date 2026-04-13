@@ -207,7 +207,7 @@ void MainWindow::connectSignals()
     connect(ui->button_1red_CANCEL, &QPushButton::clicked, this, [this]() {
         QWidget *current = ui->display->currentWidget();
 
-        if (current == ui->page2_Pin || current == ui->page1_Welcome) {
+        if (current == ui->page2_Pin || current == ui->page1_Welcome || current == ui->page11_Time) {
             ui->pinInput->clear();
             ui->display->setCurrentWidget(ui->page8_Exit);
         }
@@ -220,6 +220,10 @@ void MainWindow::connectSignals()
                  current == ui->page7_Donation ||
                  current == ui->page9_Other) {
             ui->display->setCurrentWidget(ui->page3_Main);
+        }
+        else if (current == ui->page12_Accounts ||
+                 current == ui->page13_Transactions) {
+            ui->display->setCurrentWidget(ui->page5_Balance);
         }
     });
 
@@ -296,8 +300,17 @@ void MainWindow::connectSignals()
         showPage(ui->page8_Exit);
     });
 
+
     connect(ui->btn_main_choice_8, &QPushButton::clicked, this, [this]() {
-        showPage(ui->page9_Other);
+        showPage(ui->page11_Time);
+    });
+
+    connect(ui->Balance_btn_choice_1, &QPushButton::clicked, this, [this]() {
+        showPage(ui->page12_Accounts);
+    });
+
+    connect(ui->Balance_btn_choice_2, &QPushButton::clicked, this, [this]() {
+        showPage(ui->page13_Transactions);
     });
 }
 
@@ -363,10 +376,27 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_7->setText("7 Exit");
         ui->btn_main_choice_8->setText("8 More");
 
+        ui->Balance_TitleAccountSelect->setText("Main account");
+        ui->Balance_TitleRecentTransactions->setText("Last 3 transactions");
+        ui->Balance_btn_choice_1->setText("Other Accounts");
+        ui->Balance_btn_choice_2->setText("More Transactions");
+
         ui->btn_donation_choice_1->setText("Red Cross");
         ui->btn_donation_choice_2->setText("Cancer Foundation");
         ui->btn_donation_choice_3->setText("UNICEF");
         ui->btn_donation_choice_4->setText("Hair transplant for Arttu");
+
+        ui->labelWelcome_Error->setText("Out of Service");
+        ui->labelInstruction_Error->setText("Please use another ATM.");
+
+        ui->labelWelcome_Time->setText("Are you still there?");
+        ui->labelInstruction_Time->setText("Your session will end soon.");
+
+        ui->labelWelcome_Accounts->setText("Available accounts");
+        ui->labelInstruction_Accounts->setText("Accounts you can use");
+
+        ui->labelWelcome_Transactions->setText("Transactions");
+        ui->labelInstruction_Transactions->setText("Recent transactions");
     }
     else if (lang == "PL") {
         ui->labelWelcome->setText("Witamy w S/R Banku");
@@ -405,10 +435,27 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_7->setText("7 Wyjście");
         ui->btn_main_choice_8->setText("8 Więcej");
 
+        ui->Balance_TitleAccountSelect->setText("Konto główne");
+        ui->Balance_TitleRecentTransactions->setText("Ostatnie 3 transakcje");
+        ui->Balance_btn_choice_1->setText("Inne konta");
+        ui->Balance_btn_choice_2->setText("Więcej transakcji");
+
         ui->btn_donation_choice_1->setText("Czerwony Krzyż");
         ui->btn_donation_choice_2->setText("Fundacja Onkologiczna");
         ui->btn_donation_choice_3->setText("UNICEF");
         ui->btn_donation_choice_4->setText("Przeszczep włosów dla Arttu");
+
+        ui->labelWelcome_Error->setText("Przerwa techniczna");
+        ui->labelInstruction_Error->setText("Prosimy skorzystać z innego bankomatu.");
+
+        ui->labelWelcome_Time->setText("Czy nadal jesteś tam?");
+        ui->labelInstruction_Time->setText("Twoja sesja wkrótce wygaśnie.");
+
+        ui->labelWelcome_Accounts->setText("Dostępne konta");
+        ui->labelInstruction_Accounts->setText("Twoje konta");
+
+        ui->labelWelcome_Transactions->setText("Transakcje");
+        ui->labelInstruction_Transactions->setText("Ostatnie operacje");
     }
     else if (lang == "FI") {
         ui->labelWelcome->setText("Tervetuloa S/R Pankkiin");
@@ -447,10 +494,27 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_7->setText("7 Poistu");
         ui->btn_main_choice_8->setText("8 Lisää");
 
+        ui->Balance_TitleAccountSelect->setText("Päätili");
+        ui->Balance_TitleRecentTransactions->setText("Viimeiset 3 tapahtumaa");
+        ui->Balance_btn_choice_1->setText("Muut tilit");
+        ui->Balance_btn_choice_2->setText("Lisää tapahtumia");
+
         ui->btn_donation_choice_1->setText("Punainen Risti");
         ui->btn_donation_choice_2->setText("Syöpäsäätiö");
         ui->btn_donation_choice_3->setText("UNICEF");
         ui->btn_donation_choice_4->setText("Artulle hiussiirto");
+
+        ui->labelWelcome_Error->setText("Tilapäinen häiriö");
+        ui->labelInstruction_Error->setText("Käytä toista pankkiautomaattia.");
+
+        ui->labelWelcome_Time->setText("Oletko vielä paikalla?");
+        ui->labelInstruction_Time->setText("Istuntosi päättyy pian.");
+
+        ui->labelWelcome_Accounts->setText("Saatavilla olevat tilit");
+        ui->labelInstruction_Accounts->setText("Omat tilit");
+
+        ui->labelWelcome_Transactions->setText("Tapahtumat");
+        ui->labelInstruction_Transactions->setText("Viimeisimmät tapahtumat");
     }
 }
 
@@ -878,7 +942,11 @@ void MainWindow::setupStyles()
 #page6_Transfer,
 #page7_Donation,
 #page8_Exit,
-#page9_Other {
+#page9_Other,
+#page10_Error,
+#page11_Time,
+#page12_Accounts,
+#page13_Transactions {
     background: transparent;
 }
 
@@ -904,7 +972,12 @@ QLabel#labelWelcome_Balance,
 QLabel#labelWelcome_Transfer,
 QLabel#labelWelcome_Donation,
 QLabel#labelWelcome_Exit,
-QLabel#labelWelcome_Other {
+QLabel#labelWelcome_Other,
+QLabel#labelWelcome_Error,
+QLabel#labelWelcome_Time,
+QLabel#labelWelcome_Accounts,
+QLabel#labelWelcome_Transactions
+ {
     font-size: 40px;
     font-weight: 800;
     color: #0F172A;
@@ -923,7 +996,11 @@ QLabel#labelInstruction_Balance,
 QLabel#labelInstruction_Transfer,
 QLabel#labelInstruction_Donation,
 QLabel#labelInstruction_Exit,
-QLabel#labelInstruction_Other {
+QLabel#labelInstruction_Other,
+QLabel#labelInstruction_Error,
+QLabel#labelInstruction_Time,
+QLabel#labelInstruction_Accounts,
+QLabel#labelInstruction_Transactions  {
     font-size: 20px;
     font-weight: 600;
     color: #475569;
@@ -1218,6 +1295,7 @@ QPushButton#btn_main_choice_6,
 QPushButton#btn_main_choice_7,
 QPushButton#btn_main_choice_8,
 QPushButton#Balance_btn_choice_1,
+QPushButton#Balance_btn_choice_2,
 QPushButton#btn_amount_choice_1,
 QPushButton#btn_amount_choice_2,
 QPushButton#btn_amount_choice_3,
@@ -1253,6 +1331,7 @@ QPushButton#btn_main_choice_6:hover,
 QPushButton#btn_main_choice_7:hover,
 QPushButton#btn_main_choice_8:hover,
 QPushButton#Balance_btn_choice_1:hover,
+QPushButton#Balance_btn_choice_2:hover,
 QPushButton#btn_amount_choice_1:hover,
 QPushButton#btn_amount_choice_2:hover,
 QPushButton#btn_amount_choice_3:hover,
@@ -1277,6 +1356,7 @@ QPushButton#btn_main_choice_6:pressed,
 QPushButton#btn_main_choice_7:pressed,
 QPushButton#btn_main_choice_8:pressed,
 QPushButton#Balance_btn_choice_1:pressed,
+QPushButton#Balance_btn_choice_2:pressed,
 QPushButton#btn_amount_choice_1:pressed,
 QPushButton#btn_amount_choice_2:pressed,
 QPushButton#btn_amount_choice_3:pressed,
@@ -1351,7 +1431,11 @@ QPushButton#btn_amount_choice_4:checked {
 #page6_Transfer,
 #page7_Donation,
 #page8_Exit,
-#page9_Other {
+#page9_Other,
+#page10_Error,
+#page11_Time,
+#page12_Accounts,
+#page13_Transactions   {
     background: transparent;
 }
 
@@ -1377,7 +1461,12 @@ QLabel#labelWelcome_Balance,
 QLabel#labelWelcome_Transfer,
 QLabel#labelWelcome_Donation,
 QLabel#labelWelcome_Exit,
-QLabel#labelWelcome_Other {
+QLabel#labelWelcome_Other,
+QLabel#labelWelcome_Error,
+QLabel#labelWelcome_Time,
+QLabel#labelWelcome_Accounts,
+QLabel#labelWelcome_Transactions
+  {
     font-size: 40px;
     font-weight: 800;
     color: #FFFFFF;
@@ -1396,7 +1485,11 @@ QLabel#labelInstruction_Balance,
 QLabel#labelInstruction_Transfer,
 QLabel#labelInstruction_Donation,
 QLabel#labelInstruction_Exit,
-QLabel#labelInstruction_Other {
+QLabel#labelInstruction_Other,
+QLabel#labelInstruction_Error,
+QLabel#labelInstruction_Time,
+QLabel#labelInstruction_Accounts,
+QLabel#labelInstruction_Transactions   {
     font-size: 20px;
     font-weight: 600;
     color: #FFFFFF;
@@ -1688,6 +1781,7 @@ QPushButton#btn_main_choice_6,
 QPushButton#btn_main_choice_7,
 QPushButton#btn_main_choice_8,
 QPushButton#Balance_btn_choice_1,
+QPushButton#Balance_btn_choice_2,
 QPushButton#btn_amount_choice_1,
 QPushButton#btn_amount_choice_2,
 QPushButton#btn_amount_choice_3,
@@ -1720,6 +1814,7 @@ QPushButton#btn_main_choice_6:hover,
 QPushButton#btn_main_choice_7:hover,
 QPushButton#btn_main_choice_8:hover,
 QPushButton#Balance_btn_choice_1:hover,
+QPushButton#Balance_btn_choice_2:hover,
 QPushButton#btn_amount_choice_1:hover,
 QPushButton#btn_amount_choice_2:hover,
 QPushButton#btn_amount_choice_3:hover,
@@ -1742,6 +1837,7 @@ QPushButton#btn_main_choice_6:pressed,
 QPushButton#btn_main_choice_7:pressed,
 QPushButton#btn_main_choice_8:pressed,
 QPushButton#Balance_btn_choice_1:pressed,
+QPushButton#Balance_btn_choice_2:pressed,
 QPushButton#btn_amount_choice_1:pressed,
 QPushButton#btn_amount_choice_2:pressed,
 QPushButton#btn_amount_choice_3:pressed,

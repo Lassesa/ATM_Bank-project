@@ -418,19 +418,6 @@
        <string>AMOUNT</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="Balance_btn_choice_1">
-      <property name="geometry">
-       <rect>
-        <x>580</x>
-        <y>180</y>
-        <width>161</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Other Accounts</string>
-      </property>
-     </widget>
      <widget class="QWidget" name="layoutWidget_23">
       <property name="geometry">
        <rect>
@@ -487,6 +474,32 @@
            <string>New Item</string>
           </property>
          </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>145</y>
+        <width>161</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QPushButton" name="Balance_btn_choice_1">
+         <property name="text">
+          <string>Other Accounts</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="Balance_btn_choice_2">
+         <property name="text">
+          <string>More Transactions</string>
+         </property>
         </widget>
        </item>
       </layout>
@@ -690,6 +703,130 @@
         <widget class="QLabel" name="labelWelcome_Other">
          <property name="text">
           <string>Other</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page10_Error">
+     <widget class="QWidget" name="layoutWidget_28">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Error">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Error">
+         <property name="text">
+          <string>Please use another ATM.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Error">
+         <property name="text">
+          <string>Out of Service</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page12_Accounts">
+     <widget class="QWidget" name="layoutWidget_30">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Accounts">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Accounts">
+         <property name="text">
+          <string>Your session will end soon.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Accounts">
+         <property name="text">
+          <string>Are you still there?</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page13_Transactions">
+     <widget class="QWidget" name="layoutWidget_31">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Transactions">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Transactions">
+         <property name="text">
+          <string>Your session will end soon.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Transactions">
+         <property name="text">
+          <string>Are you still there?</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page11_Time">
+     <widget class="QWidget" name="layoutWidget_29">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Time">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Time">
+         <property name="text">
+          <string>Your session will end soon.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Time">
+         <property name="text">
+          <string>Are you still there?</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
