@@ -28,9 +28,6 @@
  * - starts the serial card reader
  * - connects all button signals
  *
- * Important note:
- * This version does NOT apply any runtime stylesheet theme.
- * Only styles defined in the .ui file are used.
  */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -114,6 +111,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Connect all UI signals
     connectSignals();
+
+    // Style management
+    setupStyles();
+    applyCurrentStyle();
 }
 
 /*
@@ -339,6 +340,7 @@ void MainWindow::setLanguage(const QString &lang)
 
         ui->labelWelcome_Balance->setText("Account balance");
         ui->labelInstruction_Balance->setText("View your current available balance");
+
 
         ui->labelWelcome_Transfer->setText("Transfer Money");
         ui->labelInstruction_Transfer->setText("Send money to another account");
@@ -827,3 +829,972 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
         reply->deleteLater();
     });
 }
+
+
+/*
+ * LIGHT STYLE
+ *
+ * On success:
+ * - Keeping it by deafoult
+ * - Changing from Dark
+ */
+
+void MainWindow::setupStyles()
+{
+    lightStyle = R"(
+
+/* =====================================================
+   APP BACKGROUND
+   ===================================================== */
+
+#centralwidget {
+    background-color: #EEF3F9;
+}
+
+
+/* =====================================================
+   DISPLAY AREA
+   ===================================================== */
+
+#display {
+    background-color: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #FFE4EC,
+        stop:1 #FFFFFF
+    );
+    border-radius: 28px;
+}
+
+
+/* =====================================================
+   STACKED PAGES
+   ===================================================== */
+
+#page1_Welcome,
+#page2_Pin,
+#page3_Main,
+#page4_Withdraw,
+#page5_Balance,
+#page6_Transfer,
+#page7_Donation,
+#page8_Exit,
+#page9_Other {
+    background: transparent;
+}
+
+
+/* =====================================================
+   GLOBAL TEXT
+   ===================================================== */
+
+QLabel {
+    color: #1E293B;
+}
+
+
+/* =====================================================
+   PAGE TITLES
+   ===================================================== */
+
+QLabel#labelWelcome,
+QLabel#labelWelcome_PIN,
+QLabel#labelWelcome_Main,
+QLabel#labelWelcome_Withdraw,
+QLabel#labelWelcome_Balance,
+QLabel#labelWelcome_Transfer,
+QLabel#labelWelcome_Donation,
+QLabel#labelWelcome_Exit,
+QLabel#labelWelcome_Other {
+    font-size: 40px;
+    font-weight: 800;
+    color: #0F172A;
+}
+
+
+/* =====================================================
+   PAGE SUBTITLES
+   ===================================================== */
+
+QLabel#labelInstruction,
+QLabel#labelInstruction_PIN,
+QLabel#labelInstruction_Main,
+QLabel#labelInstruction_Withdraw,
+QLabel#labelInstruction_Balance,
+QLabel#labelInstruction_Transfer,
+QLabel#labelInstruction_Donation,
+QLabel#labelInstruction_Exit,
+QLabel#labelInstruction_Other {
+    font-size: 20px;
+    font-weight: 600;
+    color: #475569;
+}
+
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+
+QLabel#foundersLabel {
+    font-size: 9px;
+    font-weight: 600;
+    color: #334155;
+}
+
+
+/* =====================================================
+   INPUTS
+   ===================================================== */
+
+QLineEdit#CardNumberDisplay {
+    background-color: #1E293B;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 6px;
+    border-radius: 6px;
+}
+
+QLineEdit#pinInput {
+    background-color: #FFF7FB;
+    border: 2px solid #D94680;
+    border-radius: 16px;
+    color: #9D174D;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: "Segoe UI", "Arial";
+    padding: 12px 18px;
+    letter-spacing: 12px;
+}
+
+QLineEdit#amountInput {
+    background-color: transparent;
+    border: none;
+    color: #AD1457;
+    font-size: 48px;
+    font-weight: 800;
+    font-family: "Segoe UI", "Arial";
+    padding: 0px;
+    margin: 0px;
+}
+
+QLabel#labelAmountCurrency {
+    background-color: transparent;
+    color: #C2185B;
+    font-size: 26px;
+    font-weight: 600;
+    font-family: "Segoe UI", "Arial";
+    padding: 0px;
+    margin: 0px;
+}
+
+
+/* =====================================================
+   BALANCE PAGE EXTRA
+   ===================================================== */
+
+QListWidget {
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    color: #1E293B;
+}
+
+QListWidget#Balance_ListRecentTransactions {
+    font-size: 10px;
+    color: #0F172A;
+}
+
+QLabel#Balance_Amount {
+    font-size: 30px;
+    font-weight: 800;
+    color: #0F172A;
+}
+
+
+/* =====================================================
+   GLOBAL BUTTON BASE
+   ===================================================== */
+
+QPushButton {
+    padding: 10px;
+    font-weight: bold;
+    border: none;
+}
+
+
+/* =====================================================
+   TOP PANEL BUTTONS
+   ===================================================== */
+
+QPushButton#btnLanguageEnglish,
+QPushButton#btnLanguageFinnish,
+QPushButton#btnLanguagePolish,
+QPushButton#btnContrast {
+    border-radius: 12px;
+    padding: 6px 14px;
+    font-size: 16px;
+    font-weight: 700;
+    min-width: 20px;
+    min-height: 15px;
+}
+
+
+/* =====================================================
+   LANGUAGE BUTTONS
+   ===================================================== */
+
+QPushButton#btnLanguageEnglish,
+QPushButton#btnLanguageFinnish,
+QPushButton#btnLanguagePolish {
+    background-color: rgba(255, 255, 255, 0.55);
+    color: #1E293B;
+    border: 1px solid rgba(30, 41, 59, 0.35);
+}
+
+QPushButton#btnLanguageEnglish:hover,
+QPushButton#btnLanguageFinnish:hover,
+QPushButton#btnLanguagePolish:hover {
+    background-color: rgba(255, 255, 255, 0.90);
+    border: 1px solid rgba(30, 41, 59, 0.55);
+    color: #0F172A;
+}
+
+QPushButton#btnLanguageEnglish:checked,
+QPushButton#btnLanguageFinnish:checked,
+QPushButton#btnLanguagePolish:checked {
+    background-color: #E83E6D;
+    border: 1px solid #E83E6D;
+    color: #FFFFFF;
+}
+
+
+/* =====================================================
+   CONTRAST BUTTON
+   ===================================================== */
+
+QPushButton#btnContrast {
+    background-color: #FACC15;
+    color: #111827;
+    border: 1px solid #EAB308;
+}
+
+QPushButton#btnContrast:hover {
+    background-color: #FDE047;
+    border: 1px solid #EAB308;
+    color: #111827;
+}
+
+QPushButton#btnContrast:pressed {
+    background-color: #EAB308;
+    border: 1px solid #CA8A04;
+    color: #111827;
+}
+
+QPushButton#btnContrast:checked {
+    background-color: #111827;
+    color: #FACC15;
+    border: 1px solid #FACC15;
+}
+
+
+/* =====================================================
+   TOUCH PANEL
+   ===================================================== */
+
+#TouchPanel {
+    background-color: #E5E7EB;
+    border-top: 2px solid #CBD5E1;
+}
+
+
+/* =====================================================
+   SIDE ACTION BUTTONS
+   ===================================================== */
+
+QPushButton#button_1red_CANCEL,
+QPushButton#button_2yellow_CLEAR,
+QPushButton#button_3green_OK {
+    font-size: 20px;
+    font-weight: 700;
+    border-radius: 12px;
+    color: white;
+}
+
+QPushButton#button_1red_CANCEL {
+    background-color: #C62828;
+}
+QPushButton#button_1red_CANCEL:hover {
+    background-color: #E53935;
+}
+QPushButton#button_1red_CANCEL:pressed {
+    background-color: #8E0000;
+}
+
+QPushButton#button_2yellow_CLEAR {
+    background-color: #F9A825;
+}
+QPushButton#button_2yellow_CLEAR:hover {
+    background-color: #FDD835;
+}
+QPushButton#button_2yellow_CLEAR:pressed {
+    background-color: #C17900;
+}
+
+QPushButton#button_3green_OK {
+    background-color: #2E7D32;
+}
+QPushButton#button_3green_OK:hover {
+    background-color: #43A047;
+}
+QPushButton#button_3green_OK:pressed {
+    background-color: #1B5E20;
+}
+
+
+/* =====================================================
+   NUMPAD
+   ===================================================== */
+
+QPushButton#num_0,
+QPushButton#num_1,
+QPushButton#num_2,
+QPushButton#num_3,
+QPushButton#num_4,
+QPushButton#num_5,
+QPushButton#num_6,
+QPushButton#num_7,
+QPushButton#num_8,
+QPushButton#num_9,
+QPushButton#num_left,
+QPushButton#num_right {
+    background-color: #2F3A4D;
+    color: #FFFFFF;
+    border-radius: 18px;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+QPushButton#num_0:hover,
+QPushButton#num_1:hover,
+QPushButton#num_2:hover,
+QPushButton#num_3:hover,
+QPushButton#num_4:hover,
+QPushButton#num_5:hover,
+QPushButton#num_6:hover,
+QPushButton#num_7:hover,
+QPushButton#num_8:hover,
+QPushButton#num_9:hover,
+QPushButton#num_left:hover,
+QPushButton#num_right:hover {
+    background-color: #3E4B61;
+}
+
+QPushButton#num_0:pressed,
+QPushButton#num_1:pressed,
+QPushButton#num_2:pressed,
+QPushButton#num_3:pressed,
+QPushButton#num_4:pressed,
+QPushButton#num_5:pressed,
+QPushButton#num_6:pressed,
+QPushButton#num_7:pressed,
+QPushButton#num_8:pressed,
+QPushButton#num_9:pressed,
+QPushButton#num_left:pressed,
+QPushButton#num_right:pressed {
+    background-color: #1F2937;
+}
+
+
+/* =====================================================
+   MAIN ACTION BUTTONS
+   ===================================================== */
+
+QPushButton#btn_main_choice_1,
+QPushButton#btn_main_choice_2,
+QPushButton#btn_main_choice_3,
+QPushButton#btn_main_choice_4,
+QPushButton#btn_main_choice_5,
+QPushButton#btn_main_choice_6,
+QPushButton#btn_main_choice_7,
+QPushButton#btn_main_choice_8,
+QPushButton#Balance_btn_choice_1,
+QPushButton#btn_amount_choice_1,
+QPushButton#btn_amount_choice_2,
+QPushButton#btn_amount_choice_3,
+QPushButton#btn_amount_choice_4,
+QPushButton#btn_donation_choice_1,
+QPushButton#btn_donation_choice_2,
+QPushButton#btn_donation_choice_3,
+QPushButton#btn_donation_choice_4 {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #F472B6,
+        stop:1 #E83E6D
+    );
+    color: #FFFFFF;
+    border-radius: 16px;
+    padding: 16px;
+    font-weight: 800;
+}
+
+QPushButton#btn_main_choice_1,
+QPushButton#btn_main_choice_2,
+QPushButton#btn_main_choice_3 {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+QPushButton#btn_main_choice_1:hover,
+QPushButton#btn_main_choice_2:hover,
+QPushButton#btn_main_choice_3:hover,
+QPushButton#btn_main_choice_4:hover,
+QPushButton#btn_main_choice_5:hover,
+QPushButton#btn_main_choice_6:hover,
+QPushButton#btn_main_choice_7:hover,
+QPushButton#btn_main_choice_8:hover,
+QPushButton#Balance_btn_choice_1:hover,
+QPushButton#btn_amount_choice_1:hover,
+QPushButton#btn_amount_choice_2:hover,
+QPushButton#btn_amount_choice_3:hover,
+QPushButton#btn_amount_choice_4:hover,
+QPushButton#btn_donation_choice_1:hover,
+QPushButton#btn_donation_choice_2:hover,
+QPushButton#btn_donation_choice_3:hover,
+QPushButton#btn_donation_choice_4:hover {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #FB7185,
+        stop:1 #EC4899
+    );
+}
+
+QPushButton#btn_main_choice_1:pressed,
+QPushButton#btn_main_choice_2:pressed,
+QPushButton#btn_main_choice_3:pressed,
+QPushButton#btn_main_choice_4:pressed,
+QPushButton#btn_main_choice_5:pressed,
+QPushButton#btn_main_choice_6:pressed,
+QPushButton#btn_main_choice_7:pressed,
+QPushButton#btn_main_choice_8:pressed,
+QPushButton#Balance_btn_choice_1:pressed,
+QPushButton#btn_amount_choice_1:pressed,
+QPushButton#btn_amount_choice_2:pressed,
+QPushButton#btn_amount_choice_3:pressed,
+QPushButton#btn_amount_choice_4:pressed,
+QPushButton#btn_donation_choice_1:pressed,
+QPushButton#btn_donation_choice_2:pressed,
+QPushButton#btn_donation_choice_3:pressed,
+QPushButton#btn_donation_choice_4:pressed {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #DB2777,
+        stop:1 #9D174D
+    );
+}
+
+QPushButton#btn_donation_choice_1:checked,
+QPushButton#btn_donation_choice_2:checked,
+QPushButton#btn_donation_choice_3:checked,
+QPushButton#btn_donation_choice_4:checked,
+QPushButton#btn_amount_choice_1:checked,
+QPushButton#btn_amount_choice_2:checked,
+QPushButton#btn_amount_choice_3:checked,
+QPushButton#btn_amount_choice_4:checked {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #DB2777,
+        stop:1 #9D174D
+    );
+}
+
+)";
+
+    /*
+ * CONTRAST STYLE
+ *
+ * On success:
+ * - Keeping it false by deafoult
+ * - Changing from Light
+ */
+
+    contrastStyle = R"(
+
+/* =====================================================
+   APP BACKGROUND
+   ===================================================== */
+
+#centralwidget {
+    background-color: #000000;
+}
+
+
+/* =====================================================
+   DISPLAY AREA
+   ===================================================== */
+
+#display {
+    background-color: #000000;
+    border: 2px solid #FFFFFF;
+    border-radius: 28px;
+}
+
+
+/* =====================================================
+   STACKED PAGES
+   ===================================================== */
+
+#page1_Welcome,
+#page2_Pin,
+#page3_Main,
+#page4_Withdraw,
+#page5_Balance,
+#page6_Transfer,
+#page7_Donation,
+#page8_Exit,
+#page9_Other {
+    background: transparent;
+}
+
+
+/* =====================================================
+   GLOBAL TEXT
+   ===================================================== */
+
+QLabel {
+    color: #FFFFFF;
+}
+
+
+/* =====================================================
+   PAGE TITLES
+   ===================================================== */
+
+QLabel#labelWelcome,
+QLabel#labelWelcome_PIN,
+QLabel#labelWelcome_Main,
+QLabel#labelWelcome_Withdraw,
+QLabel#labelWelcome_Balance,
+QLabel#labelWelcome_Transfer,
+QLabel#labelWelcome_Donation,
+QLabel#labelWelcome_Exit,
+QLabel#labelWelcome_Other {
+    font-size: 40px;
+    font-weight: 800;
+    color: #FFFFFF;
+}
+
+
+/* =====================================================
+   PAGE SUBTITLES
+   ===================================================== */
+
+QLabel#labelInstruction,
+QLabel#labelInstruction_PIN,
+QLabel#labelInstruction_Main,
+QLabel#labelInstruction_Withdraw,
+QLabel#labelInstruction_Balance,
+QLabel#labelInstruction_Transfer,
+QLabel#labelInstruction_Donation,
+QLabel#labelInstruction_Exit,
+QLabel#labelInstruction_Other {
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+QLabel#foundersLabel {
+    font-size: 9px;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+
+/* =====================================================
+   INPUTS
+   ===================================================== */
+
+QLineEdit#CardNumberDisplay {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 6px;
+    border: 2px solid #FFFFFF;
+    border-radius: 6px;
+}
+
+QLineEdit#pinInput {
+    background-color: #000000;
+    border: 2px solid #FFFFFF;
+    border-radius: 16px;
+    color: #FFFFFF;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: "Segoe UI", "Arial";
+    padding: 12px 18px;
+    letter-spacing: 12px;
+}
+
+QLineEdit#amountInput {
+    background-color: transparent;
+    border: none;
+    color: #FFFFFF;
+    font-size: 48px;
+    font-weight: 800;
+    font-family: "Segoe UI", "Arial";
+    padding: 0px;
+    margin: 0px;
+}
+
+QLabel#labelAmountCurrency {
+    background-color: transparent;
+    color: #FFFFFF;
+    font-size: 26px;
+    font-weight: 600;
+    font-family: "Segoe UI", "Arial";
+    padding: 0px;
+    margin: 0px;
+}
+
+
+/* =====================================================
+   BALANCE PAGE EXTRA
+   ===================================================== */
+
+QListWidget {
+    background-color: transparent;
+    border: 1px solid #FFFFFF;
+    font-size: 16px;
+    color: #FFFFFF;
+}
+
+QListWidget#Balance_ListRecentTransactions {
+    font-size: 10px;
+    color: #FFFFFF;
+}
+
+QLabel#Balance_Amount {
+    font-size: 30px;
+    font-weight: 800;
+    color: #FFFFFF;
+}
+
+
+/* =====================================================
+   GLOBAL BUTTON BASE
+   ===================================================== */
+
+QPushButton {
+    padding: 10px;
+    font-weight: bold;
+    border: none;
+}
+
+
+/* =====================================================
+   TOP PANEL BUTTONS
+   ===================================================== */
+
+QPushButton#btnLanguageEnglish,
+QPushButton#btnLanguageFinnish,
+QPushButton#btnLanguagePolish,
+QPushButton#btnContrast {
+    border-radius: 12px;
+    padding: 6px 14px;
+    font-size: 16px;
+    font-weight: 700;
+    min-width: 20px;
+    min-height: 15px;
+}
+
+
+/* =====================================================
+   LANGUAGE BUTTONS
+   ===================================================== */
+
+QPushButton#btnLanguageEnglish,
+QPushButton#btnLanguageFinnish,
+QPushButton#btnLanguagePolish {
+    background-color: #111111;
+    color: #FFFFFF;
+    border: 1px solid #FFFFFF;
+}
+
+QPushButton#btnLanguageEnglish:hover,
+QPushButton#btnLanguageFinnish:hover,
+QPushButton#btnLanguagePolish:hover {
+    background-color: #222222;
+    color: #FFFFFF;
+    border: 1px solid #FFFFFF;
+}
+
+QPushButton#btnLanguageEnglish:checked,
+QPushButton#btnLanguageFinnish:checked,
+QPushButton#btnLanguagePolish:checked {
+    background-color: #FFFFFF;
+    color: #000000;
+    border: 1px solid #FFFFFF;
+}
+
+
+/* =====================================================
+   CONTRAST BUTTON
+   ===================================================== */
+
+QPushButton#btnContrast {
+    background-color: #FFFFFF;
+    color: #000000;
+    border: 2px solid #FFFFFF;
+}
+
+QPushButton#btnContrast:hover {
+    background-color: #DDDDDD;
+    color: #000000;
+    border: 2px solid #FFFFFF;
+}
+
+QPushButton#btnContrast:pressed {
+    background-color: #BBBBBB;
+    color: #000000;
+    border: 2px solid #FFFFFF;
+}
+
+QPushButton#btnContrast:checked {
+    background-color: #FACC15;
+    color: #000000;
+    border: 2px solid #FACC15;
+}
+
+
+/* =====================================================
+   TOUCH PANEL
+   ===================================================== */
+
+#TouchPanel {
+    background-color: #111111;
+    border-top: 2px solid #FFFFFF;
+}
+
+
+/* =====================================================
+   SIDE ACTION BUTTONS
+   ===================================================== */
+
+QPushButton#button_1red_CANCEL,
+QPushButton#button_2yellow_CLEAR,
+QPushButton#button_3green_OK {
+    font-size: 20px;
+    font-weight: 700;
+    border-radius: 12px;
+    color: white;
+}
+
+QPushButton#button_1red_CANCEL {
+    background-color: #C62828;
+}
+QPushButton#button_1red_CANCEL:hover {
+    background-color: #E53935;
+}
+QPushButton#button_1red_CANCEL:pressed {
+    background-color: #8E0000;
+}
+
+QPushButton#button_2yellow_CLEAR {
+    background-color: #F9A825;
+}
+QPushButton#button_2yellow_CLEAR:hover {
+    background-color: #FDD835;
+}
+QPushButton#button_2yellow_CLEAR:pressed {
+    background-color: #C17900;
+}
+
+QPushButton#button_3green_OK {
+    background-color: #2E7D32;
+}
+QPushButton#button_3green_OK:hover {
+    background-color: #43A047;
+}
+QPushButton#button_3green_OK:pressed {
+    background-color: #1B5E20;
+}
+
+
+/* =====================================================
+   NUMPAD
+   ===================================================== */
+
+QPushButton#num_0,
+QPushButton#num_1,
+QPushButton#num_2,
+QPushButton#num_3,
+QPushButton#num_4,
+QPushButton#num_5,
+QPushButton#num_6,
+QPushButton#num_7,
+QPushButton#num_8,
+QPushButton#num_9,
+QPushButton#num_left,
+QPushButton#num_right {
+    background-color: #2F3A4D;
+    color: #FFFFFF;
+    border-radius: 18px;
+    font-size: 26px;
+    font-weight: 800;
+    border: 1px solid #FFFFFF;
+}
+
+QPushButton#num_0:hover,
+QPushButton#num_1:hover,
+QPushButton#num_2:hover,
+QPushButton#num_3:hover,
+QPushButton#num_4:hover,
+QPushButton#num_5:hover,
+QPushButton#num_6:hover,
+QPushButton#num_7:hover,
+QPushButton#num_8:hover,
+QPushButton#num_9:hover,
+QPushButton#num_left:hover,
+QPushButton#num_right:hover {
+    background-color: #3E4B61;
+}
+
+QPushButton#num_0:pressed,
+QPushButton#num_1:pressed,
+QPushButton#num_2:pressed,
+QPushButton#num_3:pressed,
+QPushButton#num_4:pressed,
+QPushButton#num_5:pressed,
+QPushButton#num_6:pressed,
+QPushButton#num_7:pressed,
+QPushButton#num_8:pressed,
+QPushButton#num_9:pressed,
+QPushButton#num_left:pressed,
+QPushButton#num_right:pressed {
+    background-color: #1F2937;
+}
+
+
+/* =====================================================
+   MAIN ACTION BUTTONS
+   ===================================================== */
+
+QPushButton#btn_main_choice_1,
+QPushButton#btn_main_choice_2,
+QPushButton#btn_main_choice_3,
+QPushButton#btn_main_choice_4,
+QPushButton#btn_main_choice_5,
+QPushButton#btn_main_choice_6,
+QPushButton#btn_main_choice_7,
+QPushButton#btn_main_choice_8,
+QPushButton#Balance_btn_choice_1,
+QPushButton#btn_amount_choice_1,
+QPushButton#btn_amount_choice_2,
+QPushButton#btn_amount_choice_3,
+QPushButton#btn_amount_choice_4,
+QPushButton#btn_donation_choice_1,
+QPushButton#btn_donation_choice_2,
+QPushButton#btn_donation_choice_3,
+QPushButton#btn_donation_choice_4 {
+    background: #000000;
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF;
+    border-radius: 16px;
+    padding: 16px;
+    font-weight: 800;
+}
+
+QPushButton#btn_main_choice_1,
+QPushButton#btn_main_choice_2,
+QPushButton#btn_main_choice_3 {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+QPushButton#btn_main_choice_1:hover,
+QPushButton#btn_main_choice_2:hover,
+QPushButton#btn_main_choice_3:hover,
+QPushButton#btn_main_choice_4:hover,
+QPushButton#btn_main_choice_5:hover,
+QPushButton#btn_main_choice_6:hover,
+QPushButton#btn_main_choice_7:hover,
+QPushButton#btn_main_choice_8:hover,
+QPushButton#Balance_btn_choice_1:hover,
+QPushButton#btn_amount_choice_1:hover,
+QPushButton#btn_amount_choice_2:hover,
+QPushButton#btn_amount_choice_3:hover,
+QPushButton#btn_amount_choice_4:hover,
+QPushButton#btn_donation_choice_1:hover,
+QPushButton#btn_donation_choice_2:hover,
+QPushButton#btn_donation_choice_3:hover,
+QPushButton#btn_donation_choice_4:hover {
+    background: #222222;
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF;
+}
+
+QPushButton#btn_main_choice_1:pressed,
+QPushButton#btn_main_choice_2:pressed,
+QPushButton#btn_main_choice_3:pressed,
+QPushButton#btn_main_choice_4:pressed,
+QPushButton#btn_main_choice_5:pressed,
+QPushButton#btn_main_choice_6:pressed,
+QPushButton#btn_main_choice_7:pressed,
+QPushButton#btn_main_choice_8:pressed,
+QPushButton#Balance_btn_choice_1:pressed,
+QPushButton#btn_amount_choice_1:pressed,
+QPushButton#btn_amount_choice_2:pressed,
+QPushButton#btn_amount_choice_3:pressed,
+QPushButton#btn_amount_choice_4:pressed,
+QPushButton#btn_donation_choice_1:pressed,
+QPushButton#btn_donation_choice_2:pressed,
+QPushButton#btn_donation_choice_3:pressed,
+QPushButton#btn_donation_choice_4:pressed {
+    background: #FFFFFF;
+    color: #000000;
+    border: 2px solid #FFFFFF;
+}
+
+QPushButton#btn_donation_choice_1:checked,
+QPushButton#btn_donation_choice_2:checked,
+QPushButton#btn_donation_choice_3:checked,
+QPushButton#btn_donation_choice_4:checked,
+QPushButton#btn_amount_choice_1:checked,
+QPushButton#btn_amount_choice_2:checked,
+QPushButton#btn_amount_choice_3:checked,
+QPushButton#btn_amount_choice_4:checked {
+    background: #FFFFFF;
+    color: #000000;
+    border: 2px solid #FFFFFF;
+}
+
+)";
+}
+
+
+/*
+ * Managing STYLES
+ *
+ */
+
+void MainWindow::applyCurrentStyle()
+{
+    if (contrastEnabled) {
+        this->setStyleSheet(contrastStyle);
+        ui->btnContrast->setChecked(true);
+    } else {
+        this->setStyleSheet(lightStyle);
+        ui->btnContrast->setChecked(false);
+    }
+}
+
+/*
+ * Contrast Button
+ *
+ */
+void MainWindow::on_btnContrast_clicked()
+{
+    contrastEnabled = !contrastEnabled;
+    applyCurrentStyle();
+}
+

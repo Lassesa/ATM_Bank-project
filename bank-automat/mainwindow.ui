@@ -15,389 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
-    <string notr="true">
-
-/*NEW STYLE*/
-
-/* =====================================================
-   APP BACKGROUND
-   ===================================================== */
-
-#centralwidget {
-    background-color: #EEF3F9;
-}
-
-
-/* =====================================================
-   STACKED DISPLAY AREA
-   ===================================================== */
-
-#display {
-    background-color: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #FFE4EC,
-        stop:1 #FFFFFF
-    );
-    border-radius: 28px;
-}
-
-
-/* =====================================================
-   PAGE BACKGROUNDS
-   Keep stacked pages transparent so the display gradient
-   remains visible.
-   ===================================================== */
-
-#page1_Welcome,
-#page2_Pin,
-#page3_Main,
-#page4_Withdraw,
-#page5_Balance,
-#page6_Transfer,
-#page7_Donation,
-#page8_Exit,
-#page9_Other {
-    background: transparent;
-}
-
-
-/* =====================================================
-   GLOBAL TEXT
-   ===================================================== */
-
-QLabel {
-    color: #1E293B;
-}
-
-
-/* =====================================================
-   PAGE TITLES
-   ===================================================== */
-
-QLabel#labelWelcome,
-QLabel#labelWelcome_PIN,
-QLabel#labelWelcome_Main,
-QLabel#labelWelcome_Withdraw,
-QLabel#labelWelcome_Balance,
-QLabel#labelWelcome_Transfer,
-QLabel#labelWelcome_Donation,
-QLabel#labelWelcome_Exit,
-QLabel#labelWelcome_Other {
-    font-size: 40px;
-    font-weight: 800;
-    color: #0F172A;
-}
-
-
-/* =====================================================
-   PAGE SUBTITLES / INSTRUCTIONS
-   ===================================================== */
-
-QLabel#labelInstruction,
-QLabel#labelInstruction_PIN,
-QLabel#labelInstruction_Main,
-QLabel#labelInstruction_Withdraw,
-QLabel#labelInstruction_Balance,
-QLabel#labelInstruction_Transfer,
-QLabel#labelInstruction_Donation,
-QLabel#labelInstruction_Exit,
-QLabel#labelInstruction_Other {
-    font-size: 20px;
-    font-weight: 600;
-    color: #475569;
-}
-
-
-/* =====================================================
-   FOOTER TEXT
-   ===================================================== */
-
-QLabel#foundersLabel {
-    font-size: 9px;
-    font-weight: 600;
-    color: #334155;
-}
-
-
-/* =====================================================
-   GLOBAL BUTTON BASE
-   Keep this lightweight so specific buttons can define
-   their own visual style without conflicts.
-   ===================================================== */
-
-QPushButton {
-    padding: 10px;
-    font-weight: bold;
-    border: none;
-}
-
-
-/* =====================================================
-   TOP CONTROL BUTTONS
-   Shared size and typography for language and contrast buttons.
-   This keeps all top buttons visually aligned.
-   ===================================================== */
-
-QPushButton#btnLanguageEnglish,
-QPushButton#btnLanguageFinnish,
-QPushButton#btnLanguagePolish,
-QPushButton#btnContrast {
-    border-radius: 12px;
-    padding: 6px 14px;
-    font-size: 16px;
-    font-weight: 700;
-    min-width: 20px;
-    min-height: 15px;
-}
-
-
-/* =====================================================
-   LANGUAGE BUTTONS
-   ===================================================== */
-
-QPushButton#btnLanguageEnglish,
-QPushButton#btnLanguageFinnish,
-QPushButton#btnLanguagePolish {
-    background-color: rgba(255, 255, 255, 0.55);
-    color: #1E293B;
-    border: 1px solid rgba(30, 41, 59, 0.35);
-}
-
-/* Hover state */
-QPushButton#btnLanguageEnglish:hover,
-QPushButton#btnLanguageFinnish:hover,
-QPushButton#btnLanguagePolish:hover {
-    background-color: rgba(255, 255, 255, 0.90);
-    border: 1px solid rgba(30, 41, 59, 0.55);
-    color: #0F172A;
-}
-
-/* Checked state */
-QPushButton#btnLanguageEnglish:checked,
-QPushButton#btnLanguageFinnish:checked,
-QPushButton#btnLanguagePolish:checked {
-    background-color: #E83E6D;
-    border: 1px solid #E83E6D;
-    color: #FFFFFF;
-}
-
-
-/* =====================================================
-   CONTRAST BUTTON
-   Uses the same shared size as language buttons.
-   ===================================================== */
-
-QPushButton#btnContrast {
-    background-color: #FACC15;
-    color: #111827;
-    border: 1px solid #EAB308;
-}
-
-/* Hover state */
-QPushButton#btnContrast:hover {
-    background-color: #FDE047;
-    border: 1px solid #EAB308;
-    color: #111827;
-}
-
-/* Pressed state */
-QPushButton#btnContrast:pressed {
-    background-color: #EAB308;
-    border: 1px solid #CA8A04;
-    color: #111827;
-}
-
-/* Checked state */
-QPushButton#btnContrast:checked {
-    background-color: #111827;
-    color: #FACC15;
-    border: 1px solid #FACC15;
-}
-
-
-/* =====================================================
-   NUMPAD BUTTONS
-   ===================================================== */
-
-#num_0,
-#num_1,
-#num_2,
-#num_3,
-#num_4,
-#num_5,
-#num_6,
-#num_7,
-#num_8,
-#num_9,
-#num_left,
-#num_right {
-    background-color: #2F3A4D;
-    color: #FFFFFF;
-    border-radius: 18px;
-    font-size: 26px;
-    font-weight: 800;
-}
-
-/* Hover state */
-#num_0:hover,
-#num_1:hover,
-#num_2:hover,
-#num_3:hover,
-#num_4:hover,
-#num_5:hover,
-#num_6:hover,
-#num_7:hover,
-#num_8:hover,
-#num_9:hover,
-#num_left:hover,
-#num_right:hover {
-    background-color: #3E4B61;
-}
-
-/* Pressed state */
-#num_0:pressed,
-#num_1:pressed,
-#num_2:pressed,
-#num_3:pressed,
-#num_4:pressed,
-#num_5:pressed,
-#num_6:pressed,
-#num_7:pressed,
-#num_8:pressed,
-#num_9:pressed,
-#num_left:pressed,
-#num_right:pressed {
-    background-color: #1F2937;
-}
-
-
-/* =====================================================
-   MAIN ACTION BUTTONS
-   Shared style for menu, balance, donation, and amount
-   selection buttons.
-   ===================================================== */
-
-#btn_main_choice_1,
-#btn_main_choice_2,
-#btn_main_choice_3,
-#btn_main_choice_4,
-#btn_main_choice_5,
-#btn_main_choice_6,
-#btn_main_choice_7,
-#btn_main_choice_8,
-#Balance_btn_choice_1,
-#btn_amount_choice_1,
-#btn_amount_choice_2,
-#btn_amount_choice_3,
-#btn_amount_choice_4,
-#btn_donation_choice_1,
-#btn_donation_choice_2,
-#btn_donation_choice_3,
-#btn_donation_choice_4 {
-    background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #F472B6,
-        stop:1 #E83E6D
-    );
-    color: #FFFFFF;
-    border-radius: 16px;
-    padding: 16px;
-    font-weight: 800;
-}
-
-
-/* =====================================================
-   FAST CASH BUTTONS
-   Slightly stronger typography for primary cash amounts.
-   ===================================================== */
-
-#btn_main_choice_1,
-#btn_main_choice_2,
-#btn_main_choice_3 {
-    font-size: 12px;
-    font-weight: 800;
-}
-
-
-/* =====================================================
-   MAIN ACTION BUTTON HOVER
-   Keep hover within the same pink family to preserve
-   visual consistency.
-   ===================================================== */
-
-#btn_main_choice_1:hover,
-#btn_main_choice_2:hover,
-#btn_main_choice_3:hover,
-#btn_main_choice_4:hover,
-#btn_main_choice_5:hover,
-#btn_main_choice_6:hover,
-#btn_main_choice_7:hover,
-#btn_main_choice_8:hover,
-#Balance_btn_choice_1:hover,
-#btn_amount_choice_1:hover,
-#btn_amount_choice_2:hover,
-#btn_amount_choice_3:hover,
-#btn_amount_choice_4:hover,
-#btn_donation_choice_1:hover,
-#btn_donation_choice_2:hover,
-#btn_donation_choice_3:hover,
-#btn_donation_choice_4:hover {
-    background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #FB7185,
-        stop:1 #EC4899
-    );
-}
-
-
-/* =====================================================
-   MAIN ACTION BUTTON PRESSED
-   Darker pressed state for tactile feedback.
-   ===================================================== */
-
-#btn_main_choice_1:pressed,
-#btn_main_choice_2:pressed,
-#btn_main_choice_3:pressed,
-#btn_main_choice_4:pressed,
-#btn_main_choice_5:pressed,
-#btn_main_choice_6:pressed,
-#btn_main_choice_7:pressed,
-#btn_main_choice_8:pressed,
-#Balance_btn_choice_1:pressed,
-#btn_amount_choice_1:pressed,
-#btn_amount_choice_2:pressed,
-#btn_amount_choice_3:pressed,
-#btn_amount_choice_4:pressed,
-#btn_donation_choice_1:pressed,
-#btn_donation_choice_2:pressed,
-#btn_donation_choice_3:pressed,
-#btn_donation_choice_4:pressed {
-    background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #DB2777,
-        stop:1 #9D174D
-    );
-}
-
-
-/* =====================================================
-   CHECKED STATE FOR DONATION / AMOUNT BUTTONS
-   ===================================================== */
-
-#btn_donation_choice_1:checked,
-#btn_donation_choice_2:checked,
-#btn_donation_choice_3:checked,
-#btn_donation_choice_4:checked,
-#btn_amount_choice_1:checked,
-#btn_amount_choice_2:checked,
-#btn_amount_choice_3:checked,
-#btn_amount_choice_4:checked {
-    background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #DB2777,
-        stop:1 #9D174D
-    );
-}</string>
+    <string notr="true"/>
    </property>
    <widget class="QStackedWidget" name="display">
     <property name="geometry">
@@ -415,7 +33,7 @@ QPushButton#btnContrast:checked {
      <enum>QFrame::Shape::NoFrame</enum>
     </property>
     <property name="currentIndex">
-     <number>8</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="page1_Welcome">
      <widget class="QWidget" name="layoutWidget">
@@ -470,12 +88,7 @@ QPushButton#btnContrast:checked {
        <item row="1" column="0">
         <widget class="QLineEdit" name="CardNumberDisplay">
          <property name="styleSheet">
-          <string notr="true">background-color: #1E293B;
-color: white;
-font-size: 18px;
-font-weight: bold;
-padding: 6px;
-border-radius: 6px;</string>
+          <string notr="true"/>
          </property>
          <property name="maxLength">
           <number>32</number>
@@ -540,19 +153,7 @@ border-radius: 6px;</string>
        <cursorShape>BlankCursor</cursorShape>
       </property>
       <property name="styleSheet">
-       <string notr="true">QLineEdit#pinInput {
-    background-color: #FFF7FB;
-    border: 2px solid #D94680;
-    border-radius: 16px;
-
-    color: #9D174D;
-    font-size: 28px;
-    font-weight: 700;
-    font-family: &quot;Segoe UI&quot;, &quot;Arial&quot;;
-
-    padding: 12px 18px;
-	letter-spacing: 12px;
-}</string>
+       <string notr="true"/>
       </property>
       <property name="inputMask">
        <string/>
@@ -751,16 +352,7 @@ border-radius: 6px;</string>
            <bool>false</bool>
           </property>
           <property name="styleSheet">
-           <string notr="true">QLineEdit#amountInput {
-    background-color: transparent;
-    border: none;
-    color: #AD1457;
-    font-size: 48px;
-    font-weight: 800;
-    font-family: &quot;Segoe UI&quot;, &quot;Arial&quot;;
-    padding: 0px;
-    margin: 0px;
-}</string>
+           <string notr="true"/>
           </property>
           <property name="inputMask">
            <string>9999</string>
@@ -782,15 +374,7 @@ border-radius: 6px;</string>
         <item>
          <widget class="QLabel" name="labelAmountCurrency">
           <property name="styleSheet">
-           <string notr="true">QLabel#labelAmountCurrency {
-    background-color: transparent;
-    color: #C2185B;
-    font-size: 26px;
-    font-weight: 600;
-    font-family: &quot;Segoe UI&quot;, &quot;Arial&quot;;
-    padding: 0px;
-    margin: 0px;
-}</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>EUR</string>
@@ -803,17 +387,7 @@ border-radius: 6px;</string>
     </widget>
     <widget class="QWidget" name="page5_Balance">
      <property name="styleSheet">
-      <string notr="true">QListWidget {
-    background-color: transparent;
-    border: none;
-    font-size: 16px;
-    color: #1E293B;
-}
-
-QListWidget#BalanceListRecentTransactions {
-    font-size: 10px;
-    color: #0F172A;
-}</string>
+      <string notr="true"/>
      </property>
      <widget class="QLabel" name="Balance_TitleAccountSelect">
       <property name="geometry">
@@ -838,8 +412,7 @@ QListWidget#BalanceListRecentTransactions {
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true">font-size: 30px; font-weight: 800; color: #0F172A;
-</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>AMOUNT</string>
@@ -1137,10 +710,7 @@ QListWidget#BalanceListRecentTransactions {
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">#TouchPanel  {
-    background-color: #E5E7EB;
-    border-top: 2px solid #CBD5E1;
-}</string>
+     <string notr="true"/>
     </property>
     <layout class="QGridLayout" name="bottomPanelLayout">
      <property name="leftMargin">
@@ -1164,21 +734,7 @@ QListWidget#BalanceListRecentTransactions {
         </size>
        </property>
        <property name="styleSheet">
-        <string notr="true">
-#button_3green_OK {
-    background-color: #2e7d32;
-    color: white;
-    border-radius: 12px;
-    font-size: 20px;
-    font-weight: 700;
-}
-#button_3green_OK:hover {
-    background-color: #43a047;
-}
-#button_3green_OK:pressed {
-    background-color: #1b5e20;
-}
-</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>OK</string>
@@ -1194,21 +750,7 @@ QListWidget#BalanceListRecentTransactions {
         </size>
        </property>
        <property name="styleSheet">
-        <string notr="true">#button_1red_CANCEL {
-    background-color: #c62828;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    border-radius: 12px;
-}
-
-#button_1red_CANCEL:hover {
-    background-color: #e53935;
-}
-
-#button_1red_CANCEL:pressed {
-    background-color: #8e0000;
-}</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>Cancel</string>
@@ -1312,20 +854,7 @@ QListWidget#BalanceListRecentTransactions {
         </size>
        </property>
        <property name="styleSheet">
-        <string notr="true">#button_2yellow_CLEAR {
-    background-color: #f9a825;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    border-radius: 12px;
-}
-#button_2yellow_CLEAR:hover {
-    background-color: #fdd835;
-}
-#button_2yellow_CLEAR:pressed {
-    background-color: #c17900;
-}
-</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>Clear</string>
@@ -1365,7 +894,6 @@ QListWidget#BalanceListRecentTransactions {
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>-1</pointsize>
       <italic>false</italic>
       <fontweight>DemiBold</fontweight>
      </font>

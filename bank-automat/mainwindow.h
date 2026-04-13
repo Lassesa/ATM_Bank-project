@@ -49,6 +49,9 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 
+private slots:
+    void on_btnContrast_clicked();
+
 private:
     // =====================================================
     // Input Mode
@@ -121,6 +124,16 @@ private:
     // =====================================================
     void selectAmount(int amount);
     QString formatAmount(int amount);
+
+    // =====================================================
+    // Styles Management
+    // =====================================================
+    QString lightStyle;
+    QString contrastStyle;
+    bool contrastEnabled = false;
+
+    void setupStyles();
+    void applyCurrentStyle();
 };
 
 #endif // MAINWINDOW_H
