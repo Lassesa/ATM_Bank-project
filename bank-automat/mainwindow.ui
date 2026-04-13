@@ -15,237 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
-    <string notr="true">/* ===== APP BACKGROUND ===== */
-#centralwidget {
-    background-color: #EEF3F9;
-}
-
-/* ===== STACKED DISPLAY ===== */
-#display {
-    background-color: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #ffe4ec,
-        stop:1 #ffffff
-    );
-    border-radius: 28px;
-}
-
-/* ===== TEXT ===== */
-QLabel {
-    color: #1E293B;
-}
-
-QLabel#labelWelcome, QLabel#labelWelcome_PIN, QLabel#labelWelcome_Main, QLabel#labelWelcome_Withdraw, QLabel#labelWelcome_Balance, QLabel#labelWelcome_Transfer, QLabel#labelWelcome_Donation, QLabel#labelWelcome_Exit, QLabel#labelWelcome_Other  {
-    font-size: 40px;
-    font-weight: 800;
-    color: #0F172A;
-}
-
-QLabel#labelInstruction, QLabel#labelInstruction_PIN, QLabel#labelInstruction_Main, QLabel#labelInstruction_Withdraw, QLabel#labelInstruction_Balance, QLabel#labelInstruction_Balance, QLabel#labelInstruction_Transfer, QLabel#labelInstruction_Donation, QLabel#labelInstruction_Exit, QLabel#labelInstruction_Other {
-    font-size: 20px;
-    font-weight: 600;
-    color: #475569;
-}
-
-QLabel#foundersLabel {
-    font-size: 9px;
-    font-weight: 600;
-    color: #334155;
-}
-
-/* ===== LANGUAGE BUTTONS ===== */
-QPushButton#btnLanguageEnglish,
-QPushButton#btnLanguageFinnish,
-QPushButton#btnLanguagePolish {
-    background-color: transparent;
-    color: #1E293B;
-    border: 2px solid #1E293B;
-    border-radius: 12px;
-    padding: 6px 14px;
-    font-size: 16px;
-    font-weight: 700;
-    min-width: 20px;
-    min-height: 15px;
-}
-
-/* hover */
-QPushButton#btnLanguageEnglish:hover,
-QPushButton#btnLanguageFinnish:hover,
-QPushButton#btnLanguagePolish:hover {
-    background-color: #1E293B;
-    color: white;
-}
-
-/* active (clicked) */
-QPushButton#btnLanguageEnglish:checked,
-QPushButton#btnLanguageFinnish:checked,
-QPushButton#btnLanguagePolish:checked {
-    background-color: #E83E6D;
-    border: 2px solid #E83E6D;
-    color: white;
-}
-
-
-
-/* ===== NUMPAD ===== */
-#num_0, #num_1, #num_2, #num_3, #num_4,
-#num_5, #num_6, #num_7, #num_8, #num_9,
-#num_left, #num_right {
-    background-color: #2F3A4D;
-    color: #FFFFFF;
-    border-radius: 18px;
-    font-size: 26px;
-    font-weight: 800;
-}
-
-/* HOVER */
-#num_0:hover, #num_1:hover, #num_2:hover, #num_3:hover,
-#num_4:hover, #num_5:hover, #num_6:hover,
-#num_7:hover, #num_8:hover, #num_9:hover,
-#num_left:hover, #num_right:hover {
-    background-color: #3E4B61;
-}
-
-/* CLICK */
-#num_0:pressed, #num_1:pressed, #num_2:pressed, #num_3:pressed,
-#num_4:pressed, #num_5:pressed, #num_6:pressed,
-#num_7:pressed, #num_8:pressed, #num_9:pressed,
-#num_left:pressed, #num_right:pressed {
-    background-color: #1F2937;
-}
-
-/* ===== GLOBAL BUTTON STYLE ===== */
-QPushButton {
-    padding: 10px;
-    font-weight: bold;
-    border: none;
-}
-
-/* ===== Pages Layout ===== */
-
-
-#page1_Welcome,
-#page2_Pin,
-#page3_Main,
-#page4_Withdraw,
-#page5_Balance,
-#page6_Transfer,
-#page7_Donation,
-#page8_Exit,
-#page9_Other {
-    background: transparent;
-}
-
-
-
-/* ===== MAIN MENU BUTTONS ===== */
-#btn_main_choice_1,
-#btn_main_choice_2,
-#btn_main_choice_3,
-#btn_main_choice_4,
-#btn_main_choice_5,
-#btn_main_choice_6,
-#btn_main_choice_7,
-#btn_main_choice_8,
-
-#Balance_btn_choice_1,
-
-#btn_amount_choice_1,
-#btn_amount_choice_2,
-#btn_amount_choice_3,
-#btn_amount_choice_4,
-#btn_donation_choice_1,
-#btn_donation_choice_2,
-#btn_donation_choice_3,
-#btn_donation_choice_4
-{
-
- background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #F472B6,
-        stop:1 #E83E6D
-    );
-    color: white;
-    border-radius: 16px;
-    padding: 16px;
-    font-weight: 800;
-/*
-    background-color: blue;
-    color: white;
-    border-radius: 16px;
-    padding: 16px;
-    font-size: 12px;
-    font-weight: 750; */
-}
-
-/* bigger (fast cash / main actions) */
-#btn_main_choice_1,
-#btn_main_choice_2,
-#btn_main_choice_3 {
-    font-size: 12px;
-    font-weight: 800;
-}
-
-
-/* hover */
-#btn_main_choice_1:hover,
-#btn_main_choice_2:hover,
-#btn_main_choice_3:hover,
-#btn_main_choice_4:hover,
-#btn_main_choice_5:hover,
-#btn_main_choice_6:hover,
-#btn_main_choice_7:hover,
-#btn_main_choice_8:hover,
-#Balance_btn_choice_1:hover,
-
-#btn_amount_choice_1:hover,
-#btn_amount_choice_2:hover,
-#btn_amount_choice_3:hover,
-#btn_amount_choice_4:hover,
-#btn_donation_choice_1:hover,
-#btn_donation_choice_2:hover,
-#btn_donation_choice_3:hover,
-#btn_donation_choice_4:hover {
-    background-color: #1D4ED8;
-}
-
-/* pressed */
-#btn_main_choice_1:pressed,
-#btn_main_choice_2:pressed,
-#btn_main_choice_3:pressed,
-#btn_main_choice_4:pressed,
-#btn_main_choice_5:pressed,
-#btn_main_choice_6:pressed,
-#btn_main_choice_7:pressed,
-#btn_main_choice_8:pressed,
-
-#Balance_btn_choice_1:pressed,
-
-#btn_amount_choice_1:pressed,
-#btn_amount_choice_2:pressed,
-#btn_amount_choice_3:pressed,
-#btn_amount_choice_4:pressed,
-#btn_donation_choice_1:pressed,
-#btn_donation_choice_2:pressed,
-#btn_donation_choice_3:pressed,
-#btn_donation_choice_4:pressed {
-    background-color: #1E40AF;
-}
-
-#btn_donation_choice_1:checked,
-#btn_donation_choice_2:checked,
-#btn_donation_choice_3:checked,
-#btn_donation_choice_4:checked,
-#btn_amount_choice_1:checked,
-#btn_amount_choice_2:checked,
-#btn_amount_choice_3:checked,
-#btn_amount_choice_4:checked {
-    background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #DB2777,
-        stop:1 #9D174D
-    );
-}</string>
+    <string notr="true"/>
    </property>
    <widget class="QStackedWidget" name="display">
     <property name="geometry">
@@ -318,12 +88,7 @@ QPushButton {
        <item row="1" column="0">
         <widget class="QLineEdit" name="CardNumberDisplay">
          <property name="styleSheet">
-          <string notr="true">background-color: #1E293B;
-color: white;
-font-size: 18px;
-font-weight: bold;
-padding: 6px;
-border-radius: 6px;</string>
+          <string notr="true"/>
          </property>
          <property name="maxLength">
           <number>32</number>
@@ -332,7 +97,7 @@ border-radius: 6px;</string>
           <set>Qt::AlignmentFlag::AlignCenter</set>
          </property>
          <property name="readOnly">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="placeholderText">
           <string/>
@@ -388,19 +153,7 @@ border-radius: 6px;</string>
        <cursorShape>BlankCursor</cursorShape>
       </property>
       <property name="styleSheet">
-       <string notr="true">QLineEdit#pinInput {
-    background-color: #FFF7FB;
-    border: 2px solid #D94680;
-    border-radius: 16px;
-
-    color: #9D174D;
-    font-size: 28px;
-    font-weight: 700;
-    font-family: &quot;Segoe UI&quot;, &quot;Arial&quot;;
-
-    padding: 12px 18px;
-	letter-spacing: 12px;
-}</string>
+       <string notr="true"/>
       </property>
       <property name="inputMask">
        <string/>
@@ -599,16 +352,7 @@ border-radius: 6px;</string>
            <bool>false</bool>
           </property>
           <property name="styleSheet">
-           <string notr="true">QLineEdit#amountInput {
-    background-color: transparent;
-    border: none;
-    color: #AD1457;
-    font-size: 48px;
-    font-weight: 800;
-    font-family: &quot;Segoe UI&quot;, &quot;Arial&quot;;
-    padding: 0px;
-    margin: 0px;
-}</string>
+           <string notr="true"/>
           </property>
           <property name="inputMask">
            <string>9999</string>
@@ -630,15 +374,7 @@ border-radius: 6px;</string>
         <item>
          <widget class="QLabel" name="labelAmountCurrency">
           <property name="styleSheet">
-           <string notr="true">QLabel#labelAmountCurrency {
-    background-color: transparent;
-    color: #C2185B;
-    font-size: 26px;
-    font-weight: 600;
-    font-family: &quot;Segoe UI&quot;, &quot;Arial&quot;;
-    padding: 0px;
-    margin: 0px;
-}</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>EUR</string>
@@ -651,17 +387,7 @@ border-radius: 6px;</string>
     </widget>
     <widget class="QWidget" name="page5_Balance">
      <property name="styleSheet">
-      <string notr="true">QListWidget {
-    background-color: transparent;
-    border: none;
-    font-size: 16px;
-    color: #1E293B;
-}
-
-QListWidget#BalanceListRecentTransactions {
-    font-size: 10px;
-    color: #0F172A;
-}</string>
+      <string notr="true"/>
      </property>
      <widget class="QLabel" name="Balance_TitleAccountSelect">
       <property name="geometry">
@@ -686,24 +412,10 @@ QListWidget#BalanceListRecentTransactions {
        </rect>
       </property>
       <property name="styleSheet">
-       <string notr="true">font-size: 30px; font-weight: 800; color: #0F172A;
-</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>AMOUNT</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="Balance_btn_choice_1">
-      <property name="geometry">
-       <rect>
-        <x>580</x>
-        <y>180</y>
-        <width>161</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Other Accounts</string>
       </property>
      </widget>
      <widget class="QWidget" name="layoutWidget_23">
@@ -762,6 +474,32 @@ QListWidget#BalanceListRecentTransactions {
            <string>New Item</string>
           </property>
          </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>145</y>
+        <width>161</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QPushButton" name="Balance_btn_choice_1">
+         <property name="text">
+          <string>Other Accounts</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="Balance_btn_choice_2">
+         <property name="text">
+          <string>More Transactions</string>
+         </property>
         </widget>
        </item>
       </layout>
@@ -974,6 +712,130 @@ QListWidget#BalanceListRecentTransactions {
       </layout>
      </widget>
     </widget>
+    <widget class="QWidget" name="page10_Error">
+     <widget class="QWidget" name="layoutWidget_28">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Error">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Error">
+         <property name="text">
+          <string>Please use another ATM.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Error">
+         <property name="text">
+          <string>Out of Service</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page12_Accounts">
+     <widget class="QWidget" name="layoutWidget_30">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Accounts">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Accounts">
+         <property name="text">
+          <string>Your session will end soon.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Accounts">
+         <property name="text">
+          <string>Are you still there?</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page13_Transactions">
+     <widget class="QWidget" name="layoutWidget_31">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Transactions">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Transactions">
+         <property name="text">
+          <string>Your session will end soon.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Transactions">
+         <property name="text">
+          <string>Are you still there?</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page11_Time">
+     <widget class="QWidget" name="layoutWidget_29">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Time">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Time">
+         <property name="text">
+          <string>Your session will end soon.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Time">
+         <property name="text">
+          <string>Are you still there?</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </widget>
    <widget class="QWidget" name="TouchPanel" native="true">
     <property name="geometry">
@@ -985,10 +847,7 @@ QListWidget#BalanceListRecentTransactions {
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">#TouchPanel  {
-    background-color: #E5E7EB;
-    border-top: 2px solid #CBD5E1;
-}</string>
+     <string notr="true"/>
     </property>
     <layout class="QGridLayout" name="bottomPanelLayout">
      <property name="leftMargin">
@@ -1012,21 +871,7 @@ QListWidget#BalanceListRecentTransactions {
         </size>
        </property>
        <property name="styleSheet">
-        <string notr="true">
-#button_3green_OK {
-    background-color: #2e7d32;
-    color: white;
-    border-radius: 12px;
-    font-size: 20px;
-    font-weight: 700;
-}
-#button_3green_OK:hover {
-    background-color: #43a047;
-}
-#button_3green_OK:pressed {
-    background-color: #1b5e20;
-}
-</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>OK</string>
@@ -1042,21 +887,7 @@ QListWidget#BalanceListRecentTransactions {
         </size>
        </property>
        <property name="styleSheet">
-        <string notr="true">#button_1red_CANCEL {
-    background-color: #c62828;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    border-radius: 12px;
-}
-
-#button_1red_CANCEL:hover {
-    background-color: #e53935;
-}
-
-#button_1red_CANCEL:pressed {
-    background-color: #8e0000;
-}</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>Cancel</string>
@@ -1160,20 +991,7 @@ QListWidget#BalanceListRecentTransactions {
         </size>
        </property>
        <property name="styleSheet">
-        <string notr="true">#button_2yellow_CLEAR {
-    background-color: #f9a825;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    border-radius: 12px;
-}
-#button_2yellow_CLEAR:hover {
-    background-color: #fdd835;
-}
-#button_2yellow_CLEAR:pressed {
-    background-color: #c17900;
-}
-</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string>Clear</string>
@@ -1213,7 +1031,6 @@ QListWidget#BalanceListRecentTransactions {
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>-1</pointsize>
       <italic>false</italic>
       <fontweight>DemiBold</fontweight>
      </font>
@@ -1222,33 +1039,26 @@ QListWidget#BalanceListRecentTransactions {
      <string>Build by Lasse, Arttu, Nhi &amp; Kaj</string>
     </property>
    </widget>
-   <widget class="QWidget" name="LanguageSelection" native="true">
+   <widget class="QWidget" name="LanguageSelectionAndContrast" native="true">
     <property name="geometry">
      <rect>
       <x>30</x>
       <y>20</y>
-      <width>191</width>
-      <height>51</height>
+      <width>301</width>
+      <height>60</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>60</width>
+      <height>60</height>
+     </size>
     </property>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QPushButton" name="btnLanguageFinnish">
        <property name="text">
         <string>FI</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="autoExclusive">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="btnLanguagePolish">
-       <property name="text">
-        <string>PL</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -1271,27 +1081,33 @@ QListWidget#BalanceListRecentTransactions {
        </property>
       </widget>
      </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="btnLanguagePolish">
+       <property name="text">
+        <string>PL</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="btnContrast">
+       <property name="text">
+        <string>CO</string>
+       </property>
+      </widget>
+     </item>
     </layout>
-   </widget>
-   <widget class="QPushButton" name="btnContrast">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>20</y>
-      <width>61</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>👁️</string>
-    </property>
    </widget>
    <zorder>display</zorder>
    <zorder>TouchPanel</zorder>
    <zorder>logo</zorder>
-   <zorder>LanguageSelection</zorder>
+   <zorder>LanguageSelectionAndContrast</zorder>
    <zorder>foundersLabel</zorder>
-   <zorder>btnContrast</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
