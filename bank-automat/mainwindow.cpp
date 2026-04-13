@@ -36,6 +36,45 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+
+    // Sound management
+    keypadSound = new QSoundEffect(this);
+    keypadSound->setSource(QUrl("qrc:/sounds/keypad.wav"));
+    keypadSound->setVolume(0.5);
+
+    okSound = new QSoundEffect(this);
+    okSound->setSource(QUrl("qrc:/sounds/ok.wav"));
+    okSound->setVolume(0.5);
+
+    cancelSound = new QSoundEffect(this);
+    cancelSound->setSource(QUrl("qrc:/sounds/cancel.wav"));
+    cancelSound->setVolume(0.5);
+
+    clearSound = new QSoundEffect(this);
+    clearSound->setSource(QUrl("qrc:/sounds/clear.wav"));
+    clearSound->setVolume(0.5);
+
+    buttonSound = new QSoundEffect(this);
+    buttonSound->setSource(QUrl("qrc:/sounds/button.wav"));
+    buttonSound->setVolume(0.5);
+
+    successSound = new QSoundEffect(this);
+    successSound->setSource(QUrl("qrc:/sounds/success.wav"));
+    successSound->setVolume(0.5);
+
+    errorSound = new QSoundEffect(this);
+    errorSound->setSource(QUrl("qrc:/sounds/error.wav"));
+    errorSound->setVolume(0.5);
+
+    withdrawSound = new QSoundEffect(this);
+    withdrawSound->setSource(QUrl("qrc:/sounds/withdraw.wav"));
+    withdrawSound->setVolume(0.5);
+
+    timeoutSound = new QSoundEffect(this);
+    timeoutSound->setSource(QUrl("qrc:/sounds/timeout.wav"));
+    timeoutSound->setVolume(0.5);
+
+
     // Create network manager for backend API calls
     networkManager = new QNetworkAccessManager(this);
 
@@ -80,7 +119,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->amountInput->setText("0 €");
 
     // Set application window icon
-    this->setWindowIcon(QIcon(":/logo.svg/logo.svg"));
+    this->setWindowIcon(QIcon(":/logo.svg"));
 
     // Set initial keypad mode
     currentMode = PinMode;
@@ -164,7 +203,7 @@ void MainWindow::connectSignals()
     // -----------------------------
     // Keypad number buttons
     // -----------------------------
-    connect(ui->num_0, &QPushButton::clicked, this, [this]() { handleDigit("0"); });
+    /*connect(ui->num_0, &QPushButton::clicked, this, [this]() { handleDigit("0"); });
     connect(ui->num_1, &QPushButton::clicked, this, [this]() { handleDigit("1"); });
     connect(ui->num_2, &QPushButton::clicked, this, [this]() { handleDigit("2"); });
     connect(ui->num_3, &QPushButton::clicked, this, [this]() { handleDigit("3"); });
@@ -173,12 +212,66 @@ void MainWindow::connectSignals()
     connect(ui->num_6, &QPushButton::clicked, this, [this]() { handleDigit("6"); });
     connect(ui->num_7, &QPushButton::clicked, this, [this]() { handleDigit("7"); });
     connect(ui->num_8, &QPushButton::clicked, this, [this]() { handleDigit("8"); });
-    connect(ui->num_9, &QPushButton::clicked, this, [this]() { handleDigit("9"); });
+    connect(ui->num_9, &QPushButton::clicked, this, [this]() { handleDigit("9"); });*/
+
+    connect(ui->num_0, &QPushButton::clicked, this, [this]() {
+        handleDigit("0");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
+
+    connect(ui->num_1, &QPushButton::clicked, this, [this]() {
+        handleDigit("1");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
+
+    connect(ui->num_2, &QPushButton::clicked, this, [this]() {
+        handleDigit("2");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
+
+    connect(ui->num_3, &QPushButton::clicked, this, [this]() {
+        handleDigit("3");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
+
+    connect(ui->num_4, &QPushButton::clicked, this, [this]() {
+        handleDigit("4");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
+
+    connect(ui->num_5, &QPushButton::clicked, this, [this]() {
+        handleDigit("5");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
+
+    connect(ui->num_6, &QPushButton::clicked, this, [this]() {
+        handleDigit("6");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
+
+    connect(ui->num_7, &QPushButton::clicked, this, [this]() {
+        handleDigit("7");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
+
+    connect(ui->num_8, &QPushButton::clicked, this, [this]() {
+        handleDigit("8");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
+
+    connect(ui->num_9, &QPushButton::clicked, this, [this]() {
+        handleDigit("9");
+        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+    });
 
     // -----------------------------
     // Clear button
     // -----------------------------
     connect(ui->button_2yellow_CLEAR, &QPushButton::clicked, this, [this]() {
+
+        if (clearSound)
+            clearSound->play();
+
         if (ui->display->currentWidget() == ui->page2_Pin) {
             QString text = ui->pinInput->text();
             text.chop(1);
@@ -205,6 +298,10 @@ void MainWindow::connectSignals()
     // Cancel button
     // -----------------------------
     connect(ui->button_1red_CANCEL, &QPushButton::clicked, this, [this]() {
+
+        if (cancelSound)
+            cancelSound->play();
+
         QWidget *current = ui->display->currentWidget();
 
         if (current == ui->page2_Pin || current == ui->page1_Welcome || current == ui->page11_Time) {
@@ -231,6 +328,10 @@ void MainWindow::connectSignals()
     // OK button
     // -----------------------------
     connect(ui->button_3green_OK, &QPushButton::clicked, this, [this]() {
+
+        if (okSound)
+            okSound->play();
+
         if (ui->display->currentWidget() == ui->page1_Welcome) {
             ui->display->setCurrentWidget(ui->page2_Pin);
             ui->pinInput->clear();
@@ -268,48 +369,88 @@ void MainWindow::connectSignals()
     // Main menu buttons
     // -----------------------------
     connect(ui->btn_main_choice_1, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         selectAmount(50);
         showPage(ui->page4_Withdraw);
     });
 
     connect(ui->btn_main_choice_2, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         selectAmount(100);
         showPage(ui->page4_Withdraw);
     });
 
     connect(ui->btn_main_choice_3, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         selectAmount(0);
         showPage(ui->page4_Withdraw);
     });
 
     connect(ui->btn_main_choice_4, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         updateBalanceDisplay();
         updateTransactionsDisplay();
         showPage(ui->page5_Balance);
     });
 
     connect(ui->btn_main_choice_5, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         showPage(ui->page6_Transfer);
     });
 
     connect(ui->btn_main_choice_6, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         showPage(ui->page7_Donation);
     });
 
     connect(ui->btn_main_choice_7, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         showPage(ui->page8_Exit);
     });
 
 
     connect(ui->btn_main_choice_8, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         showPage(ui->page11_Time);
     });
 
     connect(ui->Balance_btn_choice_1, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         showPage(ui->page12_Accounts);
     });
 
     connect(ui->Balance_btn_choice_2, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
         showPage(ui->page13_Transactions);
     });
 }
@@ -740,6 +881,9 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
                 qDebug() << "Stored Account ID:" << accountId;
                 qDebug() << "Token start:" << sessionToken.left(10) << "...";
 
+                if (successSound)
+                    successSound->play();
+
                 ui->display->setCurrentWidget(ui->page3_Main);
                 ui->pinInput->clear();
             } else {
@@ -749,6 +893,10 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
             QByteArray errorData = reply->readAll();
             qDebug() << "Login error:" << reply->errorString();
             qDebug() << "Backend error message:" << errorData;
+
+            if (errorSound)
+                errorSound->play();
+
             ui->pinInput->clear();
         }
 
@@ -883,6 +1031,10 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
     connect(reply, &QNetworkReply::finished, this, [this, reply, description]() {
         if (reply->error() == QNetworkReply::NoError) {
             qDebug() << "Successful transaction:" << description;
+
+            if (withdrawSound)
+                withdrawSound->play();
+
             updateBalanceDisplay();
             updateTransactionsDisplay();
             ui->display->setCurrentWidget(ui->page3_Main);

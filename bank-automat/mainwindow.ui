@@ -1013,7 +1013,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/logo.svg/logo.svg</pixmap>
+     <pixmap resource="resources.qrc">:/logo.svg</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>

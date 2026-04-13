@@ -26,6 +26,15 @@
 
 #include <QtSerialPort/QSerialPort>
 
+
+// =====================================================
+// Qt Sound Effects
+// =====================================================
+
+#include <QSoundEffect>
+#include <QTimer>
+
+
 // =====================================================
 // Qt Utility Classes
 // =====================================================
@@ -134,6 +143,21 @@ private:
 
     void setupStyles();
     void applyCurrentStyle();
+
+    // =====================================================
+    // Sound  Management
+    // =====================================================
+
+    QSoundEffect *keypadSound;
+    QSoundEffect *okSound;
+    QSoundEffect *cancelSound;
+    QSoundEffect *clearSound;
+    QSoundEffect *buttonSound;
+    QSoundEffect *successSound;
+    QSoundEffect *errorSound;
+    QSoundEffect *withdrawSound;
+    QSoundEffect *timeoutSound;
+
 };
 
 #endif // MAINWINDOW_H
