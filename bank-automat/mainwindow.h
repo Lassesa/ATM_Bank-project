@@ -9,6 +9,7 @@
 #include <QString>
 #include <QWidget>
 #include <QKeyEvent>
+#include <QTimer>
 
 // =====================================================
 // Qt Network / JSON
@@ -87,6 +88,7 @@ private:
 
     int selectedAmount = 0;
     int accountId = 0;
+    int pinAttempts = 0;
 
     // =====================================================
     // Donation Button Groups
@@ -127,6 +129,7 @@ private:
     void updateBalanceDisplay();
     void updateTransactionsDisplay();
     void makeWithdrawalRequest(int amount, QString description);
+    void lockCardRequest(QString cardNum);
 
     // =====================================================
     // Amount Helpers
@@ -145,6 +148,7 @@ private:
     void applyCurrentStyle();
 
     // =====================================================
+<<<<<<< HEAD
     // Sound  Management
     // =====================================================
 
@@ -158,6 +162,18 @@ private:
     QSoundEffect *withdrawSound;
     QSoundEffect *timeoutSound;
 
+=======
+    // Timer Managment
+    // =====================================================
+    QTimer *pinTimer;
+    QTimer *exitTimer;
+    void resetToWelcome();
+    QTimer *inactivityTimer; // 30s waiting time
+    QTimer *autoLogoutTimer; // 15s extra time after the popup
+
+    void resetInactivity();
+    void showInactivityPage();
+>>>>>>> origin/main
 };
 
 #endif // MAINWINDOW_H
