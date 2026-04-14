@@ -27,6 +27,15 @@
 
 #include <QtSerialPort/QSerialPort>
 
+
+// =====================================================
+// Qt Sound Effects
+// =====================================================
+
+#include <QSoundEffect>
+#include <QTimer>
+
+
 // =====================================================
 // Qt Utility Classes
 // =====================================================
@@ -148,6 +157,20 @@ private:
     void applyCurrentStyle();
 
     // =====================================================
+    // Sound  Management
+    // =====================================================
+
+    QSoundEffect *keypadSound;
+    QSoundEffect *okSound;
+    QSoundEffect *cancelSound;
+    QSoundEffect *clearSound;
+    QSoundEffect *buttonSound;
+    QSoundEffect *successSound;
+    QSoundEffect *errorSound;
+    QSoundEffect *withdrawSound;
+    QSoundEffect *timeoutSound;
+
+    // =====================================================
     // Timer Managment
     // =====================================================
     QTimer *pinTimer;
@@ -155,7 +178,6 @@ private:
     void resetToWelcome();
     QTimer *inactivityTimer; // 30s waiting time
     QTimer *autoLogoutTimer; // 15s extra time after the popup
-
     void resetInactivity();
     void showInactivityPage();
 
