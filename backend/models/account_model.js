@@ -2,6 +2,10 @@ const db = require('../database');
 
 const account = {
     // Hae kaikki tilit
+    getByCustomerId(customerId, callback) {
+        return db.query("SELECT * FROM account WHERE account_customerid = ?", [customerId], callback);
+    },
+    
     getAll(callback) {
         return db.query("SELECT * FROM account", callback);
     },
@@ -9,7 +13,7 @@ const account = {
     getById(id, callback) {
         return db.query("SELECT * FROM account WHERE idaccount = ?", [id], callback);
     },
-    // Lisää uusi tili (Tämä on se, jonka sait jo toimimaan!)
+    // Lisää uusi tili 
     add(newAcc, callback) {
         return db.query(
             "INSERT INTO account (account_number, account_type, account_balance, account_limit, account_currency, account_customerid) VALUES(?,?,?,?,?,?)",

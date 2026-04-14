@@ -13,19 +13,1213 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>22</height>
-    </rect>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
    </property>
+   <widget class="QStackedWidget" name="display">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>19</y>
+      <width>751</width>
+      <height>281</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::NoFrame</enum>
+    </property>
+    <property name="currentIndex">
+     <number>5</number>
+    </property>
+    <widget class="QWidget" name="page1_Welcome">
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>571</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome">
+         <property name="text">
+          <string>Welcome to S/R Bank</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction">
+         <property name="text">
+          <string>Please insert your card to begin</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>150</y>
+        <width>188</width>
+        <height>67</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="CardNumberGrid">
+       <item row="0" column="0">
+        <widget class="QLabel" name="CardNumberText">
+         <property name="text">
+          <string>Card Number:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="CardNumberDisplay">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="maxLength">
+          <number>32</number>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+         <property name="placeholderText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page2_Pin">
+     <widget class="QWidget" name="layoutWidget_19">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>561</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_PIN">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_PIN">
+         <property name="text">
+          <string>Please cover the keypad while entering your PIN</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_PIN">
+         <property name="text">
+          <string>Please enter your PIN</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QLineEdit" name="pinInput">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>170</y>
+        <width>221</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="cursor">
+       <cursorShape>BlankCursor</cursorShape>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="inputMask">
+       <string/>
+      </property>
+      <property name="maxLength">
+       <number>4</number>
+      </property>
+      <property name="echoMode">
+       <enum>QLineEdit::EchoMode::Password</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignmentFlag::AlignCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page3_Main">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <widget class="QWidget" name="layoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>135</y>
+        <width>701</width>
+        <height>148</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <property name="leftMargin">
+        <number>16</number>
+       </property>
+       <property name="topMargin">
+        <number>16</number>
+       </property>
+       <property name="rightMargin">
+        <number>16</number>
+       </property>
+       <property name="bottomMargin">
+        <number>16</number>
+       </property>
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="btn_main_choice_6">
+         <property name="text">
+          <string>6 Donation</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="btn_main_choice_1">
+         <property name="text">
+          <string>1   €50</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="btn_main_choice_3">
+         <property name="text">
+          <string>3  Other amount</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="btn_main_choice_4">
+         <property name="text">
+          <string>4 Balance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QPushButton" name="btn_main_choice_7">
+         <property name="text">
+          <string>7 Exit</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QPushButton" name="btn_main_choice_8">
+         <property name="text">
+          <string>8 More</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="btn_main_choice_2">
+         <property name="text">
+          <string>2   €100</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="btn_main_choice_5">
+         <property name="text">
+          <string>5 Transfer</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+      <zorder>btn_main_choice_7</zorder>
+      <zorder>btn_main_choice_1</zorder>
+      <zorder>btn_main_choice_3</zorder>
+      <zorder>btn_main_choice_6</zorder>
+      <zorder>btn_main_choice_5</zorder>
+      <zorder>btn_main_choice_4</zorder>
+      <zorder>btn_main_choice_2</zorder>
+      <zorder>btn_main_choice_8</zorder>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_18">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>961</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Main">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Main">
+         <property name="text">
+          <string>Choose a transaction</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Main">
+         <property name="text">
+          <string>Select a service to continue</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page4_Withdraw">
+     <widget class="QWidget" name="layoutWidget_22">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>561</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Withdraw">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Withdraw">
+         <property name="text">
+          <string>Enter the amount you wish to withdraw</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Withdraw">
+         <property name="text">
+          <string>Select or enter amount</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="amountDisplayWidget" native="true">
+      <property name="geometry">
+       <rect>
+        <x>-1</x>
+        <y>149</y>
+        <width>751</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>30</y>
+         <width>401</width>
+         <height>68</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="AmountGrid">
+        <property name="spacing">
+         <number>8</number>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="amountInput">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="inputMask">
+           <string>9999</string>
+          </property>
+          <property name="maxLength">
+           <number>4</number>
+          </property>
+          <property name="echoMode">
+           <enum>QLineEdit::EchoMode::Normal</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+          </property>
+          <property name="placeholderText">
+           <string>Enter amount </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelAmountCurrency">
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string>EUR</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page5_Balance">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <widget class="QLabel" name="Balance_TitleAccountSelect">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>160</y>
+        <width>131</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Main account</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="Balance_Amount">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>200</y>
+        <width>211</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string>AMOUNT</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_23">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>561</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Balance">
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelInstruction_Balance">
+         <property name="text">
+          <string>View your current available balance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelWelcome_Balance">
+         <property name="text">
+          <string>Account balance</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>170</y>
+        <width>311</width>
+        <height>112</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="Balance_grid_transactions">
+       <property name="labelAlignment">
+        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="Balance_TitleRecentTransactions">
+         <property name="text">
+          <string>Last 3 transactions</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QListWidget" name="Balance_ListRecentTransactions">
+         <item>
+          <property name="text">
+           <string>New Item</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>145</y>
+        <width>161</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QPushButton" name="Balance_btn_choice_1">
+         <property name="text">
+          <string>Other Accounts</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="Balance_btn_choice_2">
+         <property name="text">
+          <string>More Transactions</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page6_Transfer">
+     <widget class="QWidget" name="layoutWidget_24">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>630</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Transfer">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Transfer">
+         <property name="text">
+          <string>Send money to another account</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Transfer">
+         <property name="text">
+          <string>Transfer Money</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_4">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>210</y>
+        <width>401</width>
+        <height>68</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="AmountGrid_Transfer">
+       <property name="spacing">
+        <number>8</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="amountInput_Transfer">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="inputMask">
+          <string>9999</string>
+         </property>
+         <property name="maxLength">
+          <number>4</number>
+         </property>
+         <property name="echoMode">
+          <enum>QLineEdit::EchoMode::Normal</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>Enter amount </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelAmountCurrency_Transfer">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="text">
+          <string>EUR</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_5">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>140</y>
+        <width>401</width>
+        <height>68</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="PhoneNumber_Transfer">
+       <property name="spacing">
+        <number>8</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="PhoneNumberInput_Transfer">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="inputMask">
+          <string>9999</string>
+         </property>
+         <property name="maxLength">
+          <number>4</number>
+         </property>
+         <property name="echoMode">
+          <enum>QLineEdit::EchoMode::Normal</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>Phone Number</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page7_Donation">
+     <widget class="QWidget" name="layoutWidget_25">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>561</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Donation">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Donation">
+         <property name="text">
+          <string>Support a cause or organization</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Donation">
+         <property name="text">
+          <string>Donation</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>130</y>
+        <width>701</width>
+        <height>141</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="DonationGrid">
+       <property name="leftMargin">
+        <number>16</number>
+       </property>
+       <property name="topMargin">
+        <number>16</number>
+       </property>
+       <property name="rightMargin">
+        <number>16</number>
+       </property>
+       <property name="bottomMargin">
+        <number>16</number>
+       </property>
+       <property name="spacing">
+        <number>12</number>
+       </property>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="btn_amount_choice_3">
+         <property name="text">
+          <string>€ 20</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="btn_donation_choice_1">
+         <property name="text">
+          <string>Red Cross</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="btn_donation_choice_2">
+         <property name="text">
+          <string>Cancer Foundation</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="btn_amount_choice_2">
+         <property name="text">
+          <string>€ 10</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QPushButton" name="btn_donation_choice_4">
+         <property name="text">
+          <string>Hair transplant for Arttu</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QPushButton" name="btn_amount_choice_4">
+         <property name="text">
+          <string>€ 50</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="btn_amount_choice_1">
+         <property name="text">
+          <string>€ 5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="btn_donation_choice_3">
+         <property name="text">
+          <string>UNICEF</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page8_Exit">
+     <widget class="QWidget" name="layoutWidget_26">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Exit">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Exit">
+         <property name="text">
+          <string>Please remember to take your card</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Exit">
+         <property name="text">
+          <string>Thank you!</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page9_Other">
+     <widget class="QWidget" name="layoutWidget_27">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Other">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Other">
+         <property name="text">
+          <string>Access more features and settings</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Other">
+         <property name="text">
+          <string>Other</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page10_Error">
+     <widget class="QWidget" name="layoutWidget_28">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Error">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Error">
+         <property name="text">
+          <string>Please use another ATM.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Error">
+         <property name="text">
+          <string>Out of Service</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page12_Accounts">
+     <widget class="QWidget" name="layoutWidget_30">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Accounts">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Accounts">
+         <property name="text">
+          <string>Your session will end soon.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Accounts">
+         <property name="text">
+          <string>Are you still there?</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page13_Transactions">
+     <widget class="QWidget" name="layoutWidget_31">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Transactions">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Transactions">
+         <property name="text">
+          <string>Your session will end soon.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Transactions">
+         <property name="text">
+          <string>Are you still there?</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page11_Time">
+     <widget class="QWidget" name="layoutWidget_29">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>613</width>
+        <height>89</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="welcomeTextLayout_Time">
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelInstruction_Time">
+         <property name="text">
+          <string>Your session will end soon.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelWelcome_Time">
+         <property name="text">
+          <string>Are you still there?</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="TouchPanel" native="true">
+    <property name="geometry">
+     <rect>
+      <x>21</x>
+      <y>310</y>
+      <width>751</width>
+      <height>250</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <layout class="QGridLayout" name="bottomPanelLayout">
+     <property name="leftMargin">
+      <number>5</number>
+     </property>
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <property name="rightMargin">
+      <number>5</number>
+     </property>
+     <property name="bottomMargin">
+      <number>5</number>
+     </property>
+     <item row="2" column="1">
+      <widget class="QPushButton" name="button_3green_OK">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>55</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>OK</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="button_1red_CANCEL">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>55</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" rowspan="3">
+      <layout class="QGridLayout" name="numpadLayout">
+       <item row="2" column="1">
+        <widget class="QPushButton" name="num_8">
+         <property name="text">
+          <string>8</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QPushButton" name="num_left">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="num_3">
+         <property name="text">
+          <string>3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="num_2">
+         <property name="text">
+          <string>2</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="num_4">
+         <property name="text">
+          <string>4</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="num_6">
+         <property name="text">
+          <string>6</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="num_5">
+         <property name="text">
+          <string>5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QPushButton" name="num_right">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QPushButton" name="num_0">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="num_7">
+         <property name="text">
+          <string>7</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="num_9">
+         <property name="text">
+          <string>9</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="num_1">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="button_2yellow_CLEAR">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>55</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="logo">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>0</y>
+      <width>150</width>
+      <height>150</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="resources.qrc">:/logo.svg</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="foundersLabel">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>280</y>
+      <width>141</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <italic>false</italic>
+      <fontweight>DemiBold</fontweight>
+     </font>
+    </property>
+    <property name="text">
+     <string>Build by Lasse, Arttu, Nhi &amp; Kaj</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="LanguageSelectionAndContrast" native="true">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>20</y>
+      <width>301</width>
+      <height>60</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>60</width>
+      <height>60</height>
+     </size>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="btnLanguageFinnish">
+       <property name="text">
+        <string>FI</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="btnLanguageEnglish">
+       <property name="text">
+        <string>EN</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="btnLanguagePolish">
+       <property name="text">
+        <string>PL</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="btnContrast">
+       <property name="text">
+        <string>CO</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <zorder>display</zorder>
+   <zorder>TouchPanel</zorder>
+   <zorder>logo</zorder>
+   <zorder>LanguageSelectionAndContrast</zorder>
+   <zorder>foundersLabel</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <tabstops>
+  <tabstop>num_3</tabstop>
+  <tabstop>num_8</tabstop>
+  <tabstop>button_1red_CANCEL</tabstop>
+  <tabstop>button_2yellow_CLEAR</tabstop>
+  <tabstop>num_1</tabstop>
+  <tabstop>num_4</tabstop>
+  <tabstop>num_9</tabstop>
+  <tabstop>num_0</tabstop>
+  <tabstop>num_right</tabstop>
+  <tabstop>num_2</tabstop>
+  <tabstop>num_7</tabstop>
+  <tabstop>num_left</tabstop>
+  <tabstop>num_6</tabstop>
+  <tabstop>button_3green_OK</tabstop>
+  <tabstop>num_5</tabstop>
+ </tabstops>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

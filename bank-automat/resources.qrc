@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>logo.svg</file>
+        <file>sounds/keypad.wav</file>
+        <file>sounds/ok.wav</file>
+        <file>sounds/cancel.wav</file>
+        <file>sounds/clear.wav</file>
+        <file>sounds/button.wav</file>
+        <file>sounds/success.wav</file>
+        <file>sounds/error.wav</file>
+        <file>sounds/withdraw.wav</file>
+        <file>sounds/timeout.wav</file>
+    </qresource>
+</RCC>

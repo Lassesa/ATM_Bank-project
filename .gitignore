@@ -1,3 +1,14 @@
-backend/node_modules
+
+node_modules/
+
+
+.env
+
+
 bank-automat/build/
 bank-automat/*.user
+
+
+backend/node_modules/
+.DS_Store
+.DS_Store
