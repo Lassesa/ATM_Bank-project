@@ -13,7 +13,7 @@ Tämä on Node.js-pohjainen **REST API**, joka toimii pankkiautomaattijärjestel
     * Rahansiirrot, kuten nostot ja lahjoitukset, on toteutettu tietokantatason proseduureilla (Stored Procedures).
     * Hyödyntää transaktioita ja katesuojaa: tili ei mene luvatta miinukselle.
 * **Erityisominaisuudet:**
-    * **Kortin lukitus:** Rajapinta lukitsee kortin automaattisesti kolmen virheellisen PIN-syötön jälkeen (`PUT /card/lock`).
+    * **Kortin lukitus:** Rajapinta lukitsee kortin automaattisesti kolmen virheellisen PIN-syötön jälkeen.
     * **Monikielisyys ja esteettömyys:** Tuki kielen vaihdolle (FI/EN/PL) ja korkean kontrastin tilalle.
     * **Lahjoitukset:** Mahdollisuus tehdä lahjoituksia hyväntekeväisyyteen noston yhteydessä.
 
