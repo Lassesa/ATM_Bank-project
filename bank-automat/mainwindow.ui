@@ -33,9 +33,9 @@
      <enum>QFrame::Shape::NoFrame</enum>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>8</number>
     </property>
-    <widget class="QWidget" name="page1_Welcome">
+    <widget class="QWidget" name="page01_Welcome">
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
@@ -107,7 +107,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page2_Pin">
+    <widget class="QWidget" name="page02_Pin">
      <widget class="QWidget" name="layoutWidget_19">
       <property name="geometry">
        <rect>
@@ -169,7 +169,7 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="page3_Main">
+    <widget class="QWidget" name="page03_Main">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -294,7 +294,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page4_Withdraw">
+    <widget class="QWidget" name="page04_Withdraw">
      <widget class="QWidget" name="layoutWidget_22">
       <property name="geometry">
        <rect>
@@ -385,7 +385,7 @@
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="page5_Balance">
+    <widget class="QWidget" name="page05_Balance">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -505,7 +505,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page6_Transfer">
+    <widget class="QWidget" name="page06_Transfer">
      <widget class="QWidget" name="layoutWidget_24">
       <property name="geometry">
        <rect>
@@ -626,7 +626,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page7_Donation">
+    <widget class="QWidget" name="page07_Donation">
      <widget class="QWidget" name="layoutWidget_25">
       <property name="geometry">
        <rect>
@@ -740,7 +740,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page8_Exit">
+    <widget class="QWidget" name="page08_Exit">
      <widget class="QWidget" name="layoutWidget_26">
       <property name="geometry">
        <rect>
@@ -771,7 +771,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page9_Other">
+    <widget class="QWidget" name="page09_Other">
      <widget class="QWidget" name="layoutWidget_27">
       <property name="geometry">
        <rect>

@@ -170,7 +170,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->btnContrast->setText("CO");
 
     // Show welcome page at startup
-    ui->display->setCurrentWidget(ui->page1_Welcome);
+    ui->display->setCurrentWidget(ui->page01_Welcome);
 
     // Start RFID / serial reader
     setupSerialReader();
@@ -301,12 +301,12 @@ void MainWindow::connectSignals()
         if (clearSound)
             clearSound->play();
 
-        if (ui->display->currentWidget() == ui->page2_Pin) {
+        if (ui->display->currentWidget() == ui->page02_Pin) {
             QString text = ui->pinInput->text();
             text.chop(1);
             ui->pinInput->setText(text);
         }
-        else if (ui->display->currentWidget() == ui->page4_Withdraw) {
+        else if (ui->display->currentWidget() == ui->page04_Withdraw) {
             QString text = ui->amountInput->text();
             text.remove("€");
             text = text.trimmed();
@@ -333,25 +333,25 @@ void MainWindow::connectSignals()
 
         QWidget *current = ui->display->currentWidget();
 
-        if (current == ui->page2_Pin || current == ui->page1_Welcome || current == ui->page11_Time) {
+        if (current == ui->page02_Pin || current == ui->page01_Welcome || current == ui->page11_Time) {
             ui->pinInput->clear();
-            ui->display->setCurrentWidget(ui->page8_Exit);
+            ui->display->setCurrentWidget(ui->page08_Exit);
             exitTimer->start(5000);
         }
-        else if (current == ui->page3_Main) {
-            ui->display->setCurrentWidget(ui->page8_Exit);
+        else if (current == ui->page03_Main) {
+            ui->display->setCurrentWidget(ui->page08_Exit);
             exitTimer->start(5000);
         }
-        else if (current == ui->page4_Withdraw ||
-                 current == ui->page5_Balance ||
-                 current == ui->page6_Transfer ||
-                 current == ui->page7_Donation ||
-                 current == ui->page9_Other) {
-            ui->display->setCurrentWidget(ui->page3_Main);
+        else if (current == ui->page04_Withdraw ||
+                 current == ui->page05_Balance ||
+                 current == ui->page06_Transfer ||
+                 current == ui->page07_Donation ||
+                 current == ui->page09_Other) {
+            ui->display->setCurrentWidget(ui->page03_Main);
         }
         else if (current == ui->page12_Accounts ||
                  current == ui->page13_Transactions) {
-            ui->display->setCurrentWidget(ui->page5_Balance);
+            ui->display->setCurrentWidget(ui->page05_Balance);
         }
     });
 
@@ -363,13 +363,13 @@ void MainWindow::connectSignals()
         if (okSound)
             okSound->play();
 
-        if (ui->display->currentWidget() == ui->page1_Welcome) {
+        if (ui->display->currentWidget() == ui->page01_Welcome) {
 
             if (ui->btnLanguageFinnish->isChecked()) setLanguage("FI");
             else if (ui->btnLanguagePolish->isChecked()) setLanguage("PL");
             else setLanguage("EN");
 
-            ui->display->setCurrentWidget(ui->page2_Pin);
+            ui->display->setCurrentWidget(ui->page02_Pin);
             ui->pinInput->clear();
             ui->pinInput->setFocus();
             // Start the 10-second PIN timeout
@@ -377,7 +377,7 @@ void MainWindow::connectSignals()
             qDebug() << "PIN-ajastin käynnistetty (10s)";
             resetInactivity();
         }
-        else if (ui->display->currentWidget() == ui->page2_Pin) {
+        else if (ui->display->currentWidget() == ui->page02_Pin) {
             QString currentCard = ui->CardNumberDisplay->text().trimmed();
             QString currentPin = ui->pinInput->text().trimmed();
             // Stop the 10-second PIN timeout
@@ -392,7 +392,7 @@ void MainWindow::connectSignals()
             qDebug() << "Sending login request with card:" << currentCard << "and PIN:" << currentPin;
             makeLoginRequest(currentCard, currentPin);
         }
-        else if (ui->display->currentWidget() == ui->page4_Withdraw) {
+        else if (ui->display->currentWidget() == ui->page04_Withdraw) {
             QString amountText = ui->amountInput->text();
             amountText.remove("€");
             amountText = amountText.trimmed();
@@ -417,7 +417,7 @@ void MainWindow::connectSignals()
             buttonSound->play();
 
         selectAmount(50);
-        showPage(ui->page4_Withdraw);
+        showPage(ui->page04_Withdraw);
     });
 
     connect(ui->btn_main_choice_2, &QPushButton::clicked, this, [this]() {
@@ -426,7 +426,7 @@ void MainWindow::connectSignals()
             buttonSound->play();
 
         selectAmount(100);
-        showPage(ui->page4_Withdraw);
+        showPage(ui->page04_Withdraw);
     });
 
     connect(ui->btn_main_choice_3, &QPushButton::clicked, this, [this]() {
@@ -435,7 +435,7 @@ void MainWindow::connectSignals()
             buttonSound->play();
 
         selectAmount(0);
-        showPage(ui->page4_Withdraw);
+        showPage(ui->page04_Withdraw);
     });
 
     connect(ui->btn_main_choice_4, &QPushButton::clicked, this, [this]() {
@@ -445,7 +445,7 @@ void MainWindow::connectSignals()
 
         updateBalanceDisplay();
         updateTransactionsDisplay();
-        showPage(ui->page5_Balance);
+        showPage(ui->page05_Balance);
     });
 
     connect(ui->btn_main_choice_5, &QPushButton::clicked, this, [this]() {
@@ -453,7 +453,7 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
-        showPage(ui->page6_Transfer);
+        showPage(ui->page06_Transfer);
     });
 
     connect(ui->btn_main_choice_6, &QPushButton::clicked, this, [this]() {
@@ -461,7 +461,7 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
-        showPage(ui->page7_Donation);
+        showPage(ui->page07_Donation);
     });
 
     connect(ui->btn_main_choice_7, &QPushButton::clicked, this, [this]() {
@@ -469,7 +469,7 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
-        showPage(ui->page8_Exit);
+        showPage(ui->page08_Exit);
         exitTimer->start(5000);
     });
 
@@ -479,7 +479,7 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
-        showPage(ui->page11_Time);
+        showPage(ui->page09_Other); /// to be changed
     });
 
     connect(ui->Balance_btn_choice_1, &QPushButton::clicked, this, [this]() {
@@ -720,13 +720,13 @@ void MainWindow::setLanguage(const QString &lang)
  */
 void MainWindow::handleDigit(const QString &digit)
 {
-    if (ui->display->currentWidget() == ui->page2_Pin) {
+    if (ui->display->currentWidget() == ui->page02_Pin) {
         QString currentText = ui->pinInput->text();
         if (currentText.length() < 4) {
             ui->pinInput->setText(currentText + digit);
         }
     }
-    else if (ui->display->currentWidget() == ui->page4_Withdraw) {
+    else if (ui->display->currentWidget() == ui->page04_Withdraw) {
         QString currentText = ui->amountInput->text();
         currentText.remove("€");
         currentText = currentText.trimmed();
@@ -754,7 +754,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         handleDigit(QString::number(event->key() - Qt::Key_0));
     }
     else if (event->key() == Qt::Key_Backspace) {
-        if (ui->display->currentWidget() == ui->page2_Pin) {
+        if (ui->display->currentWidget() == ui->page02_Pin) {
             QString text = ui->pinInput->text();
             text.chop(1);
             ui->pinInput->setText(text);
@@ -843,7 +843,7 @@ void MainWindow::readCardData()
         }
 
         // Show the welcome page and display the scanned card
-        ui->display->setCurrentWidget(ui->page1_Welcome);
+        ui->display->setCurrentWidget(ui->page01_Welcome);
 
         if (ui->btnLanguageFinnish->isChecked()) {
             ui->labelInstruction->setText("Kortti tunnistettu");
@@ -880,7 +880,7 @@ void MainWindow::selectAmount(int amount)
 {
     selectedAmount = amount;
     ui->amountInput->setText(formatAmount(amount));
-    showPage(ui->page4_Withdraw);
+    showPage(ui->page04_Withdraw);
 }
 
 /*
@@ -932,22 +932,19 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
                 QJsonObject resObj = resDoc.object();
                 sessionToken = resObj.value("token").toString();
 
-                QJsonValue idVal = resObj.contains("idaccount")
-                                       ? resObj.value("idaccount")
-                                       : resObj.value("id_account");
-
-                accountId = idVal.isDouble() ? idVal.toInt() : idVal.toString().toInt();
-
                 qDebug() << "Login successful!";
-                qDebug() << "Stored Account ID:" << accountId;
                 qDebug() << "Token start:" << sessionToken.left(10) << "...";
+
+                // Load real account data after login
+                updateBalanceDisplay();
+                updateTransactionsDisplay();
 
                 inactivityTimer->start(30000);
 
                 if (successSound)
                     successSound->play();
 
-                ui->display->setCurrentWidget(ui->page3_Main);
+                ui->display->setCurrentWidget(ui->page03_Main);
                 ui->pinInput->clear();
             }
         }
@@ -1037,6 +1034,16 @@ void MainWindow::updateBalanceDisplay()
                 obj = jsonDoc.object();
             }
 
+            if (obj.contains("idaccount")) {
+                accountId = obj.value("idaccount").toVariant().toInt();
+                qDebug() << "Updated real account ID from balance endpoint:" << accountId;
+            }
+
+            if (obj.contains("idaccount")) {
+                accountId = obj.value("idaccount").toVariant().toInt();
+                qDebug() << "Updated real account ID from balance endpoint:" << accountId;
+            }
+
             if (obj.contains("account_balance")) {
                 double balance = obj.value("account_balance").toVariant().toDouble();
                 ui->Balance_Amount->setText(QString::number(balance, 'f', 2) + " €");
@@ -1120,6 +1127,19 @@ void MainWindow::updateTransactionsDisplay()
  */
 void MainWindow::makeWithdrawalRequest(int amount, QString description)
 {
+    if (accountId <= 0) {
+        qDebug() << "Withdrawal blocked: invalid accountId:" << accountId;
+
+        if (ui->btnLanguageFinnish->isChecked()) {
+            ui->labelInstruction_Withdraw->setText("Tilitietoja ei voitu ladata.");
+        } else if (ui->btnLanguagePolish->isChecked()) {
+            ui->labelInstruction_Withdraw->setText("Nie udało się wczytać danych konta.");
+        } else {
+            ui->labelInstruction_Withdraw->setText("Failed to load account data.");
+        }
+
+        return;
+    }
     QUrl url("http://localhost:3000/transaction/withdrawal");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -1130,20 +1150,33 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
     json["amount"] = amount;
     json["description"] = description;
 
+    qDebug() << "Starting withdrawal request";
+    qDebug() << "Account ID:" << accountId;
+    qDebug() << "Amount:" << amount;
+    qDebug() << "Description:" << description;
+    qDebug() << "Token start:" << sessionToken.left(20);
+
     QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
 
     connect(reply, &QNetworkReply::finished, this, [this, reply, description]() {
+        QByteArray responseData = reply->readAll();
+        int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
         if (reply->error() == QNetworkReply::NoError) {
             qDebug() << "Successful transaction:" << description;
+            qDebug() << "HTTP status:" << statusCode;
+            qDebug() << "Backend response:" << responseData;
 
             if (withdrawSound)
                 withdrawSound->play();
 
             updateBalanceDisplay();
             updateTransactionsDisplay();
-            ui->display->setCurrentWidget(ui->page3_Main);
+            ui->display->setCurrentWidget(ui->page03_Main);
         } else {
-            qDebug() << "Transaction error";
+            qDebug() << "Transaction error:" << reply->errorString();
+            qDebug() << "HTTP status:" << statusCode;
+            qDebug() << "Backend response:" << responseData;
         }
 
         reply->deleteLater();
@@ -1178,7 +1211,7 @@ void MainWindow::resetToWelcome()
     }
 
     // Return to the welcome page
-    ui->display->setCurrentWidget(ui->page1_Welcome);
+    ui->display->setCurrentWidget(ui->page01_Welcome);
 }
 
 void MainWindow::resetInactivity()
@@ -1186,7 +1219,7 @@ void MainWindow::resetInactivity()
     // If the timeout warning page is open, return to the main menu
     if (ui->display->currentWidget() == ui->page11_Time) {
         autoLogoutTimer->stop();
-        ui->display->setCurrentWidget(ui->page3_Main);
+        ui->display->setCurrentWidget(ui->page03_Main);
         inactivityTimer->start(30000); // Restart the 30-second inactivity timer
         qDebug() << "Palattu aikakatkaisusta napin painalluksella";
         return;
@@ -1270,15 +1303,15 @@ void MainWindow::setupStyles()
    STACKED PAGES
    ===================================================== */
 
-#page1_Welcome,
-#page2_Pin,
-#page3_Main,
-#page4_Withdraw,
-#page5_Balance,
-#page6_Transfer,
-#page7_Donation,
-#page8_Exit,
-#page9_Other,
+#page01_Welcome,
+#page02_Pin,
+#page03_Main,
+#page04_Withdraw,
+#page05_Balance,
+#page06_Transfer,
+#page07_Donation,
+#page08_Exit,
+#page09_Other,
 #page10_Error,
 #page11_Time,
 #page12_Accounts,
@@ -1430,7 +1463,7 @@ QListWidget#Balance_ListRecentTransactions {
 }
 
 QLabel#Balance_Amount {
-    font-size: 30px;
+    font-size: 25px;
     font-weight: 800;
     color: #0F172A;
 }
@@ -1771,15 +1804,15 @@ QPushButton#btn_amount_choice_4:checked {
    STACKED PAGES
    ===================================================== */
 
-#page1_Welcome,
-#page2_Pin,
-#page3_Main,
-#page4_Withdraw,
-#page5_Balance,
-#page6_Transfer,
-#page7_Donation,
-#page8_Exit,
-#page9_Other,
+#page01_Welcome,
+#page02_Pin,
+#page03_Main,
+#page04_Withdraw,
+#page05_Balance,
+#page06_Transfer,
+#page07_Donation,
+#page08_Exit,
+#page09_Other,
 #page10_Error,
 #page11_Time,
 #page12_Accounts,
@@ -1927,7 +1960,7 @@ QListWidget#Balance_ListRecentTransactions {
 }
 
 QLabel#Balance_Amount {
-    font-size: 30px;
+    font-size: 25px;
     font-weight: 800;
     color: #FFFFFF;
 }
