@@ -148,15 +148,6 @@ private:
     void selectAmount(int amount);
     QString formatAmount(int amount);
 
-    // =====================================================
-    // Styles Management
-    // =====================================================
-    QString lightStyle;
-    QString contrastStyle;
-    bool contrastEnabled = false;
-
-    void setupStyles();
-    void applyCurrentStyle();
 
     // =====================================================
     // Sound  Management
@@ -193,7 +184,17 @@ private:
 
     QString defaultStyle;
 
+    // =====================================================
+    // Styles Management
+    // =====================================================
 
+    void setupStyles();
+    void applyCurrentStyle();
+    QString loadStyleSheet(const QString &path);
+
+    QString lightStyle;
+    QString contrastStyle;
+    bool contrastEnabled = false;
 
 };
 
