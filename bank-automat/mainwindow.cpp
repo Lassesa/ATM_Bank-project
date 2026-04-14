@@ -297,7 +297,7 @@ void MainWindow::connectSignals()
 
 
     // -----------------------------
-    // Clear button
+    // Clear button YELLOW
     // -----------------------------
     connect(ui->button_2yellow_CLEAR, &QPushButton::clicked, this, [this]() {
 
@@ -327,7 +327,7 @@ void MainWindow::connectSignals()
     });
 
     // -----------------------------
-    // Cancel button
+    // Cancel button RED
     // -----------------------------
     connect(ui->button_1red_CANCEL, &QPushButton::clicked, this, [this]() {
 
@@ -348,8 +348,11 @@ void MainWindow::connectSignals()
         else if (current == ui->page04_Withdraw ||
                  current == ui->page05_Balance ||
                  current == ui->page06_Transfer ||
-                 current == ui->page07_Donation ||
                  current == ui->page09_Other) {
+            ui->display->setCurrentWidget(ui->page03_Main);
+        }
+        else if (current == ui->page07_Donation) {
+            resetDonationSelection();
             ui->display->setCurrentWidget(ui->page03_Main);
         }
         else if (current == ui->page12_Accounts ||
@@ -359,7 +362,7 @@ void MainWindow::connectSignals()
     });
 
     // -----------------------------
-    // OK button
+    // OK button GREEN
     // -----------------------------
     connect(ui->button_3green_OK, &QPushButton::clicked, this, [this]() {
 
@@ -375,7 +378,6 @@ void MainWindow::connectSignals()
             ui->display->setCurrentWidget(ui->page02_Pin);
             ui->pinInput->clear();
             ui->pinInput->setFocus();
-            // Start the 10-second PIN timeout
             pinTimer->start(10000);
             qDebug() << "PIN-ajastin käynnistetty (10s)";
             resetInactivity();
@@ -383,9 +385,7 @@ void MainWindow::connectSignals()
         else if (ui->display->currentWidget() == ui->page02_Pin) {
             QString currentCard = ui->CardNumberDisplay->text().trimmed();
             QString currentPin = ui->pinInput->text().trimmed();
-            // Stop the 10-second PIN timeout
             pinTimer->stop();
-
 
             if (currentCard.isEmpty() || currentPin.isEmpty()) {
                 qDebug() << "Error: card number or PIN is missing from UI.";
@@ -408,6 +408,11 @@ void MainWindow::connectSignals()
             } else {
                 ui->amountInput->setText("0 €");
             }
+        }
+        else if (ui->display->currentWidget() == ui->page07_Donation) {
+            qDebug() << "OK painettu lahjoitussivulla";
+            on_btnConfirmDonation_clicked();
+            resetDonationSelection(); // added check
         }
     });
 
@@ -1296,6 +1301,85 @@ void MainWindow::lockCardRequest(QString cardNum)
     // Return to the welcome screen after 5 seconds
     QTimer::singleShot(5000, this, &MainWindow::resetToWelcome);
 }
+
+
+
+/*
+ * DONATION FUNCTIONS
+ *
+ */
+
+void MainWindow::handleDonationSelection()
+{
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    if (!button) return;
+
+    selectedCharity = button->text();
+    qDebug() << "Valittu kohde:" << selectedCharity;
+}
+
+void MainWindow::handleDonationAmountSelection()
+{
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    if (!button) return;
+
+    QString val = button->text();
+    val.remove("€");
+    val = val.trimmed();
+
+    pendingDonationAmount = val.toInt();
+    qDebug() << "Valittu summa:" << pendingDonationAmount;
+}
+
+void MainWindow::on_btnConfirmDonation_clicked()
+{
+    qDebug() << "Donation attempt:";
+    qDebug() << "accountId =" << accountId;
+    qDebug() << "selectedCharity =" << selectedCharity;
+    qDebug() << "pendingDonationAmount =" << pendingDonationAmount;
+
+    if (pendingDonationAmount <= 0 || selectedCharity.isEmpty()) {
+        qDebug() << "Valitse kohde ja summa ensin!";
+        return;
+    }
+
+    if (accountId <= 0) {
+        qDebug() << "Donation blocked: invalid accountId:" << accountId;
+
+        if (ui->btnLanguageFinnish->isChecked()) {
+            ui->labelInstruction_Donation->setText("Tilitietoja ei voitu ladata.");
+        } else if (ui->btnLanguagePolish->isChecked()) {
+            ui->labelInstruction_Donation->setText("Nie udało się wczytać danych konta.");
+        } else {
+            ui->labelInstruction_Donation->setText("Failed to load account data.");
+        }
+
+        return;
+    }
+
+    makeWithdrawalRequest(pendingDonationAmount, "DONATION: " + selectedCharity);
+}
+
+void MainWindow::resetDonationSelection()
+{
+    selectedCharity.clear();
+    pendingDonationAmount = 0;
+
+    donationOrgGroup->setExclusive(false);
+    ui->btn_donation_choice_1->setChecked(false);
+    ui->btn_donation_choice_2->setChecked(false);
+    ui->btn_donation_choice_3->setChecked(false);
+    ui->btn_donation_choice_4->setChecked(false);
+    donationOrgGroup->setExclusive(true);
+
+    donationAmountGroup->setExclusive(false);
+    ui->btn_amount_choice_1->setChecked(false);
+    ui->btn_amount_choice_2->setChecked(false);
+    ui->btn_amount_choice_3->setChecked(false);
+    ui->btn_amount_choice_4->setChecked(false);
+    donationAmountGroup->setExclusive(true);
+}
+
 
 
 /*

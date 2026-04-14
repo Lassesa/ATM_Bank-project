@@ -65,8 +65,9 @@ private slots:
     void onOkClicked();
     void onClearClicked();
     void onCancelClicked();
-    void on_btnConfirmDonation_clicked();
 
+    // Donations
+    void on_btnConfirmDonation_clicked();
     void handleDonationSelection();
     void handleDonationAmountSelection();
     void resetDonationSelection();
@@ -188,7 +189,7 @@ private:
 
     void makeDonationRequest(int amount);
     QString selectedCharity;
-    int pendingDonationAmount;
+    int pendingDonationAmount = 0;
 
     QString defaultStyle;
 
