@@ -1,4 +1,4 @@
-QT       += core gui serialport network
+QT       += core gui serialport network sql multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
