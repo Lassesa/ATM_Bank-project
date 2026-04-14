@@ -293,6 +293,8 @@ void MainWindow::connectSignals()
         QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
     });
 
+
+
     // -----------------------------
     // Clear button
     // -----------------------------
@@ -406,6 +408,10 @@ void MainWindow::connectSignals()
                 ui->amountInput->setText("0 €");
             }
         }
+        else if (ui->display->currentWidget()  == ui->page7_Donation) {
+            qDebug() << "OK painettu lahjoitussivulla";
+            on_btnConfirmDonation_clicked(); // Kutsuu funktiota, joka tekee lahjoituksen
+        }
     });
 
     // -----------------------------
@@ -462,6 +468,18 @@ void MainWindow::connectSignals()
             buttonSound->play();
 
         showPage(ui->page7_Donation);
+
+        connect(ui->btn_donation_choice_1, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+        connect(ui->btn_donation_choice_2, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+        connect(ui->btn_donation_choice_3, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+        connect(ui->btn_donation_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+
+        connect(ui->btn_amount_choice_1, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+        connect(ui->btn_amount_choice_2, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+        connect(ui->btn_amount_choice_3, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+        connect(ui->btn_amount_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+
+
     });
 
     connect(ui->btn_main_choice_7, &QPushButton::clicked, this, [this]() {
@@ -480,6 +498,8 @@ void MainWindow::connectSignals()
             buttonSound->play();
 
         showPage(ui->page11_Time);
+
+
     });
 
     connect(ui->Balance_btn_choice_1, &QPushButton::clicked, this, [this]() {
@@ -784,7 +804,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::setupSerialReader()
 {
     // Your current serial port:
-    serial->setPortName("/dev/tty.usbmodem146301");
+    serial->setPortName("COM3");
 
     // Example alternative if another machine uses a different port:
     // serial->setPortName("/dev/tty.usbmodemXXXXXX");
@@ -1229,6 +1249,58 @@ void MainWindow::lockCardRequest(QString cardNum)
     // Return to the welcome screen after 5 seconds
     QTimer::singleShot(5000, this, &MainWindow::resetToWelcome);
 }
+//kohteen valinta
+void MainWindow::handleDonationSelection()
+{
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    if (!button) return;
+
+    // Nollataan kaikkien kohteiden tyylit
+    ui->btn_donation_choice_1->setStyleSheet("");
+    ui->btn_donation_choice_2->setStyleSheet("");
+    ui->btn_donation_choice_3->setStyleSheet("");
+    ui->btn_donation_choice_4->setStyleSheet("");
+
+    // Värjätään valittu kohde
+    button->setStyleSheet("background-color: #4CAF50; color: white; border-radius: 10px;");
+
+    selectedCharity = button->text();
+    qDebug() << "Valittu kohde:" << selectedCharity;
+}
+
+    //summan valinta
+void MainWindow::handleDonationAmountSelection()
+{
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    if (!button) return;
+
+    // Nollataan kaikkien summien tyylit
+    ui->btn_amount_choice_1->setStyleSheet("");
+    ui->btn_amount_choice_2->setStyleSheet("");
+    ui->btn_amount_choice_3->setStyleSheet("");
+    ui->btn_amount_choice_4->setStyleSheet("");
+
+    // Värjätään valittu summa
+    button->setStyleSheet("background-color: #4CAF50; color: white; border-radius: 10px;");
+
+    QString val = button->text().remove("€").trimmed();
+    pendingDonationAmount = val.toInt();
+    qDebug() << "Valittu summa:" << pendingDonationAmount;
+}
+// lahjoituksen valinta
+    void MainWindow::on_btnConfirmDonation_clicked()
+{
+    if (pendingDonationAmount <= 0 || selectedCharity.isEmpty()) {
+        qDebug() << "Valitse kohde ja summa ensin!";
+        return;
+    }
+
+    // Tässä kutsuttaisiin varsinaista siirtofunktiota
+    makeWithdrawalRequest(pendingDonationAmount, "DONATION: " + selectedCharity);
+}
+
+
+
 
 
 /*
@@ -2254,3 +2326,19 @@ void MainWindow::on_btnContrast_clicked()
     applyCurrentStyle();
 }
 
+// Nämä poistavat "undefined reference" -virheet
+void MainWindow::onOkClicked() {
+    qDebug() << "OK painettu";
+}
+
+void MainWindow::onClearClicked() {
+    qDebug() << "Clear painettu";
+}
+
+void MainWindow::onCancelClicked() {
+    qDebug() << "Cancel painettu";
+}
+
+void MainWindow::on_btnConfirmTransfer_clicked() {
+    qDebug() << "Siirto vahvistettu";
+}

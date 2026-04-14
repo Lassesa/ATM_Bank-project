@@ -59,9 +59,18 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 
+
 private slots:
     void on_btnContrast_clicked();
+    void onOkClicked();
+    void onClearClicked();
+    void onCancelClicked();
+    void on_btnConfirmDonation_clicked();
 
+    void handleDonationSelection();
+    void handleDonationAmountSelection();
+
+    void on_btnConfirmTransfer_clicked();
 private:
     // =====================================================
     // Input Mode
@@ -171,6 +180,18 @@ private:
     QTimer *autoLogoutTimer; // 15s extra time after the popup
     void resetInactivity();
     void showInactivityPage();
+
+    // =====================================================
+    // Donation
+    // =====================================================
+
+    void makeDonationRequest(int amount);
+    QString selectedCharity;
+    int pendingDonationAmount;
+
+    QString defaultStyle;
+
+
 
 };
 
