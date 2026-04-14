@@ -69,6 +69,7 @@ private:
     QString msgInvalidAmount;
     QString msgWithdrawSuccess;
     QString msgNetError;
+    QString msgAtmError;
 
 };
 

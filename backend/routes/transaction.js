@@ -3,6 +3,7 @@ const router = express.Router();
 const transaction = require('../models/transaction_model');
 const transactionHandler = require('../models/transaction_handler_model');
 const card = require('../models/card_model');
+const atmWithdrawal = require('../models/atm_withdrawal_model');
 
 /**
  * 1. HAE TILIIN LIITTYVÄT TAPAHTUMAT
@@ -137,5 +138,20 @@ router.post('/transfer', function(request, response) {
         });
     });
 });
+
+
+router.post('/atm-withdrawal', function(request, response) {
+    const { id_account, amount } = request.body;
+    const user = request.user;
+
+    atmWithdrawal.atmWithdrawal({ id_account, amount }, function(err, result) {
+        if (err) {
+            response.status(400).json({ message: err.message });
+        } else {
+            response.json({ message: 'ATM-nosto onnistui' });
+        }
+    });
+});
+
 
 module.exports = router;

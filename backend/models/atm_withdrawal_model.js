@@ -1,7 +1,10 @@
 
 const db = require('../database');
 
-const atmWithdrawal = function (data, callback) {
+/**
+ * ATM withdrawal: vähentää sekä setelit että tilin saldon
+ */
+function atmWithdrawal(data, callback) {
     const ATM_ID = 1;
 
     db.getConnection(function (err, conn) {
@@ -13,7 +16,7 @@ const atmWithdrawal = function (data, callback) {
                 return callback(err);
             }
 
-            // 1️⃣ Lukitse ATM ja hae setelit
+            // Lukitaan ATM ja haetaan setelit
             conn.query(
                 `SELECT atm10, atm20, atm50, atm100, atm200
                  FROM atm
@@ -35,6 +38,7 @@ const atmWithdrawal = function (data, callback) {
                         atm[field] -= count;
                     };
 
+                    // Jaetaan setelit isoimmasta pienimpään
                     take(200, 'atm200');
                     take(100, 'atm100');
                     take(50,  'atm50');
@@ -42,10 +46,10 @@ const atmWithdrawal = function (data, callback) {
                     take(10,  'atm10');
 
                     if (remaining !== 0) {
-                        return rollback({ message: 'ATM ei voi antaa tätä summaa seteleillä' });
+                        return rollback({ message: 'Automaatissa ei ole sopivia seteleitä' });
                     }
 
-                    // 2️⃣ Päivitä ATM-setelit
+                    // Päivitetään ATM-setelit
                     conn.query(
                         `UPDATE atm SET
                          atm10 = ?, atm20 = ?, atm50 = ?, atm100 = ?, atm200 = ?
@@ -61,7 +65,7 @@ const atmWithdrawal = function (data, callback) {
                         function (err) {
                             if (err) return rollback(err);
 
-                            // 3️⃣ Vähennä tilin saldo
+                            // 3. Vähennetään tilin saldo
                             conn.query(
                                 `UPDATE account
                                  SET account_balance = account_balance - ?
@@ -90,7 +94,7 @@ const atmWithdrawal = function (data, callback) {
             }
         });
     });
-};
+}
 
 module.exports = {
     atmWithdrawal

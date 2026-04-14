@@ -279,6 +279,7 @@ void MainWindow::setLanguage(const QString &lang)
         msgInvalidAmount = "ERROR: Amount must be multiples of 10.";
         msgWithdrawSuccess = "Success! Please take your cash.";
         msgNetError = "Connection error to bank.";
+        msgAtmError = "Technical error. Please try another ATM.";
 
 
 
@@ -324,6 +325,7 @@ void MainWindow::setLanguage(const QString &lang)
         msgInvalidAmount = "BŁĄD: Kwota musi być wielokrotnością 10.";
         msgWithdrawSuccess = "Sukces! Proszę odebrać gotówkę.";
         msgNetError = "Błąd połączenia z bankiem.";
+        msgAtmError = "Błąd techniczny. Spróbuj innego bankomatu.";
     }
     else if (lang == "FI") {
         ui->labelWelcome->setText("Tervetuloa S/R Pankkiin");
@@ -365,6 +367,7 @@ void MainWindow::setLanguage(const QString &lang)
         msgInvalidAmount = "VIRHE: Summan on oltava 10, 20, 50...";
         msgWithdrawSuccess = "Nosto onnistui! Otathan rahat.";
         msgNetError = "Yhteysvirhe pankkiin.";
+        msgAtmError = "Tekninen häiriö, kokeile toista automaattia.";
     }
 }
 
@@ -801,7 +804,7 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
 
     // 1. Tarkistus automaatin puolella (Käytetään msgInvalidAmount muuttujaa!)
     if (amount <= 0 || amount % 10 != 0) {
-        ui->labelInstruction_Withdraw->setText(msgInvalidAmount); // <-- KORJATTU TÄHÄN
+        ui->labelInstruction_Withdraw->setText(msgInvalidAmount);
         ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
 
         QTimer::singleShot(3000, [this, originalText]() {
@@ -811,7 +814,7 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
         return;
     }
 
-    QUrl url("http://localhost:3000/transaction/withdrawal");
+    QUrl url("http://localhost:3000/transaction/atm-withdrawal");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
@@ -826,7 +829,7 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
     connect(reply, &QNetworkReply::finished, this, [this, reply, originalText]() {
         if (reply->error() == QNetworkReply::NoError) {
             // ONNISTUMINEN (Käytetään msgWithdrawSuccess muuttujaa!)
-            ui->labelInstruction_Withdraw->setText(msgWithdrawSuccess); // <-- KORJATTU TÄHÄN
+            ui->labelInstruction_Withdraw->setText(msgWithdrawSuccess);
             ui->labelInstruction_Withdraw->setStyleSheet("color: green; font-weight: bold;");
 
             QTimer::singleShot(2000, [this, originalText]() {
@@ -837,17 +840,15 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
                 ui->display->setCurrentWidget(ui->page3_Main);
             });
         } else {
-            // VIRHE (Käytetään msgNetError jos bäckäri ei vastaa järkevästi)
-            QByteArray responseData = reply->readAll();
-            QJsonDocument doc = QJsonDocument::fromJson(responseData);
-            QString errorMsg = doc.object().value("message").toString();
-
-            if (errorMsg.isEmpty()) errorMsg = msgNetError; // <-- KORJATTU TÄHÄN
-
-            ui->labelInstruction_Withdraw->setText(errorMsg);
+            // ATM- tai tekninen virhe -> näytetään vain geneerinen häiriöviesti
+            ui->labelInstruction_Withdraw->setText(msgAtmError);
             ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
 
-            QTimer::singleShot(4000, [this, originalText]() {
+            // Lokitetaan oikea virhe kehittäjälle (ei käyttäjälle)
+            QByteArray responseData = reply->readAll();
+            qDebug() << "ATM backend error:" << responseData;
+
+            QTimer::singleShot(4000, this, [this, originalText]() {
                 ui->labelInstruction_Withdraw->setText(originalText);
                 ui->labelInstruction_Withdraw->setStyleSheet("");
             });
