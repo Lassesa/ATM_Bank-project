@@ -148,7 +148,6 @@ private:
     void applyCurrentStyle();
 
     // =====================================================
-<<<<<<< HEAD
     // Sound  Management
     // =====================================================
 
@@ -162,7 +161,7 @@ private:
     QSoundEffect *withdrawSound;
     QSoundEffect *timeoutSound;
 
-=======
+    // =====================================================
     // Timer Managment
     // =====================================================
     QTimer *pinTimer;
@@ -170,10 +169,9 @@ private:
     void resetToWelcome();
     QTimer *inactivityTimer; // 30s waiting time
     QTimer *autoLogoutTimer; // 15s extra time after the popup
-
     void resetInactivity();
     void showInactivityPage();
->>>>>>> origin/main
+
 };
 
 #endif // MAINWINDOW_H

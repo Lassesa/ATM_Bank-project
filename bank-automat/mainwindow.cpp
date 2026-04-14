@@ -88,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(exitTimer, &QTimer::timeout, this, &MainWindow::resetToWelcome);
 
     inactivityTimer = new QTimer(this);
-    inactivityTimer->setInterval(30000); // 30 sekuntia
+    inactivityTimer->setInterval(30000); // // 30 seconds
     connect(inactivityTimer, &QTimer::timeout, this, &MainWindow::showInactivityPage);
 
 
@@ -99,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent)
     QList<QPushButton *> allButtons = this->findChildren<QPushButton *>();
 
     for (QPushButton *btn : allButtons) {
-        // Kytketään jokaisen napin clicked-signaali resetInactivity-funktioon
+        // Connect every button click to the inactivity reset handler
         connect(btn, &QPushButton::clicked, this, &MainWindow::resetInactivity);
     }
 
@@ -230,7 +230,8 @@ void MainWindow::connectSignals()
     // -----------------------------
     // Keypad number buttons
     // -----------------------------
-<<<<<<< HEAD
+
+    // OLD VERSION - without sounds
     /*connect(ui->num_0, &QPushButton::clicked, this, [this]() { handleDigit("0"); });
     connect(ui->num_1, &QPushButton::clicked, this, [this]() { handleDigit("1"); });
     connect(ui->num_2, &QPushButton::clicked, this, [this]() { handleDigit("2"); });
@@ -291,18 +292,6 @@ void MainWindow::connectSignals()
         handleDigit("9");
         QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
     });
-=======
-    connect(ui->num_0, &QPushButton::clicked, this, [this]() { handleDigit("0");});
-    connect(ui->num_1, &QPushButton::clicked, this, [this]() { handleDigit("1");});
-    connect(ui->num_2, &QPushButton::clicked, this, [this]() { handleDigit("2");});
-    connect(ui->num_3, &QPushButton::clicked, this, [this]() { handleDigit("3");});
-    connect(ui->num_4, &QPushButton::clicked, this, [this]() { handleDigit("4");});
-    connect(ui->num_5, &QPushButton::clicked, this, [this]() { handleDigit("5");});
-    connect(ui->num_6, &QPushButton::clicked, this, [this]() { handleDigit("6");});
-    connect(ui->num_7, &QPushButton::clicked, this, [this]() { handleDigit("7");});
-    connect(ui->num_8, &QPushButton::clicked, this, [this]() { handleDigit("8");});
-    connect(ui->num_9, &QPushButton::clicked, this, [this]() { handleDigit("9");});
->>>>>>> origin/main
 
     // -----------------------------
     // Clear button
@@ -383,7 +372,7 @@ void MainWindow::connectSignals()
             ui->display->setCurrentWidget(ui->page2_Pin);
             ui->pinInput->clear();
             ui->pinInput->setFocus();
-            // 10sec timer
+            // Start the 10-second PIN timeout
             pinTimer->start(10000);
             qDebug() << "PIN-ajastin käynnistetty (10s)";
             resetInactivity();
@@ -391,7 +380,7 @@ void MainWindow::connectSignals()
         else if (ui->display->currentWidget() == ui->page2_Pin) {
             QString currentCard = ui->CardNumberDisplay->text().trimmed();
             QString currentPin = ui->pinInput->text().trimmed();
-            //10sec timer
+            // Stop the 10-second PIN timeout
             pinTimer->stop();
 
 
@@ -844,6 +833,7 @@ void MainWindow::readCardData()
 
         currentCardUid = line;
 
+        // Restore the PIN instruction text based on the selected language
         if (ui->btnLanguageFinnish->isChecked()) {
             ui->labelInstruction_PIN->setText("Suojaa näppäimistö PIN-koodia syöttäessäsi");
         } else if (ui->btnLanguagePolish->isChecked()) {
@@ -852,17 +842,21 @@ void MainWindow::readCardData()
             ui->labelInstruction_PIN->setText("Please cover the keypad while entering your PIN");
         }
 
+        // Show the welcome page and display the scanned card
         ui->display->setCurrentWidget(ui->page1_Welcome);
-        ui->labelInstruction->setText("Card detected");
-        ui->CardNumberDisplay->setText(currentCardUid);
 
-        qDebug() << "Scanned card:" << currentCardUid;
+        if (ui->btnLanguageFinnish->isChecked()) {
+            ui->labelInstruction->setText("Kortti tunnistettu");
+        } else if (ui->btnLanguagePolish->isChecked()) {
+            ui->labelInstruction->setText("Wykryto kartę");
+        } else {
+            ui->labelInstruction->setText("Card detected");
+        }
 
-        ui->display->setCurrentWidget(ui->page1_Welcome);
-        ui->labelInstruction->setText("Card detected");
         ui->CardNumberDisplay->setText(currentCardUid);
         ui->CardNumberDisplay->update();
 
+        qDebug() << "Scanned card:" << currentCardUid;
         qDebug() << "Displayed text:" << ui->CardNumberDisplay->text();
     }
 }
@@ -926,91 +920,89 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
     QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        // Luetaan koko vastaus muuttujaan HETI, ettei puskuri tyhjene
+        // Read the response once and store it
         QByteArray responseData = reply->readAll();
         int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
+        // Successful login
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument resDoc = QJsonDocument::fromJson(responseData);
+
             if (!resDoc.isNull() && resDoc.isObject()) {
                 QJsonObject resObj = resDoc.object();
                 sessionToken = resObj.value("token").toString();
 
-                QJsonValue idVal = resObj.contains("idaccount") ? resObj.value("idaccount") : resObj.value("id_account");
+                QJsonValue idVal = resObj.contains("idaccount")
+                                       ? resObj.value("idaccount")
+                                       : resObj.value("id_account");
+
                 accountId = idVal.isDouble() ? idVal.toInt() : idVal.toString().toInt();
 
                 qDebug() << "Login successful!";
-<<<<<<< HEAD
                 qDebug() << "Stored Account ID:" << accountId;
                 qDebug() << "Token start:" << sessionToken.left(10) << "...";
+
+                inactivityTimer->start(30000);
 
                 if (successSound)
                     successSound->play();
 
-=======
-                inactivityTimer->start(30000);
->>>>>>> origin/main
                 ui->display->setCurrentWidget(ui->page3_Main);
                 ui->pinInput->clear();
             }
-<<<<<<< HEAD
-        } else {
-            QByteArray errorData = reply->readAll();
+        }
+        // Wrong PIN
+        else if (statusCode == 401) {
+            QJsonObject resObj = QJsonDocument::fromJson(responseData).object();
+            int remaining = resObj.value("remaining").toInt();
+
+            QString errorMsg;
+            if (ui->btnLanguageFinnish->isChecked()) {
+                errorMsg = QString("Väärä PIN! Yrityksiä jäljellä: %1").arg(remaining);
+            } else if (ui->btnLanguagePolish->isChecked()) {
+                errorMsg = QString("Błędny PIN! Pozostało prób: %1").arg(remaining);
+            } else {
+                errorMsg = QString("Wrong PIN! Remaining attempts: %1").arg(remaining);
+            }
+
+            ui->labelInstruction_PIN->setText(errorMsg);
+            ui->pinInput->clear();
+            pinTimer->start(10000);
+
+            if (errorSound)
+                errorSound->play();
+        }
+        // Locked card
+        else if (statusCode == 403) {
+            QString errorMsg;
+            if (ui->btnLanguageFinnish->isChecked()) {
+                errorMsg = "Kortti on lukittu. Ota yhteys pankkiin.";
+            } else if (ui->btnLanguagePolish->isChecked()) {
+                errorMsg = "Karta jest zablokowana. Skontaktuj się z bankiem.";
+            } else {
+                errorMsg = "Card is locked. Please contact the bank.";
+            }
+
+            ui->labelInstruction_PIN->setText(errorMsg);
+            ui->pinInput->clear();
+            ui->pinInput->setEnabled(false);
+
+            if (errorSound)
+                errorSound->play();
+
+            QTimer::singleShot(5000, this, &MainWindow::resetToWelcome);
+        }
+        // Other network or backend error
+        else {
             qDebug() << "Login error:" << reply->errorString();
-            qDebug() << "Backend error message:" << errorData;
+            qDebug() << "Backend response:" << responseData;
 
             if (errorSound)
                 errorSound->play();
 
             ui->pinInput->clear();
-=======
->>>>>>> origin/main
         }
-        else {
-            // VIRHEIDEN KÄSITTELY
-            QJsonObject resObj = QJsonDocument::fromJson(responseData).object();
 
-            if (statusCode == 401) {
-                QJsonObject resObj = QJsonDocument::fromJson(responseData).object();
-                int remaining = resObj.value("remaining").toInt();
-
-                QString errorMsg;
-                if (ui->btnLanguageFinnish->isChecked()) {
-                    errorMsg = QString("Väärä PIN! Yrityksiä jäljellä: %1").arg(remaining);
-                } else if (ui->btnLanguagePolish->isChecked()) {
-                    errorMsg = QString("Błędny PIN! Pozostało prób: %1").arg(remaining);
-                } else {
-                    errorMsg = QString("Wrong PIN! Remaining attempts: %1").arg(remaining);
-                }
-
-                ui->labelInstruction_PIN->setText(errorMsg);
-                ui->pinInput->clear();
-                pinTimer->start(10000);
-            }
-            else if (statusCode == 403) {
-                // Kortti on lukittu (joko juuri nyt tai jo aiemmin)
-                QString errorMsg;
-                if (ui->btnLanguageFinnish->isChecked()) {
-                    errorMsg = "Kortti on lukittu. Ota yhteys pankkiin.";
-                } else if (ui->btnLanguagePolish->isChecked()) {
-                    errorMsg = "Karta jest zablokowana. Skontaktuj się z bankiem.";
-                } else {
-                    errorMsg = "Card is locked. Please contact the bank.";
-                }
-
-                // Näytetään viesti PIN-sivun ohjetekstissä
-                ui->labelInstruction_PIN->setText(errorMsg);
-                ui->pinInput->clear();
-                ui->pinInput->setEnabled(false); // Estetään syöttö
-
-                // Pidetään ilmoitus ruudulla hetki ennen kuin palataan alkuun
-                QTimer::singleShot(5000, this, &MainWindow::resetToWelcome);
-
-            }
-            else {
-                qDebug() << "Virhe:" << statusCode << reply->errorString();
-            }
-        }
         reply->deleteLater();
     });
 }
@@ -1160,38 +1152,47 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
 
 void MainWindow::resetToWelcome()
 {
-    qDebug() << "Palataan alkunäyttöön...";
+    qDebug() << "Returning to the welcome screen...";
 
-    // Stop the timers just in case
+    // Stop all timers
     pinTimer->stop();
     exitTimer->stop();
     inactivityTimer->stop();
     autoLogoutTimer->stop();
 
-    // clear all data
+    // Clear session data
     ui->pinInput->clear();
+    ui->pinInput->setEnabled(true);
     ui->CardNumberDisplay->clear();
     currentCardUid = "";
     sessionToken = "";
+    accountId = 0;
 
+    // Restore the default PIN instruction text
+    if (ui->btnLanguageFinnish->isChecked()) {
+        ui->labelInstruction_PIN->setText("Suojaa näppäimistö PIN-koodia syöttäessäsi");
+    } else if (ui->btnLanguagePolish->isChecked()) {
+        ui->labelInstruction_PIN->setText("Proszę zasłonić klawiaturę podczas wpisywania PIN-u");
+    } else {
+        ui->labelInstruction_PIN->setText("Please cover the keypad while entering your PIN");
+    }
 
-    // Change page
+    // Return to the welcome page
     ui->display->setCurrentWidget(ui->page1_Welcome);
-
 }
 
 void MainWindow::resetInactivity()
 {
-    // Jos ollaan kyselysivulla, palataan takaisin päävalikkoon
+    // If the timeout warning page is open, return to the main menu
     if (ui->display->currentWidget() == ui->page11_Time) {
         autoLogoutTimer->stop();
         ui->display->setCurrentWidget(ui->page3_Main);
-        inactivityTimer->start(30000); // Käynnistetään 30s vahti uudelleen
+        inactivityTimer->start(30000); // Restart the 30-second inactivity timer
         qDebug() << "Palattu aikakatkaisusta napin painalluksella";
         return;
     }
 
-    // Jos ollaan kirjauduttu sisään, nollataan ajastin
+    // If the user is logged in, reset the inactivity timer
     if (inactivityTimer->isActive()) {
         inactivityTimer->start(30000);
         qDebug() << "Ajastin resetoitu napin painalluksesta";
@@ -1205,27 +1206,27 @@ void MainWindow::showInactivityPage()
 
     ui->display->setCurrentWidget(ui->page11_Time);
 
-    // Timer for last chance
+    // Start the final countdown before automatic logout
     autoLogoutTimer->start(15000);
 }
 
 void MainWindow::lockCardRequest(QString cardNum)
 {
-    QUrl url("http://localhost:3000/card/lock"); // Varmista backentin osoite
+    QUrl url("http://localhost:3000/card/lock"); // Make sure the backend route is correct
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QJsonObject json;
     json["card_number"] = cardNum;
 
-    // Lähetetään tieto lukitsemisesta
+    // Send the card lock request to the backend
     networkManager->put(request, QJsonDocument(json).toJson());
 
-    // Näytetään käyttäjälle ilmoitus
+    // Show a message to the user
     ui->labelInstruction_PIN->setText("Kortti on lukittu. Ota yhteys pankkiin.");
     ui->pinInput->setEnabled(false); // Estetään syöttö
 
-    // Heitetään ulos 5 sekunnin kuluttua
+    // Return to the welcome screen after 5 seconds
     QTimer::singleShot(5000, this, &MainWindow::resetToWelcome);
 }
 
@@ -1378,7 +1379,7 @@ QLineEdit#pinInput {
     letter-spacing: 12px;
 }
 
-QLineEdit#amountInput {
+QLineEdit#amountInput, QLineEdit#amountInput_Transfer {
     background-color: transparent;
     border: none;
     color: #AD1457;
@@ -1389,7 +1390,7 @@ QLineEdit#amountInput {
     margin: 0px;
 }
 
-QLabel#labelAmountCurrency {
+QLabel#labelAmountCurrency, QLabel#labelAmountCurrency_Transfer {
     background-color: transparent;
     color: #C2185B;
     font-size: 26px;
@@ -1399,6 +1400,18 @@ QLabel#labelAmountCurrency {
     margin: 0px;
 }
 
+
+QLineEdit#PhoneNumberInput_Transfer {
+    background-color: #FFFFFF;   /* white background */
+    border: 2px solid #D1D5DB;   /* soft grey border */
+    border-radius: 12px;
+
+    color: #1E293B;              /* dark text */
+    font-size: 22px;
+    font-weight: 600;
+
+    padding: 8px 12px;
+}
 
 /* =====================================================
    BALANCE PAGE EXTRA
@@ -1863,7 +1876,7 @@ QLineEdit#pinInput {
     letter-spacing: 12px;
 }
 
-QLineEdit#amountInput {
+QLineEdit#amountInput,QLineEdit#amountInput_Transfer{
     background-color: transparent;
     border: none;
     color: #FFFFFF;
@@ -1874,7 +1887,7 @@ QLineEdit#amountInput {
     margin: 0px;
 }
 
-QLabel#labelAmountCurrency {
+QLabel#labelAmountCurrency, QLabel#labelAmountCurrency_Transfer {
     background-color: transparent;
     color: #FFFFFF;
     font-size: 26px;
@@ -1882,6 +1895,18 @@ QLabel#labelAmountCurrency {
     font-family: "Segoe UI", "Arial";
     padding: 0px;
     margin: 0px;
+}
+
+QLineEdit#PhoneNumberInput_Transfer {
+    background-color: #2F3A4D;   /* grey background */
+    border: 2px solid #FFFFFF;
+    border-radius: 12px;
+
+    color: #FFFFFF;
+    font-size: 22px;             /* MUCH smaller */
+    font-weight: 600;
+
+    padding: 8px 12px;
 }
 
 
