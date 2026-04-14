@@ -814,10 +814,22 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
             }
             else if (statusCode == 403) {
                 // Kortti on lukittu (joko juuri nyt tai jo aiemmin)
-                ui->labelInstruction_PIN->setText("Kortti on lukittu.");
-                ui->pinInput->setEnabled(false);
-                ui->display->setCurrentWidget(ui->page8_Exit);
-                exitTimer->start(5000);
+                QString errorMsg;
+                if (ui->btnLanguageFinnish->isChecked()) {
+                    errorMsg = "Kortti on lukittu. Ota yhteys pankkiin.";
+                } else if (ui->btnLanguagePolish->isChecked()) {
+                    errorMsg = "Karta jest zablokowana. Skontaktuj się z bankiem.";
+                } else {
+                    errorMsg = "Card is locked. Please contact the bank.";
+                }
+
+                // Näytetään viesti PIN-sivun ohjetekstissä
+                ui->labelInstruction_PIN->setText(errorMsg);
+                ui->pinInput->clear();
+                ui->pinInput->setEnabled(false); // Estetään syöttö
+
+                // Pidetään ilmoitus ruudulla hetki ennen kuin palataan alkuun
+                QTimer::singleShot(5000, this, &MainWindow::resetToWelcome);
 
             }
             else {
