@@ -12,6 +12,7 @@
 #include <QListWidget>
 #include <QDebug>
 #include <QTimer>
+#include <QSoundEffect>
 
 // =====================================================
 // Constructor / Destructor
@@ -293,6 +294,8 @@ void MainWindow::connectSignals()
         QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
     });
 
+
+
     // -----------------------------
     // Clear button
     // -----------------------------
@@ -482,6 +485,12 @@ void MainWindow::connectSignals()
         showPage(ui->page09_Other); /// to be changed
     });
 
+
+
+// -----------------------------
+// Balance menu buttons
+// -----------------------------
+
     connect(ui->Balance_btn_choice_1, &QPushButton::clicked, this, [this]() {
 
         if (buttonSound)
@@ -497,7 +506,24 @@ void MainWindow::connectSignals()
 
         showPage(ui->page13_Transactions);
     });
+
+    // -----------------------------
+    // Donation menu buttons
+    // -----------------------------
+
+
+    connect(ui->btn_donation_choice_1, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+    connect(ui->btn_donation_choice_2, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+    connect(ui->btn_donation_choice_3, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+    connect(ui->btn_donation_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+
+    connect(ui->btn_amount_choice_1, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+    connect(ui->btn_amount_choice_2, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+    connect(ui->btn_amount_choice_3, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+    connect(ui->btn_amount_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+
 }
+
 
 // =====================================================
 // Language Handling
@@ -784,7 +810,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::setupSerialReader()
 {
     // Your current serial port:
-    serial->setPortName("/dev/tty.usbmodem146301");
+    serial->setPortName("COM3");
 
     // Example alternative if another machine uses a different port:
     // serial->setPortName("/dev/tty.usbmodemXXXXXX");
@@ -1069,6 +1095,13 @@ void MainWindow::updateBalanceDisplay()
  */
 void MainWindow::updateTransactionsDisplay()
 {
+    if (accountId <= 0) {
+        qDebug() << "Transactions fetch skipped: invalid accountId:" << accountId;
+        ui->Balance_ListRecentTransactions->clear();
+        ui->Balance_ListRecentTransactions->addItem("No transactions available.");
+        return;
+    }
+
     QString urlStr = QString("http://localhost:3000/transaction/%1").arg(accountId);
     QUrl url(urlStr);
     QNetworkRequest request(url);
@@ -1200,6 +1233,7 @@ void MainWindow::resetToWelcome()
     currentCardUid = "";
     sessionToken = "";
     accountId = 0;
+    resetDonationSelection();
 
     // Restore the default PIN instruction text
     if (ui->btnLanguageFinnish->isChecked()) {
@@ -2287,3 +2321,19 @@ void MainWindow::on_btnContrast_clicked()
     applyCurrentStyle();
 }
 
+// Nämä poistavat "undefined reference" -virheet
+void MainWindow::onOkClicked() {
+    qDebug() << "OK painettu";
+}
+
+void MainWindow::onClearClicked() {
+    qDebug() << "Clear painettu";
+}
+
+void MainWindow::onCancelClicked() {
+    qDebug() << "Cancel painettu";
+}
+
+void MainWindow::on_btnConfirmTransfer_clicked() {
+    qDebug() << "Siirto vahvistettu";
+}

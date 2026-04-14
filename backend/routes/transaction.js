@@ -34,8 +34,10 @@ router.get('/:id', function(request, response) {
  * 2. RAHAN NOSTO (DEBIT)
  */
 router.post('/withdrawal', function(request, response) {
-    const { id_account, amount } = request.body;
+    const { id_account, amount, description } = request.body;
     const user = request.user;
+
+
 
     card.getById(user.card_number, function(err, cardResult) {
         if (err || !cardResult || cardResult.length === 0) {
@@ -55,7 +57,7 @@ router.post('/withdrawal', function(request, response) {
             });
         }
 
-        transactionHandler.withdrawal({ id_account, amount }, function(err, dbResult) {
+        transactionHandler.withdrawal({ id_account, amount, description }, function(err, dbResult) {
             if (err) response.status(500).json(err);
             else {
                 const result = dbResult[0][0];
