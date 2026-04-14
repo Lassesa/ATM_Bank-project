@@ -2,6 +2,29 @@ const express = require('express');
 const router = express.Router();
 const card = require('../models/card_model');
 
+// 6. Lukitse kortti
+router.put('/lock', function(request, response) {
+  const { card_number } = request.body;
+  const login = require('../models/login_model');
+
+  if (card_number) {
+    // Kutsutaan modelia, joka päivittää statuksen nollaksi
+    login.lockCard(card_number, function(dbError, dbResult) {
+      if (dbError) {
+        return response.status(500).json(dbError);
+      }
+      if (dbResult.affectedRows > 0) {
+        console.log("Kortti lukittu tietokannassa:", card_number);
+        response.send("Kortti lukittu onnistuneesti");
+      } else {
+        response.status(404).send("Korttia ei löytynyt");
+      }
+    });
+  } else {
+    response.status(400).send("Kortin numero puuttuu");
+  }
+});
+
 // 1. Hae kaikki kortit (admin)
 router.get('/', function(request, response) {
     if (request.user.role !== 'admin') {
@@ -66,5 +89,6 @@ router.delete('/:id', function(request, response) {
         else response.json(result);
     });
 });
+
 
 module.exports = router;
