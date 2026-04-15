@@ -900,7 +900,7 @@
         <x>28</x>
         <y>140</y>
         <width>541</width>
-        <height>91</height>
+        <height>121</height>
        </rect>
       </property>
       <item>
@@ -909,7 +909,7 @@
        </property>
       </item>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>570</x>
@@ -934,6 +934,19 @@
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QLabel" name="Transactions_lbl_PageNumber">
+      <property name="geometry">
+       <rect>
+        <x>530</x>
+        <y>260</y>
+        <width>63</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="page11_Time">

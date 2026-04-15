@@ -139,8 +139,13 @@ private:
     void makeLoginRequest(QString cardNum, QString pin);
     void updateBalanceDisplay();
     void updateTransactionsDisplay();
+    void renderTransactionPage();
+    QString formatTransactionRow(QJsonObject obj);
     void makeWithdrawalRequest(int amount, QString description);
     void lockCardRequest(QString cardNum);
+    QJsonArray allTransactions;
+    int currentStartIndex = 0;
+    const int PAGE_SIZE = 5;
 
     // =====================================================
     // Amount Helpers
