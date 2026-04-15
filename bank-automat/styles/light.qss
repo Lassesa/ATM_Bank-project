@@ -405,7 +405,10 @@ QPushButton#btn_amount_choice_4,
 QPushButton#btn_donation_choice_1,
 QPushButton#btn_donation_choice_2,
 QPushButton#btn_donation_choice_3,
-QPushButton#btn_donation_choice_4 {
+QPushButton#btn_donation_choice_4,
+QPushButton#Transactions_btn_choice_next,
+QPushButton#Transactions_btn_choice_previous
+{
     background: qlineargradient(
         x1:0, y1:0, x2:1, y2:1,
         stop:0 #F472B6,
@@ -441,7 +444,9 @@ QPushButton#btn_amount_choice_4:hover,
 QPushButton#btn_donation_choice_1:hover,
 QPushButton#btn_donation_choice_2:hover,
 QPushButton#btn_donation_choice_3:hover,
-QPushButton#btn_donation_choice_4:hover {
+QPushButton#btn_donation_choice_4:hover,
+QPushButton#Transactions_btn_choice_next:hover,
+QPushButton#Transactions_btn_choice_previous:hover {
     background: qlineargradient(
         x1:0, y1:0, x2:1, y2:1,
         stop:0 #FB7185,
@@ -466,7 +471,9 @@ QPushButton#btn_amount_choice_4:pressed,
 QPushButton#btn_donation_choice_1:pressed,
 QPushButton#btn_donation_choice_2:pressed,
 QPushButton#btn_donation_choice_3:pressed,
-QPushButton#btn_donation_choice_4:pressed {
+QPushButton#btn_donation_choice_4:pressed,
+QPushButton#Transactions_btn_choice_next:pressed,
+QPushButton#Transactions_btn_choice_previous:pressed {
     background: qlineargradient(
         x1:0, y1:0, x2:1, y2:1,
         stop:0 #DB2777,

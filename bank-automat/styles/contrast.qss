@@ -401,7 +401,9 @@ QPushButton#btn_amount_choice_4,
 QPushButton#btn_donation_choice_1,
 QPushButton#btn_donation_choice_2,
 QPushButton#btn_donation_choice_3,
-QPushButton#btn_donation_choice_4 {
+QPushButton#btn_donation_choice_4,
+QPushButton#Transactions_btn_choice_next,
+QPushButton#Transactions_btn_choice_previous {
     background: #000000;
     color: #FFFFFF;
     border: 2px solid #FFFFFF;
@@ -434,7 +436,9 @@ QPushButton#btn_amount_choice_4:hover,
 QPushButton#btn_donation_choice_1:hover,
 QPushButton#btn_donation_choice_2:hover,
 QPushButton#btn_donation_choice_3:hover,
-QPushButton#btn_donation_choice_4:hover {
+QPushButton#btn_donation_choice_4:hover,
+QPushButton#Transactions_btn_choice_next:hover,
+QPushButton#Transactions_btn_choice_previous:hover {
     background: #222222;
     color: #FFFFFF;
     border: 2px solid #FFFFFF;
@@ -457,7 +461,9 @@ QPushButton#btn_amount_choice_4:pressed,
 QPushButton#btn_donation_choice_1:pressed,
 QPushButton#btn_donation_choice_2:pressed,
 QPushButton#btn_donation_choice_3:pressed,
-QPushButton#btn_donation_choice_4:pressed {
+QPushButton#btn_donation_choice_4:pressed,
+QPushButton#Transactions_btn_choice_next:pressed,
+QPushButton#Transactions_btn_choice_previous:pressed {
     background: #FFFFFF;
     color: #000000;
     border: 2px solid #FFFFFF;
