@@ -20,8 +20,8 @@
    <widget class="QStackedWidget" name="display">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>10</y>
+      <x>20</x>
+      <y>19</y>
       <width>751</width>
       <height>281</height>
      </rect>
