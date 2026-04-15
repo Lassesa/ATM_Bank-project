@@ -59,9 +59,20 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 
+
 private slots:
     void on_btnContrast_clicked();
+    void onOkClicked();
+    void onClearClicked();
+    void onCancelClicked();
 
+    // Donations
+    void on_btnConfirmDonation_clicked();
+    void handleDonationSelection();
+    void handleDonationAmountSelection();
+    void resetDonationSelection();
+
+    void on_btnConfirmTransfer_clicked();
 private:
     // =====================================================
     // Input Mode
@@ -128,8 +139,13 @@ private:
     void makeLoginRequest(QString cardNum, QString pin);
     void updateBalanceDisplay();
     void updateTransactionsDisplay();
+    void renderTransactionPage();
+    QString formatTransactionRow(QJsonObject obj);
     void makeWithdrawalRequest(int amount, QString description);
     void lockCardRequest(QString cardNum);
+    QJsonArray allTransactions;
+    int currentStartIndex = 0;
+    const int PAGE_SIZE = 5;
 
     // =====================================================
     // Amount Helpers
@@ -179,6 +195,48 @@ private:
     QTimer *autoLogoutTimer; // 15s extra time after the popup
     void resetInactivity();
     void showInactivityPage();
+
+    // =====================================================
+    // Donation
+    // =====================================================
+
+    void makeDonationRequest(int amount);
+    QString selectedCharity;
+    int pendingDonationAmount = 0;
+
+    QString defaultStyle;
+
+    // =====================================================
+    // Styles Management
+    // =====================================================
+
+    void setupStyles();
+    void applyCurrentStyle();
+    QString loadStyleSheet(const QString &path);
+
+    QString lightStyle;
+    QString contrastStyle;
+    bool contrastEnabled = false;
+
+    // =====================================================
+    // Card / Account Type Handling
+    // =====================================================
+
+    // Defines which account is currently selected
+    enum AccountType {
+        DebitAccount,
+        CreditAccount
+    };
+
+    bool hasDebit = false;     // Does the card support debit?
+    bool hasCredit = false;    // Does the card support credit?
+
+    AccountType selectedAccountType = DebitAccount; // Default selection
+
+    QString currentLanguage = "EN"; // Current UI language
+
+    void toggleAccountType();        // Handles button click (switch Debit <-> Credit)
+    void updateCreditDebitButton();  // Updates button text and state
 
 
 };

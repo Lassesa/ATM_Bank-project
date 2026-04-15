@@ -13,6 +13,10 @@
 #include <QListWidget>
 #include <QDebug>
 #include <QTimer>
+#include <QSoundEffect>
+
+#include <QFile>
+#include <QTextStream>
 
 // =====================================================
 // Constructor / Destructor
@@ -156,12 +160,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->btnLanguageEnglish->setCheckable(true);
     ui->btnLanguageFinnish->setCheckable(true);
     ui->btnLanguagePolish->setCheckable(true);
+    ui->btnCreditDebit->setCheckable(true);
 
     ui->btnLanguageEnglish->setAutoExclusive(true);
     ui->btnLanguageFinnish->setAutoExclusive(true);
     ui->btnLanguagePolish->setAutoExclusive(true);
 
-    ui->btnLanguageEnglish->setChecked(true);
+
 
     // Set initial language
     setLanguage("EN");
@@ -171,7 +176,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->btnContrast->setText("CO");
 
     // Show welcome page at startup
-    ui->display->setCurrentWidget(ui->page1_Welcome);
+    ui->display->setCurrentWidget(ui->page01_Welcome);
 
     // Start RFID / serial reader
     setupSerialReader();
@@ -227,6 +232,13 @@ void MainWindow::connectSignals()
     connect(ui->btnLanguageFinnish, &QPushButton::clicked, this, [this]() {
         setLanguage("FI");
     });
+
+    // -----------------------------
+    // DEBIT / CREDIT Button
+    // -----------------------------
+
+    connect(ui->btnCreditDebit, &QPushButton::clicked,
+            this, &MainWindow::toggleAccountType);
 
     // -----------------------------
     // Keypad number buttons
@@ -294,20 +306,22 @@ void MainWindow::connectSignals()
         QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
     });
 
+
+
     // -----------------------------
-    // Clear button
+    // Clear button YELLOW
     // -----------------------------
     connect(ui->button_2yellow_CLEAR, &QPushButton::clicked, this, [this]() {
 
         if (clearSound)
             clearSound->play();
 
-        if (ui->display->currentWidget() == ui->page2_Pin) {
+        if (ui->display->currentWidget() == ui->page02_Pin) {
             QString text = ui->pinInput->text();
             text.chop(1);
             ui->pinInput->setText(text);
         }
-        else if (ui->display->currentWidget() == ui->page4_Withdraw) {
+        else if (ui->display->currentWidget() == ui->page04_Withdraw) {
             QString text = ui->amountInput->text();
             text.remove("€");
             text = text.trimmed();
@@ -325,7 +339,7 @@ void MainWindow::connectSignals()
     });
 
     // -----------------------------
-    // Cancel button
+    // Cancel button RED
     // -----------------------------
     connect(ui->button_1red_CANCEL, &QPushButton::clicked, this, [this]() {
 
@@ -334,56 +348,56 @@ void MainWindow::connectSignals()
 
         QWidget *current = ui->display->currentWidget();
 
-        if (current == ui->page2_Pin || current == ui->page1_Welcome || current == ui->page11_Time) {
+        if (current == ui->page02_Pin || current == ui->page01_Welcome || current == ui->page11_Time) {
             ui->pinInput->clear();
-            ui->display->setCurrentWidget(ui->page8_Exit);
+            ui->display->setCurrentWidget(ui->page08_Exit);
             exitTimer->start(5000);
         }
-        else if (current == ui->page3_Main) {
-            ui->display->setCurrentWidget(ui->page8_Exit);
+        else if (current == ui->page03_Main) {
+            ui->display->setCurrentWidget(ui->page08_Exit);
             exitTimer->start(5000);
         }
-        else if (current == ui->page4_Withdraw ||
-                 current == ui->page5_Balance ||
-                 current == ui->page6_Transfer ||
-                 current == ui->page7_Donation ||
-                 current == ui->page9_Other) {
-            ui->display->setCurrentWidget(ui->page3_Main);
+        else if (current == ui->page04_Withdraw ||
+                 current == ui->page05_Balance ||
+                 current == ui->page06_Transfer ||
+                 current == ui->page09_Other) {
+            ui->display->setCurrentWidget(ui->page03_Main);
+        }
+        else if (current == ui->page07_Donation) {
+            resetDonationSelection();
+            ui->display->setCurrentWidget(ui->page03_Main);
         }
         else if (current == ui->page12_Accounts ||
                  current == ui->page13_Transactions) {
-            ui->display->setCurrentWidget(ui->page5_Balance);
+            ui->display->setCurrentWidget(ui->page05_Balance);
         }
     });
 
     // -----------------------------
-    // OK button
+    // OK button GREEN
     // -----------------------------
     connect(ui->button_3green_OK, &QPushButton::clicked, this, [this]() {
 
         if (okSound)
             okSound->play();
 
-        if (ui->display->currentWidget() == ui->page1_Welcome) {
+        if (ui->display->currentWidget() == ui->page01_Welcome) {
 
             if (ui->btnLanguageFinnish->isChecked()) setLanguage("FI");
             else if (ui->btnLanguagePolish->isChecked()) setLanguage("PL");
             else setLanguage("EN");
 
-            ui->display->setCurrentWidget(ui->page2_Pin);
+            ui->display->setCurrentWidget(ui->page02_Pin);
             ui->pinInput->clear();
             ui->pinInput->setFocus();
-            // Start the 10-second PIN timeout
             pinTimer->start(10000);
             qDebug() << "PIN-ajastin käynnistetty (10s)";
             resetInactivity();
         }
-        else if (ui->display->currentWidget() == ui->page2_Pin) {
+        else if (ui->display->currentWidget() == ui->page02_Pin) {
             QString currentCard = ui->CardNumberDisplay->text().trimmed();
             QString currentPin = ui->pinInput->text().trimmed();
-            // Stop the 10-second PIN timeout
             pinTimer->stop();
-
 
             if (currentCard.isEmpty() || currentPin.isEmpty()) {
                 qDebug() << "Error: card number or PIN is missing from UI.";
@@ -393,7 +407,7 @@ void MainWindow::connectSignals()
             qDebug() << "Sending login request with card:" << currentCard << "and PIN:" << currentPin;
             makeLoginRequest(currentCard, currentPin);
         }
-        else if (ui->display->currentWidget() == ui->page4_Withdraw) {
+        else if (ui->display->currentWidget() == ui->page04_Withdraw) {
             QString amountText = ui->amountInput->text();
             amountText.remove("€");
             amountText = amountText.trimmed();
@@ -407,6 +421,11 @@ void MainWindow::connectSignals()
                 ui->amountInput->setText("0 €");
             }
         }
+        else if (ui->display->currentWidget() == ui->page07_Donation) {
+            qDebug() << "OK painettu lahjoitussivulla";
+            on_btnConfirmDonation_clicked();
+            resetDonationSelection(); // added check
+        }
     });
 
     // -----------------------------
@@ -418,7 +437,7 @@ void MainWindow::connectSignals()
             buttonSound->play();
 
         selectAmount(50);
-        showPage(ui->page4_Withdraw);
+        showPage(ui->page04_Withdraw);
     });
 
     connect(ui->btn_main_choice_2, &QPushButton::clicked, this, [this]() {
@@ -427,7 +446,7 @@ void MainWindow::connectSignals()
             buttonSound->play();
 
         selectAmount(100);
-        showPage(ui->page4_Withdraw);
+        showPage(ui->page04_Withdraw);
     });
 
     connect(ui->btn_main_choice_3, &QPushButton::clicked, this, [this]() {
@@ -436,7 +455,7 @@ void MainWindow::connectSignals()
             buttonSound->play();
 
         selectAmount(0);
-        showPage(ui->page4_Withdraw);
+        showPage(ui->page04_Withdraw);
     });
 
     connect(ui->btn_main_choice_4, &QPushButton::clicked, this, [this]() {
@@ -446,7 +465,7 @@ void MainWindow::connectSignals()
 
         updateBalanceDisplay();
         updateTransactionsDisplay();
-        showPage(ui->page5_Balance);
+        showPage(ui->page05_Balance);
     });
 
     connect(ui->btn_main_choice_5, &QPushButton::clicked, this, [this]() {
@@ -454,7 +473,7 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
-        showPage(ui->page6_Transfer);
+        showPage(ui->page06_Transfer);
     });
 
     connect(ui->btn_main_choice_6, &QPushButton::clicked, this, [this]() {
@@ -462,7 +481,7 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
-        showPage(ui->page7_Donation);
+        showPage(ui->page07_Donation);
     });
 
     connect(ui->btn_main_choice_7, &QPushButton::clicked, this, [this]() {
@@ -470,7 +489,7 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
-        showPage(ui->page8_Exit);
+        showPage(ui->page08_Exit);
         exitTimer->start(5000);
     });
 
@@ -480,8 +499,14 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
-        showPage(ui->page11_Time);
+        showPage(ui->page09_Other); /// to be changed
     });
+
+
+
+// -----------------------------
+// Balance menu buttons
+// -----------------------------
 
     connect(ui->Balance_btn_choice_1, &QPushButton::clicked, this, [this]() {
 
@@ -498,7 +523,71 @@ void MainWindow::connectSignals()
 
         showPage(ui->page13_Transactions);
     });
+
+    // NEXT-nappi
+    connect(ui->Transactions_btn_choice_next, &QPushButton::clicked, this, [this]() {
+        if (buttonSound)
+            buttonSound->play();
+
+        if (currentStartIndex + PAGE_SIZE < allTransactions.size()) {
+            currentStartIndex += PAGE_SIZE;
+            renderTransactionPage();
+        }
+    });
+
+    // PREVIOUS-nappi
+    connect(ui->Transactions_btn_choice_previous, &QPushButton::clicked, this, [this]() {
+        if (buttonSound)
+            buttonSound->play();
+
+        if (currentStartIndex - PAGE_SIZE >= 0) {
+            currentStartIndex -= PAGE_SIZE;
+            renderTransactionPage();
+        }
+    });
+
+    // -----------------------------
+    // Donation menu buttons
+    // -----------------------------
+
+
+    connect(ui->btn_donation_choice_1, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+    connect(ui->btn_donation_choice_2, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+    connect(ui->btn_donation_choice_3, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+    connect(ui->btn_donation_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationSelection);
+
+    connect(ui->btn_amount_choice_1, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+    connect(ui->btn_amount_choice_2, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+    connect(ui->btn_amount_choice_3, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+    connect(ui->btn_amount_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
+
+
+
+    // -----------------------------
+    // Transactions menu buttons
+    // -----------------------------
+
+/*
+    connect(ui->Transactions_btn_choice_next, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
+        showPage(ui->page04_Withdraw);
+    });
+
+    connect(ui->Transactions_btn_choice_previous, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
+        showPage(ui->page04_Withdraw);
+    });
+*/
 }
+
+
+
 
 // =====================================================
 // Language Handling
@@ -520,6 +609,7 @@ void MainWindow::connectSignals()
  */
 void MainWindow::setLanguage(const QString &lang)
 {
+    currentLanguage = lang;
     ui->btnLanguageEnglish->setChecked(lang == "EN");
     ui->btnLanguagePolish->setChecked(lang == "PL");
     ui->btnLanguageFinnish->setChecked(lang == "FI");
@@ -569,7 +659,7 @@ void MainWindow::setLanguage(const QString &lang)
 
 
         ui->Balance_TitleAccountSelect->setText("Main account");
-        ui->Balance_TitleRecentTransactions->setText("Last 3 transactions");
+        ui->Balance_TitleRecentTransactions->setText("Last 5 transactions");
         ui->Balance_btn_choice_1->setText("Other Accounts");
         ui->Balance_btn_choice_2->setText("More Transactions");
 
@@ -589,6 +679,7 @@ void MainWindow::setLanguage(const QString &lang)
 
         ui->labelWelcome_Transactions->setText("Transactions");
         ui->labelInstruction_Transactions->setText("Recent transactions");
+
 
 
     }
@@ -636,7 +727,7 @@ void MainWindow::setLanguage(const QString &lang)
         msgAtmError = "Błąd techniczny. Spróbuj innego bankomatu.";
 
         ui->Balance_TitleAccountSelect->setText("Konto główne");
-        ui->Balance_TitleRecentTransactions->setText("Ostatnie 3 transakcje");
+        ui->Balance_TitleRecentTransactions->setText("Ostatnie 5 transakcje");
         ui->Balance_btn_choice_1->setText("Inne konta");
         ui->Balance_btn_choice_2->setText("Więcej transakcji");
 
@@ -702,7 +793,7 @@ void MainWindow::setLanguage(const QString &lang)
         msgAtmError = "Tekninen häiriö, kokeile toista automaattia.";
 
         ui->Balance_TitleAccountSelect->setText("Päätili");
-        ui->Balance_TitleRecentTransactions->setText("Viimeiset 3 tapahtumaa");
+        ui->Balance_TitleRecentTransactions->setText("Viimeiset 5 tapahtumaa");
         ui->Balance_btn_choice_1->setText("Muut tilit");
         ui->Balance_btn_choice_2->setText("Lisää tapahtumia");
 
@@ -723,8 +814,9 @@ void MainWindow::setLanguage(const QString &lang)
         ui->labelWelcome_Transactions->setText("Tapahtumat");
         ui->labelInstruction_Transactions->setText("Viimeisimmät tapahtumat");
 
-
     }
+
+    updateCreditDebitButton();
 }
 
 // =====================================================
@@ -740,13 +832,13 @@ void MainWindow::setLanguage(const QString &lang)
  */
 void MainWindow::handleDigit(const QString &digit)
 {
-    if (ui->display->currentWidget() == ui->page2_Pin) {
+    if (ui->display->currentWidget() == ui->page02_Pin) {
         QString currentText = ui->pinInput->text();
         if (currentText.length() < 4) {
             ui->pinInput->setText(currentText + digit);
         }
     }
-    else if (ui->display->currentWidget() == ui->page4_Withdraw) {
+    else if (ui->display->currentWidget() == ui->page04_Withdraw) {
         QString currentText = ui->amountInput->text();
         currentText.remove("€");
         currentText = currentText.trimmed();
@@ -774,7 +866,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         handleDigit(QString::number(event->key() - Qt::Key_0));
     }
     else if (event->key() == Qt::Key_Backspace) {
-        if (ui->display->currentWidget() == ui->page2_Pin) {
+        if (ui->display->currentWidget() == ui->page02_Pin) {
             QString text = ui->pinInput->text();
             text.chop(1);
             ui->pinInput->setText(text);
@@ -809,6 +901,7 @@ void MainWindow::setupSerialReader()
 
     // Your current serial port:
   //  serial->setPortName("/dev/tty.usbmodem146301");
+   // serial->setPortName("COM3");
 
     // Example alternative if another machine uses a different port:
     // serial->setPortName("/dev/tty.usbmodemXXXXXX");
@@ -868,7 +961,7 @@ void MainWindow::readCardData()
         }
 
         // Show the welcome page and display the scanned card
-        ui->display->setCurrentWidget(ui->page1_Welcome);
+        ui->display->setCurrentWidget(ui->page01_Welcome);
 
         if (ui->btnLanguageFinnish->isChecked()) {
             ui->labelInstruction->setText("Kortti tunnistettu");
@@ -905,7 +998,7 @@ void MainWindow::selectAmount(int amount)
 {
     selectedAmount = amount;
     ui->amountInput->setText(formatAmount(amount));
-    showPage(ui->page4_Withdraw);
+    showPage(ui->page04_Withdraw);
 }
 
 /*
@@ -957,22 +1050,32 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
                 QJsonObject resObj = resDoc.object();
                 sessionToken = resObj.value("token").toString();
 
-                QJsonValue idVal = resObj.contains("idaccount")
-                                       ? resObj.value("idaccount")
-                                       : resObj.value("id_account");
-
-                accountId = idVal.isDouble() ? idVal.toInt() : idVal.toString().toInt();
-
                 qDebug() << "Login successful!";
-                qDebug() << "Stored Account ID:" << accountId;
                 qDebug() << "Token start:" << sessionToken.left(10) << "...";
+
+                // -------------------------------------------------
+                // TEMPORARY TEST DATA FOR CARD TYPE
+                // Replace this later with real backend values
+                // -------------------------------------------------
+                hasDebit = true;
+                hasCredit = true;   // DUO card test
+
+                // Default selection for DUO card = Debit
+                selectedAccountType = DebitAccount;
+
+                // Update Credit / Debit button after login
+                updateCreditDebitButton();
+
+                // Load real account data after login
+                updateBalanceDisplay();
+                updateTransactionsDisplay();
 
                 inactivityTimer->start(30000);
 
                 if (successSound)
                     successSound->play();
 
-                ui->display->setCurrentWidget(ui->page3_Main);
+                ui->display->setCurrentWidget(ui->page03_Main);
                 ui->pinInput->clear();
             }
         }
@@ -1060,6 +1163,11 @@ void MainWindow::updateBalanceDisplay()
                 obj = jsonDoc.object();
             }
 
+            if (obj.contains("idaccount")) {
+                accountId = obj.value("idaccount").toVariant().toInt();
+                qDebug() << "Updated real account ID from balance endpoint:" << accountId;
+            }
+
             if (obj.contains("account_balance")) {
                 double balance = obj.value("account_balance").toVariant().toDouble();
                 ui->Balance_Amount->setText(QString::number(balance, 'f', 2) + " €");
@@ -1085,52 +1193,91 @@ void MainWindow::updateBalanceDisplay()
  */
 void MainWindow::updateTransactionsDisplay()
 {
+    if (accountId <= 0) {
+        qDebug() << "Transactions fetch skipped: invalid accountId:" << accountId;
+        ui->Balance_ListRecentTransactions->clear();
+        ui->Transactions_List_Full->clear();
+        ui->Balance_ListRecentTransactions->addItem("No transactions available.");
+        return;
+    }
+
+    // Haetaan reilusti tapahtumia (esim. 50), jotta sivutus on sulavaa
     QString urlStr = QString("http://localhost:3000/transaction/%1").arg(accountId);
     QUrl url(urlStr);
     QNetworkRequest request(url);
-
     request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
 
     QNetworkReply *reply = networkManager->get(request);
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        ui->Balance_ListRecentTransactions->clear();
-
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
-            QJsonArray transArray = QJsonDocument::fromJson(responseData).array();
 
-            if (transArray.isEmpty()) {
+            // Tallennetaan koko saatu lista luokan jäsenmuuttujaan
+            allTransactions = QJsonDocument::fromJson(responseData).array();
+
+            // Nollataan sivutusindeksi aina kun uusi data ladataan
+            currentStartIndex = 0;
+
+            // --- 1. Täytetään SALDOSIVUN pikalista (aina 3 ekat) ---
+            ui->Balance_ListRecentTransactions->clear();
+            if (allTransactions.isEmpty()) {
                 ui->Balance_ListRecentTransactions->addItem("Ei aiempia tapahtumia.");
             } else {
-                int count = qMin(transArray.size(), 3);
-
-                for (int i = 0; i < count; ++i) {
-                    QJsonObject obj = transArray.at(i).toObject();
-
-                    double amount = obj.value("transaction_amount").toVariant().toDouble();
-                    QString dateStr = obj.value("transaction_date").toString().left(10);
-
-                    QString description = obj.value("transaction_description").toString();
-                    if (description.isEmpty()) {
-                        description = "ATM WITHDRAW";
-                    }
-
-                    QString row = QString("%1  %2  %3 €")
-                                      .arg(dateStr)
-                                      .arg(description.left(15).trimmed().toUpper())
-                                      .arg(QString::number(amount, 'f', 2));
-
-                    ui->Balance_ListRecentTransactions->addItem(row);
+                int countShort = qMin(allTransactions.size(), 5);
+                for (int i = 0; i < countShort; ++i) {
+                    QJsonObject obj = allTransactions.at(i).toObject();
+                    ui->Balance_ListRecentTransactions->addItem(formatTransactionRow(obj));
                 }
             }
+
+            // --- 2. Täytetään TAPAHTUMASIVUN lista (käyttäen uutta render-funktiota) ---
+            renderTransactionPage();
+
         } else {
             qDebug() << "Transaction fetch failed:" << reply->errorString();
+            ui->Balance_ListRecentTransactions->clear();
             ui->Balance_ListRecentTransactions->addItem("Tapahtumia ei voitu ladata.");
         }
 
         reply->deleteLater();
     });
+}
+
+void MainWindow::renderTransactionPage() {
+    ui->Transactions_List_Full->clear();
+
+    // Lasketaan kuinka monta näytetään (max 5 tai mitä on jäljellä)
+    int count = qMin(allTransactions.size() - currentStartIndex, PAGE_SIZE);
+
+    for (int i = 0; i < count; ++i) {
+        QJsonObject obj = allTransactions.at(currentStartIndex + i).toObject();
+        ui->Transactions_List_Full->addItem(formatTransactionRow(obj));
+    }
+    int pageNum = (currentStartIndex / 5) + 1;
+
+    // Lasketaan kokonaissivunmäärä:
+    // ceil(koko / 5.0)
+    int totalPages = qCeil(allTransactions.size() / 5.0);
+    if (totalPages == 0) totalPages = 1; // Estetään "Sivu 1 / 0"
+
+    ui->Transactions_lbl_PageNumber->setText(QString(" %1 / %2").arg(pageNum).arg(totalPages));
+}
+
+
+QString MainWindow::formatTransactionRow(QJsonObject obj) {
+    double amount = obj.value("transaction_amount").toVariant().toDouble();
+    QString dateStr = obj.value("transaction_date").toString().left(10);
+    QString description = obj.value("transaction_description").toString();
+
+    if (description.isEmpty()) {
+        description = "ATM WITHDRAW";
+    }
+
+    return QString("%1  %2  %3 €")
+        .arg(dateStr)
+        .arg(description.left(50).trimmed().toUpper())
+        .arg(QString::number(amount, 'f', 2));
 }
 
 /*
@@ -1166,9 +1313,24 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
     json["id_account"] = accountId;
     json["amount"] = amount;
     json["description"] = description;
+    json["account_type"] = (selectedAccountType == DebitAccount) ? "debit" : "credit";
+
+    qDebug() << "Starting withdrawal request";
+    qDebug() << "Account ID:" << accountId;
+    qDebug() << "Amount:" << amount;
+    qDebug() << "Description:" << description;
+    qDebug() << "Token start:" << sessionToken.left(20);
 
     QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
 
+    connect(reply, &QNetworkReply::finished, this, [this, reply, description]() {
+        QByteArray responseData = reply->readAll();
+        int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+        if (reply->error() == QNetworkReply::NoError) {
+            qDebug() << "Successful transaction:" << description;
+            qDebug() << "HTTP status:" << statusCode;
+            qDebug() << "Backend response:" << responseData;
 
 connect(reply, &QNetworkReply::finished, this,
             [this, reply, originalText]() {
@@ -1187,7 +1349,7 @@ connect(reply, &QNetworkReply::finished, this,
             updateTransactionsDisplay();
             ui->labelInstruction_Withdraw->setText(originalText);
             ui->labelInstruction_Withdraw->setStyleSheet("");
-            ui->display->setCurrentWidget(ui->page3_Main);
+            ui->display->setCurrentWidget(ui->page03_Main);
         });
 
     } else {
@@ -1227,6 +1389,11 @@ void MainWindow::resetToWelcome()
     currentCardUid = "";
     sessionToken = "";
     accountId = 0;
+    resetDonationSelection();
+    hasDebit = false;
+    hasCredit = false;
+    selectedAccountType = DebitAccount;
+    updateCreditDebitButton();
 
     // Restore the default PIN instruction text
     if (ui->btnLanguageFinnish->isChecked()) {
@@ -1238,7 +1405,7 @@ void MainWindow::resetToWelcome()
     }
 
     // Return to the welcome page
-    ui->display->setCurrentWidget(ui->page1_Welcome);
+    ui->display->setCurrentWidget(ui->page01_Welcome);
 }
 
 void MainWindow::resetInactivity()
@@ -1246,7 +1413,7 @@ void MainWindow::resetInactivity()
     // If the timeout warning page is open, return to the main menu
     if (ui->display->currentWidget() == ui->page11_Time) {
         autoLogoutTimer->stop();
-        ui->display->setCurrentWidget(ui->page3_Main);
+        ui->display->setCurrentWidget(ui->page03_Main);
         inactivityTimer->start(30000); // Restart the 30-second inactivity timer
         qDebug() << "Palattu aikakatkaisusta napin painalluksella";
         return;
@@ -1291,1001 +1458,83 @@ void MainWindow::lockCardRequest(QString cardNum)
 }
 
 
+
 /*
- * LIGHT STYLE
+ * DONATION FUNCTIONS
  *
- * On success:
- * - Keeping it by deafoult
- * - Changing from Dark
  */
 
-void MainWindow::setupStyles()
+void MainWindow::handleDonationSelection()
 {
-    lightStyle = R"(
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    if (!button) return;
 
-/* =====================================================
-   APP BACKGROUND
-   ===================================================== */
-
-#centralwidget {
-    background-color: #EEF3F9;
-}
-
-
-/* =====================================================
-   DISPLAY AREA
-   ===================================================== */
-
-#display {
-    background-color: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #FFE4EC,
-        stop:1 #FFFFFF
-    );
-    border-radius: 28px;
-}
-
-
-/* =====================================================
-   STACKED PAGES
-   ===================================================== */
-
-#page1_Welcome,
-#page2_Pin,
-#page3_Main,
-#page4_Withdraw,
-#page5_Balance,
-#page6_Transfer,
-#page7_Donation,
-#page8_Exit,
-#page9_Other,
-#page10_Error,
-#page11_Time,
-#page12_Accounts,
-#page13_Transactions {
-    background: transparent;
-}
-
-
-/* =====================================================
-   GLOBAL TEXT
-   ===================================================== */
-
-QLabel {
-    color: #1E293B;
-}
-
-
-/* =====================================================
-   PAGE TITLES
-   ===================================================== */
-
-QLabel#labelWelcome,
-QLabel#labelWelcome_PIN,
-QLabel#labelWelcome_Main,
-QLabel#labelWelcome_Withdraw,
-QLabel#labelWelcome_Balance,
-QLabel#labelWelcome_Transfer,
-QLabel#labelWelcome_Donation,
-QLabel#labelWelcome_Exit,
-QLabel#labelWelcome_Other,
-QLabel#labelWelcome_Error,
-QLabel#labelWelcome_Time,
-QLabel#labelWelcome_Accounts,
-QLabel#labelWelcome_Transactions
- {
-    font-size: 40px;
-    font-weight: 800;
-    color: #0F172A;
-}
-
-
-/* =====================================================
-   PAGE SUBTITLES
-   ===================================================== */
-
-QLabel#labelInstruction,
-QLabel#labelInstruction_PIN,
-QLabel#labelInstruction_Main,
-QLabel#labelInstruction_Withdraw,
-QLabel#labelInstruction_Balance,
-QLabel#labelInstruction_Transfer,
-QLabel#labelInstruction_Donation,
-QLabel#labelInstruction_Exit,
-QLabel#labelInstruction_Other,
-QLabel#labelInstruction_Error,
-QLabel#labelInstruction_Time,
-QLabel#labelInstruction_Accounts,
-QLabel#labelInstruction_Transactions  {
-    font-size: 20px;
-    font-weight: 600;
-    color: #475569;
-}
-
-
-/* =====================================================
-   FOOTER
-   ===================================================== */
-
-QLabel#foundersLabel {
-    font-size: 9px;
-    font-weight: 600;
-    color: #334155;
-}
-
-
-/* =====================================================
-   INPUTS
-   ===================================================== */
-
-QLineEdit#CardNumberDisplay {
-    background-color: #1E293B;
-    color: #FFFFFF;
-    font-size: 18px;
-    font-weight: bold;
-    padding: 6px;
-    border-radius: 6px;
-}
-
-QLineEdit#pinInput {
-    background-color: #FFF7FB;
-    border: 2px solid #D94680;
-    border-radius: 16px;
-    color: #9D174D;
-    font-size: 28px;
-    font-weight: 700;
-    font-family: "Segoe UI", "Arial";
-    padding: 12px 18px;
-    letter-spacing: 12px;
-}
-
-QLineEdit#amountInput, QLineEdit#amountInput_Transfer {
-    background-color: transparent;
-    border: none;
-    color: #AD1457;
-    font-size: 48px;
-    font-weight: 800;
-    font-family: "Segoe UI", "Arial";
-    padding: 0px;
-    margin: 0px;
-}
-
-QLabel#labelAmountCurrency, QLabel#labelAmountCurrency_Transfer {
-    background-color: transparent;
-    color: #C2185B;
-    font-size: 26px;
-    font-weight: 600;
-    font-family: "Segoe UI", "Arial";
-    padding: 0px;
-    margin: 0px;
-}
-
-
-QLineEdit#PhoneNumberInput_Transfer {
-    background-color: #FFFFFF;   /* white background */
-    border: 2px solid #D1D5DB;   /* soft grey border */
-    border-radius: 12px;
-
-    color: #1E293B;              /* dark text */
-    font-size: 22px;
-    font-weight: 600;
-
-    padding: 8px 12px;
-}
-
-/* =====================================================
-   BALANCE PAGE EXTRA
-   ===================================================== */
-
-QListWidget {
-    background-color: transparent;
-    border: none;
-    font-size: 16px;
-    color: #1E293B;
-}
-
-QListWidget#Balance_ListRecentTransactions {
-    font-size: 10px;
-    color: #0F172A;
-}
-
-QLabel#Balance_Amount {
-    font-size: 30px;
-    font-weight: 800;
-    color: #0F172A;
-}
-
-
-/* =====================================================
-   GLOBAL BUTTON BASE
-   ===================================================== */
-
-QPushButton {
-    padding: 10px;
-    font-weight: bold;
-    border: none;
-}
-
-
-/* =====================================================
-   TOP PANEL BUTTONS
-   ===================================================== */
-
-QPushButton#btnLanguageEnglish,
-QPushButton#btnLanguageFinnish,
-QPushButton#btnLanguagePolish,
-QPushButton#btnContrast {
-    border-radius: 12px;
-    padding: 6px 14px;
-    font-size: 16px;
-    font-weight: 700;
-    min-width: 20px;
-    min-height: 15px;
-}
-
-
-/* =====================================================
-   LANGUAGE BUTTONS
-   ===================================================== */
-
-QPushButton#btnLanguageEnglish,
-QPushButton#btnLanguageFinnish,
-QPushButton#btnLanguagePolish {
-    background-color: rgba(255, 255, 255, 0.55);
-    color: #1E293B;
-    border: 1px solid rgba(30, 41, 59, 0.35);
-}
-
-QPushButton#btnLanguageEnglish:hover,
-QPushButton#btnLanguageFinnish:hover,
-QPushButton#btnLanguagePolish:hover {
-    background-color: rgba(255, 255, 255, 0.90);
-    border: 1px solid rgba(30, 41, 59, 0.55);
-    color: #0F172A;
-}
-
-QPushButton#btnLanguageEnglish:checked,
-QPushButton#btnLanguageFinnish:checked,
-QPushButton#btnLanguagePolish:checked {
-    background-color: #E83E6D;
-    border: 1px solid #E83E6D;
-    color: #FFFFFF;
-}
-
-
-/* =====================================================
-   CONTRAST BUTTON
-   ===================================================== */
-
-QPushButton#btnContrast {
-    background-color: #FACC15;
-    color: #111827;
-    border: 1px solid #EAB308;
-}
-
-QPushButton#btnContrast:hover {
-    background-color: #FDE047;
-    border: 1px solid #EAB308;
-    color: #111827;
-}
-
-QPushButton#btnContrast:pressed {
-    background-color: #EAB308;
-    border: 1px solid #CA8A04;
-    color: #111827;
-}
-
-QPushButton#btnContrast:checked {
-    background-color: #111827;
-    color: #FACC15;
-    border: 1px solid #FACC15;
-}
-
-
-/* =====================================================
-   TOUCH PANEL
-   ===================================================== */
-
-#TouchPanel {
-    background-color: #E5E7EB;
-    border-top: 2px solid #CBD5E1;
-}
-
-
-/* =====================================================
-   SIDE ACTION BUTTONS
-   ===================================================== */
-
-QPushButton#button_1red_CANCEL,
-QPushButton#button_2yellow_CLEAR,
-QPushButton#button_3green_OK {
-    font-size: 20px;
-    font-weight: 700;
-    border-radius: 12px;
-    color: white;
-}
-
-QPushButton#button_1red_CANCEL {
-    background-color: #C62828;
-}
-QPushButton#button_1red_CANCEL:hover {
-    background-color: #E53935;
-}
-QPushButton#button_1red_CANCEL:pressed {
-    background-color: #8E0000;
-}
-
-QPushButton#button_2yellow_CLEAR {
-    background-color: #F9A825;
-}
-QPushButton#button_2yellow_CLEAR:hover {
-    background-color: #FDD835;
-}
-QPushButton#button_2yellow_CLEAR:pressed {
-    background-color: #C17900;
-}
-
-QPushButton#button_3green_OK {
-    background-color: #2E7D32;
-}
-QPushButton#button_3green_OK:hover {
-    background-color: #43A047;
-}
-QPushButton#button_3green_OK:pressed {
-    background-color: #1B5E20;
-}
-
-
-/* =====================================================
-   NUMPAD
-   ===================================================== */
-
-QPushButton#num_0,
-QPushButton#num_1,
-QPushButton#num_2,
-QPushButton#num_3,
-QPushButton#num_4,
-QPushButton#num_5,
-QPushButton#num_6,
-QPushButton#num_7,
-QPushButton#num_8,
-QPushButton#num_9,
-QPushButton#num_left,
-QPushButton#num_right {
-    background-color: #2F3A4D;
-    color: #FFFFFF;
-    border-radius: 18px;
-    font-size: 26px;
-    font-weight: 800;
-}
-
-QPushButton#num_0:hover,
-QPushButton#num_1:hover,
-QPushButton#num_2:hover,
-QPushButton#num_3:hover,
-QPushButton#num_4:hover,
-QPushButton#num_5:hover,
-QPushButton#num_6:hover,
-QPushButton#num_7:hover,
-QPushButton#num_8:hover,
-QPushButton#num_9:hover,
-QPushButton#num_left:hover,
-QPushButton#num_right:hover {
-    background-color: #3E4B61;
-}
-
-QPushButton#num_0:pressed,
-QPushButton#num_1:pressed,
-QPushButton#num_2:pressed,
-QPushButton#num_3:pressed,
-QPushButton#num_4:pressed,
-QPushButton#num_5:pressed,
-QPushButton#num_6:pressed,
-QPushButton#num_7:pressed,
-QPushButton#num_8:pressed,
-QPushButton#num_9:pressed,
-QPushButton#num_left:pressed,
-QPushButton#num_right:pressed {
-    background-color: #1F2937;
-}
-
-
-/* =====================================================
-   MAIN ACTION BUTTONS
-   ===================================================== */
-
-QPushButton#btn_main_choice_1,
-QPushButton#btn_main_choice_2,
-QPushButton#btn_main_choice_3,
-QPushButton#btn_main_choice_4,
-QPushButton#btn_main_choice_5,
-QPushButton#btn_main_choice_6,
-QPushButton#btn_main_choice_7,
-QPushButton#btn_main_choice_8,
-QPushButton#Balance_btn_choice_1,
-QPushButton#Balance_btn_choice_2,
-QPushButton#btn_amount_choice_1,
-QPushButton#btn_amount_choice_2,
-QPushButton#btn_amount_choice_3,
-QPushButton#btn_amount_choice_4,
-QPushButton#btn_donation_choice_1,
-QPushButton#btn_donation_choice_2,
-QPushButton#btn_donation_choice_3,
-QPushButton#btn_donation_choice_4 {
-    background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #F472B6,
-        stop:1 #E83E6D
-    );
-    color: #FFFFFF;
-    border-radius: 16px;
-    padding: 16px;
-    font-weight: 800;
-}
-
-QPushButton#btn_main_choice_1,
-QPushButton#btn_main_choice_2,
-QPushButton#btn_main_choice_3 {
-    font-size: 12px;
-    font-weight: 800;
+    selectedCharity = button->text();
+    qDebug() << "Valittu kohde:" << selectedCharity;
 }
 
-QPushButton#btn_main_choice_1:hover,
-QPushButton#btn_main_choice_2:hover,
-QPushButton#btn_main_choice_3:hover,
-QPushButton#btn_main_choice_4:hover,
-QPushButton#btn_main_choice_5:hover,
-QPushButton#btn_main_choice_6:hover,
-QPushButton#btn_main_choice_7:hover,
-QPushButton#btn_main_choice_8:hover,
-QPushButton#Balance_btn_choice_1:hover,
-QPushButton#Balance_btn_choice_2:hover,
-QPushButton#btn_amount_choice_1:hover,
-QPushButton#btn_amount_choice_2:hover,
-QPushButton#btn_amount_choice_3:hover,
-QPushButton#btn_amount_choice_4:hover,
-QPushButton#btn_donation_choice_1:hover,
-QPushButton#btn_donation_choice_2:hover,
-QPushButton#btn_donation_choice_3:hover,
-QPushButton#btn_donation_choice_4:hover {
-    background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #FB7185,
-        stop:1 #EC4899
-    );
-}
-
-QPushButton#btn_main_choice_1:pressed,
-QPushButton#btn_main_choice_2:pressed,
-QPushButton#btn_main_choice_3:pressed,
-QPushButton#btn_main_choice_4:pressed,
-QPushButton#btn_main_choice_5:pressed,
-QPushButton#btn_main_choice_6:pressed,
-QPushButton#btn_main_choice_7:pressed,
-QPushButton#btn_main_choice_8:pressed,
-QPushButton#Balance_btn_choice_1:pressed,
-QPushButton#Balance_btn_choice_2:pressed,
-QPushButton#btn_amount_choice_1:pressed,
-QPushButton#btn_amount_choice_2:pressed,
-QPushButton#btn_amount_choice_3:pressed,
-QPushButton#btn_amount_choice_4:pressed,
-QPushButton#btn_donation_choice_1:pressed,
-QPushButton#btn_donation_choice_2:pressed,
-QPushButton#btn_donation_choice_3:pressed,
-QPushButton#btn_donation_choice_4:pressed {
-    background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #DB2777,
-        stop:1 #9D174D
-    );
-}
-
-QPushButton#btn_donation_choice_1:checked,
-QPushButton#btn_donation_choice_2:checked,
-QPushButton#btn_donation_choice_3:checked,
-QPushButton#btn_donation_choice_4:checked,
-QPushButton#btn_amount_choice_1:checked,
-QPushButton#btn_amount_choice_2:checked,
-QPushButton#btn_amount_choice_3:checked,
-QPushButton#btn_amount_choice_4:checked {
-    background: qlineargradient(
-        x1:0, y1:0, x2:1, y2:1,
-        stop:0 #DB2777,
-        stop:1 #9D174D
-    );
-}
-
-)";
-
-    /*
- * CONTRAST STYLE
- *
- * On success:
- * - Keeping it false by deafoult
- * - Changing from Light
- */
-
-    contrastStyle = R"(
-
-/* =====================================================
-   APP BACKGROUND
-   ===================================================== */
-
-#centralwidget {
-    background-color: #000000;
-}
-
-
-/* =====================================================
-   DISPLAY AREA
-   ===================================================== */
-
-#display {
-    background-color: #000000;
-    border: 2px solid #FFFFFF;
-    border-radius: 28px;
-}
-
-
-/* =====================================================
-   STACKED PAGES
-   ===================================================== */
-
-#page1_Welcome,
-#page2_Pin,
-#page3_Main,
-#page4_Withdraw,
-#page5_Balance,
-#page6_Transfer,
-#page7_Donation,
-#page8_Exit,
-#page9_Other,
-#page10_Error,
-#page11_Time,
-#page12_Accounts,
-#page13_Transactions   {
-    background: transparent;
-}
-
-
-/* =====================================================
-   GLOBAL TEXT
-   ===================================================== */
-
-QLabel {
-    color: #FFFFFF;
-}
-
-
-/* =====================================================
-   PAGE TITLES
-   ===================================================== */
-
-QLabel#labelWelcome,
-QLabel#labelWelcome_PIN,
-QLabel#labelWelcome_Main,
-QLabel#labelWelcome_Withdraw,
-QLabel#labelWelcome_Balance,
-QLabel#labelWelcome_Transfer,
-QLabel#labelWelcome_Donation,
-QLabel#labelWelcome_Exit,
-QLabel#labelWelcome_Other,
-QLabel#labelWelcome_Error,
-QLabel#labelWelcome_Time,
-QLabel#labelWelcome_Accounts,
-QLabel#labelWelcome_Transactions
-  {
-    font-size: 40px;
-    font-weight: 800;
-    color: #FFFFFF;
-}
-
-
-/* =====================================================
-   PAGE SUBTITLES
-   ===================================================== */
-
-QLabel#labelInstruction,
-QLabel#labelInstruction_PIN,
-QLabel#labelInstruction_Main,
-QLabel#labelInstruction_Withdraw,
-QLabel#labelInstruction_Balance,
-QLabel#labelInstruction_Transfer,
-QLabel#labelInstruction_Donation,
-QLabel#labelInstruction_Exit,
-QLabel#labelInstruction_Other,
-QLabel#labelInstruction_Error,
-QLabel#labelInstruction_Time,
-QLabel#labelInstruction_Accounts,
-QLabel#labelInstruction_Transactions   {
-    font-size: 20px;
-    font-weight: 600;
-    color: #FFFFFF;
-}
-
-QLabel#foundersLabel {
-    font-size: 9px;
-    font-weight: 600;
-    color: #FFFFFF;
-}
-
-
-/* =====================================================
-   INPUTS
-   ===================================================== */
-
-QLineEdit#CardNumberDisplay {
-    background-color: #000000;
-    color: #FFFFFF;
-    font-size: 18px;
-    font-weight: bold;
-    padding: 6px;
-    border: 2px solid #FFFFFF;
-    border-radius: 6px;
-}
-
-QLineEdit#pinInput {
-    background-color: #000000;
-    border: 2px solid #FFFFFF;
-    border-radius: 16px;
-    color: #FFFFFF;
-    font-size: 28px;
-    font-weight: 700;
-    font-family: "Segoe UI", "Arial";
-    padding: 12px 18px;
-    letter-spacing: 12px;
-}
-
-QLineEdit#amountInput,QLineEdit#amountInput_Transfer{
-    background-color: transparent;
-    border: none;
-    color: #FFFFFF;
-    font-size: 48px;
-    font-weight: 800;
-    font-family: "Segoe UI", "Arial";
-    padding: 0px;
-    margin: 0px;
-}
-
-QLabel#labelAmountCurrency, QLabel#labelAmountCurrency_Transfer {
-    background-color: transparent;
-    color: #FFFFFF;
-    font-size: 26px;
-    font-weight: 600;
-    font-family: "Segoe UI", "Arial";
-    padding: 0px;
-    margin: 0px;
-}
-
-QLineEdit#PhoneNumberInput_Transfer {
-    background-color: #2F3A4D;   /* grey background */
-    border: 2px solid #FFFFFF;
-    border-radius: 12px;
-
-    color: #FFFFFF;
-    font-size: 22px;             /* MUCH smaller */
-    font-weight: 600;
-
-    padding: 8px 12px;
-}
-
-
-/* =====================================================
-   BALANCE PAGE EXTRA
-   ===================================================== */
-
-QListWidget {
-    background-color: transparent;
-    border: 1px solid #FFFFFF;
-    font-size: 16px;
-    color: #FFFFFF;
-}
-
-QListWidget#Balance_ListRecentTransactions {
-    font-size: 10px;
-    color: #FFFFFF;
-}
-
-QLabel#Balance_Amount {
-    font-size: 30px;
-    font-weight: 800;
-    color: #FFFFFF;
-}
-
-
-/* =====================================================
-   GLOBAL BUTTON BASE
-   ===================================================== */
-
-QPushButton {
-    padding: 10px;
-    font-weight: bold;
-    border: none;
-}
-
-
-/* =====================================================
-   TOP PANEL BUTTONS
-   ===================================================== */
-
-QPushButton#btnLanguageEnglish,
-QPushButton#btnLanguageFinnish,
-QPushButton#btnLanguagePolish,
-QPushButton#btnContrast {
-    border-radius: 12px;
-    padding: 6px 14px;
-    font-size: 16px;
-    font-weight: 700;
-    min-width: 20px;
-    min-height: 15px;
-}
-
-
-/* =====================================================
-   LANGUAGE BUTTONS
-   ===================================================== */
-
-QPushButton#btnLanguageEnglish,
-QPushButton#btnLanguageFinnish,
-QPushButton#btnLanguagePolish {
-    background-color: #111111;
-    color: #FFFFFF;
-    border: 1px solid #FFFFFF;
-}
-
-QPushButton#btnLanguageEnglish:hover,
-QPushButton#btnLanguageFinnish:hover,
-QPushButton#btnLanguagePolish:hover {
-    background-color: #222222;
-    color: #FFFFFF;
-    border: 1px solid #FFFFFF;
-}
-
-QPushButton#btnLanguageEnglish:checked,
-QPushButton#btnLanguageFinnish:checked,
-QPushButton#btnLanguagePolish:checked {
-    background-color: #FFFFFF;
-    color: #000000;
-    border: 1px solid #FFFFFF;
-}
-
-
-/* =====================================================
-   CONTRAST BUTTON
-   ===================================================== */
-
-QPushButton#btnContrast {
-    background-color: #FFFFFF;
-    color: #000000;
-    border: 2px solid #FFFFFF;
-}
-
-QPushButton#btnContrast:hover {
-    background-color: #DDDDDD;
-    color: #000000;
-    border: 2px solid #FFFFFF;
-}
-
-QPushButton#btnContrast:pressed {
-    background-color: #BBBBBB;
-    color: #000000;
-    border: 2px solid #FFFFFF;
-}
-
-QPushButton#btnContrast:checked {
-    background-color: #FACC15;
-    color: #000000;
-    border: 2px solid #FACC15;
-}
+void MainWindow::handleDonationAmountSelection()
+{
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
+    if (!button) return;
 
+    QString val = button->text();
+    val.remove("€");
+    val = val.trimmed();
 
-/* =====================================================
-   TOUCH PANEL
-   ===================================================== */
-
-#TouchPanel {
-    background-color: #111111;
-    border-top: 2px solid #FFFFFF;
-}
-
-
-/* =====================================================
-   SIDE ACTION BUTTONS
-   ===================================================== */
-
-QPushButton#button_1red_CANCEL,
-QPushButton#button_2yellow_CLEAR,
-QPushButton#button_3green_OK {
-    font-size: 20px;
-    font-weight: 700;
-    border-radius: 12px;
-    color: white;
-}
-
-QPushButton#button_1red_CANCEL {
-    background-color: #C62828;
-}
-QPushButton#button_1red_CANCEL:hover {
-    background-color: #E53935;
-}
-QPushButton#button_1red_CANCEL:pressed {
-    background-color: #8E0000;
-}
-
-QPushButton#button_2yellow_CLEAR {
-    background-color: #F9A825;
-}
-QPushButton#button_2yellow_CLEAR:hover {
-    background-color: #FDD835;
-}
-QPushButton#button_2yellow_CLEAR:pressed {
-    background-color: #C17900;
+    pendingDonationAmount = val.toInt();
+    qDebug() << "Valittu summa:" << pendingDonationAmount;
 }
 
-QPushButton#button_3green_OK {
-    background-color: #2E7D32;
-}
-QPushButton#button_3green_OK:hover {
-    background-color: #43A047;
-}
-QPushButton#button_3green_OK:pressed {
-    background-color: #1B5E20;
-}
-
-
-/* =====================================================
-   NUMPAD
-   ===================================================== */
-
-QPushButton#num_0,
-QPushButton#num_1,
-QPushButton#num_2,
-QPushButton#num_3,
-QPushButton#num_4,
-QPushButton#num_5,
-QPushButton#num_6,
-QPushButton#num_7,
-QPushButton#num_8,
-QPushButton#num_9,
-QPushButton#num_left,
-QPushButton#num_right {
-    background-color: #2F3A4D;
-    color: #FFFFFF;
-    border-radius: 18px;
-    font-size: 26px;
-    font-weight: 800;
-    border: 1px solid #FFFFFF;
-}
+void MainWindow::on_btnConfirmDonation_clicked()
+{
+    qDebug() << "Donation attempt:";
+    qDebug() << "accountId =" << accountId;
+    qDebug() << "selectedCharity =" << selectedCharity;
+    qDebug() << "pendingDonationAmount =" << pendingDonationAmount;
 
-QPushButton#num_0:hover,
-QPushButton#num_1:hover,
-QPushButton#num_2:hover,
-QPushButton#num_3:hover,
-QPushButton#num_4:hover,
-QPushButton#num_5:hover,
-QPushButton#num_6:hover,
-QPushButton#num_7:hover,
-QPushButton#num_8:hover,
-QPushButton#num_9:hover,
-QPushButton#num_left:hover,
-QPushButton#num_right:hover {
-    background-color: #3E4B61;
-}
-
-QPushButton#num_0:pressed,
-QPushButton#num_1:pressed,
-QPushButton#num_2:pressed,
-QPushButton#num_3:pressed,
-QPushButton#num_4:pressed,
-QPushButton#num_5:pressed,
-QPushButton#num_6:pressed,
-QPushButton#num_7:pressed,
-QPushButton#num_8:pressed,
-QPushButton#num_9:pressed,
-QPushButton#num_left:pressed,
-QPushButton#num_right:pressed {
-    background-color: #1F2937;
-}
+    if (pendingDonationAmount <= 0 || selectedCharity.isEmpty()) {
+        qDebug() << "Valitse kohde ja summa ensin!";
+        return;
+    }
 
+    if (accountId <= 0) {
+        qDebug() << "Donation blocked: invalid accountId:" << accountId;
 
-/* =====================================================
-   MAIN ACTION BUTTONS
-   ===================================================== */
+        if (ui->btnLanguageFinnish->isChecked()) {
+            ui->labelInstruction_Donation->setText("Tilitietoja ei voitu ladata.");
+        } else if (ui->btnLanguagePolish->isChecked()) {
+            ui->labelInstruction_Donation->setText("Nie udało się wczytać danych konta.");
+        } else {
+            ui->labelInstruction_Donation->setText("Failed to load account data.");
+        }
 
-QPushButton#btn_main_choice_1,
-QPushButton#btn_main_choice_2,
-QPushButton#btn_main_choice_3,
-QPushButton#btn_main_choice_4,
-QPushButton#btn_main_choice_5,
-QPushButton#btn_main_choice_6,
-QPushButton#btn_main_choice_7,
-QPushButton#btn_main_choice_8,
-QPushButton#Balance_btn_choice_1,
-QPushButton#Balance_btn_choice_2,
-QPushButton#btn_amount_choice_1,
-QPushButton#btn_amount_choice_2,
-QPushButton#btn_amount_choice_3,
-QPushButton#btn_amount_choice_4,
-QPushButton#btn_donation_choice_1,
-QPushButton#btn_donation_choice_2,
-QPushButton#btn_donation_choice_3,
-QPushButton#btn_donation_choice_4 {
-    background: #000000;
-    color: #FFFFFF;
-    border: 2px solid #FFFFFF;
-    border-radius: 16px;
-    padding: 16px;
-    font-weight: 800;
-}
+        return;
+    }
 
-QPushButton#btn_main_choice_1,
-QPushButton#btn_main_choice_2,
-QPushButton#btn_main_choice_3 {
-    font-size: 12px;
-    font-weight: 800;
+    makeWithdrawalRequest(pendingDonationAmount, "DONATION: " + selectedCharity);
 }
 
-QPushButton#btn_main_choice_1:hover,
-QPushButton#btn_main_choice_2:hover,
-QPushButton#btn_main_choice_3:hover,
-QPushButton#btn_main_choice_4:hover,
-QPushButton#btn_main_choice_5:hover,
-QPushButton#btn_main_choice_6:hover,
-QPushButton#btn_main_choice_7:hover,
-QPushButton#btn_main_choice_8:hover,
-QPushButton#Balance_btn_choice_1:hover,
-QPushButton#Balance_btn_choice_2:hover,
-QPushButton#btn_amount_choice_1:hover,
-QPushButton#btn_amount_choice_2:hover,
-QPushButton#btn_amount_choice_3:hover,
-QPushButton#btn_amount_choice_4:hover,
-QPushButton#btn_donation_choice_1:hover,
-QPushButton#btn_donation_choice_2:hover,
-QPushButton#btn_donation_choice_3:hover,
-QPushButton#btn_donation_choice_4:hover {
-    background: #222222;
-    color: #FFFFFF;
-    border: 2px solid #FFFFFF;
-}
+void MainWindow::resetDonationSelection()
+{
+    selectedCharity.clear();
+    pendingDonationAmount = 0;
 
-QPushButton#btn_main_choice_1:pressed,
-QPushButton#btn_main_choice_2:pressed,
-QPushButton#btn_main_choice_3:pressed,
-QPushButton#btn_main_choice_4:pressed,
-QPushButton#btn_main_choice_5:pressed,
-QPushButton#btn_main_choice_6:pressed,
-QPushButton#btn_main_choice_7:pressed,
-QPushButton#btn_main_choice_8:pressed,
-QPushButton#Balance_btn_choice_1:pressed,
-QPushButton#Balance_btn_choice_2:pressed,
-QPushButton#btn_amount_choice_1:pressed,
-QPushButton#btn_amount_choice_2:pressed,
-QPushButton#btn_amount_choice_3:pressed,
-QPushButton#btn_amount_choice_4:pressed,
-QPushButton#btn_donation_choice_1:pressed,
-QPushButton#btn_donation_choice_2:pressed,
-QPushButton#btn_donation_choice_3:pressed,
-QPushButton#btn_donation_choice_4:pressed {
-    background: #FFFFFF;
-    color: #000000;
-    border: 2px solid #FFFFFF;
-}
+    donationOrgGroup->setExclusive(false);
+    ui->btn_donation_choice_1->setChecked(false);
+    ui->btn_donation_choice_2->setChecked(false);
+    ui->btn_donation_choice_3->setChecked(false);
+    ui->btn_donation_choice_4->setChecked(false);
+    donationOrgGroup->setExclusive(true);
 
-QPushButton#btn_donation_choice_1:checked,
-QPushButton#btn_donation_choice_2:checked,
-QPushButton#btn_donation_choice_3:checked,
-QPushButton#btn_donation_choice_4:checked,
-QPushButton#btn_amount_choice_1:checked,
-QPushButton#btn_amount_choice_2:checked,
-QPushButton#btn_amount_choice_3:checked,
-QPushButton#btn_amount_choice_4:checked {
-    background: #FFFFFF;
-    color: #000000;
-    border: 2px solid #FFFFFF;
+    donationAmountGroup->setExclusive(false);
+    ui->btn_amount_choice_1->setChecked(false);
+    ui->btn_amount_choice_2->setChecked(false);
+    ui->btn_amount_choice_3->setChecked(false);
+    ui->btn_amount_choice_4->setChecked(false);
+    donationAmountGroup->setExclusive(true);
 }
 
-)";
-}
 
 
 /*
@@ -2293,8 +1542,21 @@ QPushButton#btn_amount_choice_4:checked {
  *
  */
 
+void MainWindow::setupStyles()
+{
+    lightStyle = loadStyleSheet(":/styles/light.qss");
+    contrastStyle = loadStyleSheet(":/styles/contrast.qss");
+
+    qDebug() << "lightStyle path: :/styles/light.qss";
+    qDebug() << "contrastStyle path: :/styles/contrast.qss";
+    qDebug() << "lightStyle length:" << lightStyle.length();
+    qDebug() << "contrastStyle length:" << contrastStyle.length();
+}
+
+
 void MainWindow::applyCurrentStyle()
 {
+
     if (contrastEnabled) {
         this->setStyleSheet(contrastStyle);
         ui->btnContrast->setChecked(true);
@@ -2314,3 +1576,144 @@ void MainWindow::on_btnContrast_clicked()
     applyCurrentStyle();
 }
 
+// Nämä poistavat "undefined reference" -virheet
+void MainWindow::onOkClicked() {
+    qDebug() << "OK painettu";
+}
+
+void MainWindow::onClearClicked() {
+    qDebug() << "Clear painettu";
+}
+
+void MainWindow::onCancelClicked() {
+    qDebug() << "Cancel painettu";
+}
+
+void MainWindow::on_btnConfirmTransfer_clicked() {
+    qDebug() << "Siirto vahvistettu";
+}
+
+
+QString MainWindow::loadStyleSheet(const QString &path)
+{
+    QFile file(path);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Cannot load stylesheet:" << path;
+        return "";
+    }
+
+    QTextStream stream(&file);
+    return stream.readAll();
+}
+
+
+/*
+ * Toggles between Debit and Credit account (only for DUO cards).
+ *
+ * What this function does:
+ * - checks if the card supports both debit and credit
+ * - switches the selected account type
+ * - updates the button text accordingly
+ */
+void MainWindow::toggleAccountType()
+{
+    // Only allow switching if card supports BOTH debit and credit
+    if (!(hasDebit && hasCredit)) {
+        return;
+    }
+
+    // Toggle selected account type
+    if (selectedAccountType == DebitAccount) {
+        selectedAccountType = CreditAccount;
+    } else {
+        selectedAccountType = DebitAccount;
+    }
+
+    // Refresh UI
+    updateCreditDebitButton();
+}
+
+/*
+ * Updates the Credit/Debit button text and enabled state.
+ *
+ * What this function does:
+ * - sets correct label based on:
+ *   - selected account type (Debit / Credit)
+ *   - current language
+ * - enables/disables button depending on card capabilities
+ */
+void MainWindow::updateCreditDebitButton()
+{
+    // -----------------------------
+    // DUO CARD (Debit + Credit)
+    // -----------------------------
+    if (hasDebit && hasCredit) {
+
+        ui->btnCreditDebit->setEnabled(true);
+
+        if (selectedAccountType == DebitAccount) {
+            if (currentLanguage == "PL")
+                ui->btnCreditDebit->setText("Karta Debetowa");
+            else if (currentLanguage == "FI")
+                ui->btnCreditDebit->setText("Debitkortti");
+            else
+                ui->btnCreditDebit->setText("Debit Card");
+        }
+        else {
+            if (currentLanguage == "PL")
+                ui->btnCreditDebit->setText("Karta Kredytowa");
+            else if (currentLanguage == "FI")
+                ui->btnCreditDebit->setText("Luottokortti");
+            else
+                ui->btnCreditDebit->setText("Credit Card");
+        }
+    }
+
+    // -----------------------------
+    // DEBIT ONLY
+    // -----------------------------
+    else if (hasDebit) {
+
+        ui->btnCreditDebit->setEnabled(false);
+        selectedAccountType = DebitAccount;
+
+        if (currentLanguage == "PL")
+            ui->btnCreditDebit->setText("Karta Debetowa");
+        else if (currentLanguage == "FI")
+            ui->btnCreditDebit->setText("Debitkortti");
+        else
+            ui->btnCreditDebit->setText("Debit Card");
+    }
+
+    // -----------------------------
+    // CREDIT ONLY
+    // -----------------------------
+    else if (hasCredit) {
+
+        ui->btnCreditDebit->setEnabled(false);
+        selectedAccountType = CreditAccount;
+
+        if (currentLanguage == "PL")
+            ui->btnCreditDebit->setText("Karta Kredytowa");
+        else if (currentLanguage == "FI")
+            ui->btnCreditDebit->setText("Luottokortti");
+        else
+            ui->btnCreditDebit->setText("Credit Card");
+    }
+
+    // -----------------------------
+    // NO CARD / ERROR STATE
+    // -----------------------------
+    else {
+
+        ui->btnCreditDebit->setEnabled(false);
+
+        if (currentLanguage == "PL")
+            ui->btnCreditDebit->setText("Brak karty");
+        else if (currentLanguage == "FI")
+            ui->btnCreditDebit->setText("Ei korttia");
+        else
+            ui->btnCreditDebit->setText("No Card");
+    }
+}
