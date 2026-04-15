@@ -65,10 +65,12 @@ private slots:
     void onOkClicked();
     void onClearClicked();
     void onCancelClicked();
-    void on_btnConfirmDonation_clicked();
 
+    // Donations
+    void on_btnConfirmDonation_clicked();
     void handleDonationSelection();
     void handleDonationAmountSelection();
+    void resetDonationSelection();
 
     void on_btnConfirmTransfer_clicked();
 private:
@@ -146,15 +148,6 @@ private:
     void selectAmount(int amount);
     QString formatAmount(int amount);
 
-    // =====================================================
-    // Styles Management
-    // =====================================================
-    QString lightStyle;
-    QString contrastStyle;
-    bool contrastEnabled = false;
-
-    void setupStyles();
-    void applyCurrentStyle();
 
     // =====================================================
     // Sound  Management
@@ -187,11 +180,21 @@ private:
 
     void makeDonationRequest(int amount);
     QString selectedCharity;
-    int pendingDonationAmount;
+    int pendingDonationAmount = 0;
 
     QString defaultStyle;
 
+    // =====================================================
+    // Styles Management
+    // =====================================================
 
+    void setupStyles();
+    void applyCurrentStyle();
+    QString loadStyleSheet(const QString &path);
+
+    QString lightStyle;
+    QString contrastStyle;
+    bool contrastEnabled = false;
 
 };
 
