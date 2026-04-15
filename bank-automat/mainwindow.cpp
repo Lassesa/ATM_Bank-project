@@ -1781,12 +1781,6 @@ void MainWindow::handleTransferResponse(QNetworkReply *reply)
     reply->deleteLater();
 }
 
-
-void MainWindow::on_btnContrast_clicked()
-{
-
-}
-
 void MainWindow::handleLoginResponse(QNetworkReply *reply)
 {
     // Tarkistetaan, että verkkoyhteys toimi
