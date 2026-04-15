@@ -9,7 +9,6 @@
 #include <QString>
 #include <QWidget>
 #include <QKeyEvent>
-#include <QTimer>
 
 // =====================================================
 // Qt Network / JSON
@@ -143,9 +142,10 @@ private:
     QString formatTransactionRow(QJsonObject obj);
     void makeWithdrawalRequest(int amount, QString description);
     void lockCardRequest(QString cardNum);
+
     QJsonArray allTransactions;
     int currentStartIndex = 0;
-    const int PAGE_SIZE = 5;
+    static constexpr int PAGE_SIZE = 5;
 
     // =====================================================
     // Amount Helpers
@@ -161,16 +161,6 @@ private:
     QString msgWithdrawSuccess;
     QString msgNetError;
     QString msgAtmError;
-
-    // =====================================================
-    // Styles Management
-    // =====================================================
-    QString lightStyle;
-    QString contrastStyle;
-    bool contrastEnabled = false;
-
-    void setupStyles();
-    void applyCurrentStyle();
 
     // =====================================================
     // Sound Management
@@ -200,11 +190,9 @@ private:
     // Donation
     // =====================================================
 
-    void makeDonationRequest(int amount);
+   // void makeDonationRequest(int amount); to be removed??
     QString selectedCharity;
     int pendingDonationAmount = 0;
-
-    QString defaultStyle;
 
     // =====================================================
     // Styles Management
