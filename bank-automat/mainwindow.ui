@@ -903,6 +903,12 @@
         <height>121</height>
        </rect>
       </property>
+      <property name="autoScroll">
+       <bool>false</bool>
+      </property>
+      <property name="dragEnabled">
+       <bool>false</bool>
+      </property>
       <item>
        <property name="text">
         <string>New Item</string>

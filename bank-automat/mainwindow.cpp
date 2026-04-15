@@ -1483,6 +1483,7 @@ void MainWindow::setupStyles()
 
 void MainWindow::applyCurrentStyle()
 {
+
     if (contrastEnabled) {
         this->setStyleSheet(contrastStyle);
         ui->btnContrast->setChecked(true);
