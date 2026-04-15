@@ -11,13 +11,13 @@ withdrawal: function(data, callback) {
 },
 
     // tilisiirto (transfer)
-    transfer: function(data, callback) {
-        return db.query(
-            'CALL credit_transfer(?, ?, ?)', 
-            [data.source_id, data.target_id, data.amount], 
-            callback
-        );
-    },
+transfer: function(data, callback) {
+    return db.query(
+        'CALL transfer_money(?, ?, ?, ?)',
+        [data.source_id, data.target_id, data.amount, data.description],
+        callback
+    );
+},
 // luotto
     creditWithdrawal: function(data, callback) {
     return db.query(

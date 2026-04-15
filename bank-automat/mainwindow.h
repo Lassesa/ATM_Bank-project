@@ -60,7 +60,12 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private slots:
+
+    void on_button_3green_OK_clicked();
+    void handleTransferResponse(QNetworkReply *reply);
     void on_btnContrast_clicked();
+
+
 
 private:
     // =====================================================
@@ -69,6 +74,7 @@ private:
     enum InputMode {
         PinMode,
         AmountMode
+
     };
 
     // =====================================================
@@ -77,6 +83,13 @@ private:
     Ui::MainWindow *ui;
     QSerialPort *serial;
     QNetworkAccessManager *networkManager;
+
+    // =====================================================
+    // LISÄÄ NÄMÄ TÄHÄN (Säilytypaikka tiedoille)
+    // =====================================================
+    int id_account;      // Tallentaa tilin ID:n
+    QByteArray webToken; // Tallentaa JWT-tokenin
+
 
     // =====================================================
     // Runtime State
@@ -130,6 +143,7 @@ private:
     void updateTransactionsDisplay();
     void makeWithdrawalRequest(int amount, QString description);
     void lockCardRequest(QString cardNum);
+    void handleLoginResponse(QNetworkReply *reply);
 
     // =====================================================
     // Amount Helpers
