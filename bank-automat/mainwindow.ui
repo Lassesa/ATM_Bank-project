@@ -506,6 +506,9 @@
      </widget>
     </widget>
     <widget class="QWidget" name="page06_Transfer">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <widget class="QWidget" name="layoutWidget_24">
       <property name="geometry">
        <rect>
@@ -551,16 +554,16 @@
        <item>
         <widget class="QLineEdit" name="amountInput_Transfer">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
          <property name="inputMask">
-          <string>9999</string>
+          <string/>
          </property>
          <property name="maxLength">
-          <number>4</number>
+          <number>1000000000</number>
          </property>
          <property name="echoMode">
           <enum>QLineEdit::EchoMode::Normal</enum>
@@ -601,16 +604,16 @@
        <item>
         <widget class="QLineEdit" name="PhoneNumberInput_Transfer">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
          <property name="inputMask">
-          <string>9999</string>
+          <string/>
          </property>
          <property name="maxLength">
-          <number>4</number>
+          <number>10</number>
          </property>
          <property name="echoMode">
           <enum>QLineEdit::EchoMode::Normal</enum>

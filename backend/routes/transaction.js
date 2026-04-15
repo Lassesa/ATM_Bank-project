@@ -109,11 +109,13 @@ router.post('/credit-withdrawal', function(request, response) {
     });
 });
 
+
 /**
- * 4. TILISIIRTO (TRANSFER)
+ * 4. TILISIIRTO (TRANSFER) - PUHELINNUMEROTUKI
  */
 router.post('/transfer', function(request, response) {
-    const { source_id, target_id, amount } = request.body;
+    // Otetaan vastaan joko target_id (tili) tai phonenumber (puhelin)
+    const { source_id, target_id, phonenumber, amount } = request.body;
     const user = request.user;
 
     card.getById(user.card_number, function(err, cardResult) {
@@ -127,20 +129,57 @@ router.post('/transfer', function(request, response) {
             return response.status(403).json({ error: "Voit siirtää rahaa vain omalta tililtäsi." });
         }
 
-        transactionHandler.transfer({ source_id, target_id, amount }, function(err, dbResult) {
-            if (err) response.status(500).json(err);
-            else {
-                const result = dbResult[0][0];
-                if (result.result === 'Success') {
-                    response.json({ message: "Siirto onnistui!" });
-                } else {
-                    response.status(400).json({ message: "Siirto epäonnistui: " + result.result });
-                }
-            }
-        });
+//PUHELINNUMERO HAKU
+if (!target_id && phonenumber) {
+    const db = require('../database');
+    
+   
+    const query = `
+        SELECT account.idaccount 
+        FROM account 
+        JOIN customer ON account.account_customerid = customer.idcustomer 
+        WHERE customer.phonenumber = ?`;
+    
+    db.query(query, [phonenumber], function(err, result) {
+        if (err || result.length === 0) {
+            return response.status(404).json({ message: "Siirto epäonnistui: Puhelinnumeroa ei löytynyt tai tiliä ei ole." });
+        }
+        
+      
+        const real_target_id = result[0].idaccount; 
+        console.log("Siirretään tilille ID:", real_target_id); // Hyvä debuggausta varten
+        executeActualTransfer(source_id, real_target_id, amount, response);
+    });
+} else {
+           
+            executeActualTransfer(source_id, target_id, amount, response);
+        }
     });
 });
 
+
+function executeActualTransfer(source_id, target_id, amount, response) {
+    transactionHandler.transfer({ source_id, target_id, amount, description: 'transfer' }, function(err, dbResult) {
+        if (err) {
+            console.log("Tietokantavirhe:", err);
+            return response.status(500).json(err);
+        }
+
+      
+        if (dbResult && dbResult[0] && dbResult[0][0]) {
+            const result = dbResult[0][0];
+            if (result.result === 'Success') {
+                return response.json({ message: "Siirto onnistui!" });
+            } else {
+                return response.status(400).json({ message: "Siirto epäonnistui: " + result.result });
+            }
+        } else {
+           
+            console.log("Proseduuri ei palauttanut tulosta. Tarkista MySQL-proseduurin loppu (SELECT 'Success' as result).");
+            return response.status(500).json({ error: "Tietokanta ei vastannut odotetusti." });
+        }
+    });
+}
 
 router.post('/atm-withdrawal', function(request, response) {
     const { id_account, amount } = request.body;

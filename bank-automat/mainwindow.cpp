@@ -1050,6 +1050,16 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
                 QJsonObject resObj = resDoc.object();
                 sessionToken = resObj.value("token").toString();
 
+                QJsonValue idVal = resObj.contains("idaccount")
+                                       ? resObj.value("idaccount")
+                                       : resObj.value("id_account");
+
+                accountId = idVal.isDouble() ? idVal.toInt() : idVal.toString().toInt();
+
+
+                this->webToken = sessionToken.toUtf8();
+                this->id_account = accountId;
+
                 qDebug() << "Login successful!";
                 qDebug() << "Token start:" << sessionToken.left(10) << "...";
 
@@ -1698,4 +1708,107 @@ void MainWindow::updateCreditDebitButton()
         else
             ui->btnCreditDebit->setText("No Card");
     }
+}
+
+/*
+ * Contrast Button
+ *
+ */
+
+//siirto
+
+void MainWindow::on_button_3green_OK_clicked()
+{
+
+    QString targetAccount = ui->PhoneNumberInput_Transfer->text();
+    QString amountStr = ui->amountInput_Transfer->text();
+
+    if (targetAccount.isEmpty() || amountStr.isEmpty()) {
+        qDebug() << "Täytä molemmat kentät!";
+        if(errorSound) errorSound->play();
+        return;
+    }
+
+    // 1. Haetaan tiedot käyttöliittymästä muuttujiin
+    // Varmista, että ui->... nimet vastaavat sinun UI-elementtiesi nimiä!
+    // Muuta tämä rivi (rivi 2272 kuvassasi):
+    QString targetPhone = ui->PhoneNumberInput_Transfer->text().trimmed();
+    int amount = ui->amountInput_Transfer->text().toInt();
+
+    // 3. Luodaan JSON-paketti
+    QJsonObject json;
+    json["source_id"] = this->id_account; // Kirjautuessa tallennettu ID
+    json["phonenumber"] = targetPhone;    // Käyttäjän syöttämä puhelinnumero
+    json["amount"] = amount;
+
+    QJsonDocument doc(json);
+    QByteArray data = doc.toJson();
+
+    // 3. Lähetys backendille
+    QUrl url("http://localhost:3000/transaction/transfer");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", ("Bearer " + webToken));
+
+    QNetworkReply *reply = networkManager->post(request, data);
+
+    // Kytketään vastaus
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        handleTransferResponse(reply);
+    });
+
+    if(buttonSound) buttonSound->play();
+}
+
+
+void MainWindow::handleTransferResponse(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError) {
+        qDebug() << "Rahat siirretty onnistuneesti!";
+        if(successSound) successSound->play();
+
+
+        ui->PhoneNumberInput_Transfer->clear();
+        ui->amountInput_Transfer->clear();
+
+
+        ui->display->setCurrentIndex(2);
+
+    } else {
+        qDebug() << "Virhe siirrossa:" << reply->readAll();
+        if(errorSound) errorSound->play();
+    }
+    reply->deleteLater();
+}
+
+
+void MainWindow::on_btnContrast_clicked()
+{
+
+}
+
+void MainWindow::handleLoginResponse(QNetworkReply *reply)
+{
+    // Tarkistetaan, että verkkoyhteys toimi
+    if (reply->error() == QNetworkReply::NoError) {
+        // Luetaan bäkärin vastaus (sisältää tokenin ja idaccountin)
+        QByteArray response_data = reply->readAll();
+        QJsonDocument json_doc = QJsonDocument::fromJson(response_data);
+        QJsonObject json_obj = json_doc.object();
+
+        // TALLENNETAAN TIEDOT MUUTTUJIIN
+        // Nämä muuttujat pitää olla määritelty mainwindow.h tiedostossa
+        this->webToken = json_obj.value("token").toString().toUtf8();
+        this->id_account = json_obj.value("idaccount").toInt();
+
+        qDebug() << "Kirjautuminen onnistui. Token ja ID tallennettu.";
+
+        // Siirrytään pääsivulle (Index 2 on yleensä Page 3)
+        ui->display->setCurrentIndex(2);
+    }
+    else {
+        // Jos PIN oli väärin tai muu virhe, näytetään se lokissa
+        qDebug() << "Kirjautuminen epäonnistui:" << reply->readAll();
+    }
+    reply->deleteLater();
 }
