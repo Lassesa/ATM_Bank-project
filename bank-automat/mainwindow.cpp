@@ -159,12 +159,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->btnLanguageEnglish->setCheckable(true);
     ui->btnLanguageFinnish->setCheckable(true);
     ui->btnLanguagePolish->setCheckable(true);
+    ui->btnCreditDebit->setCheckable(true);
 
     ui->btnLanguageEnglish->setAutoExclusive(true);
     ui->btnLanguageFinnish->setAutoExclusive(true);
     ui->btnLanguagePolish->setAutoExclusive(true);
 
-    ui->btnLanguageEnglish->setChecked(true);
+
 
     // Set initial language
     setLanguage("EN");
@@ -230,6 +231,13 @@ void MainWindow::connectSignals()
     connect(ui->btnLanguageFinnish, &QPushButton::clicked, this, [this]() {
         setLanguage("FI");
     });
+
+    // -----------------------------
+    // DEBIT / CREDIT Button
+    // -----------------------------
+
+    connect(ui->btnCreditDebit, &QPushButton::clicked,
+            this, &MainWindow::toggleAccountType);
 
     // -----------------------------
     // Keypad number buttons
@@ -600,6 +608,7 @@ void MainWindow::connectSignals()
  */
 void MainWindow::setLanguage(const QString &lang)
 {
+    currentLanguage = lang;
     ui->btnLanguageEnglish->setChecked(lang == "EN");
     ui->btnLanguagePolish->setChecked(lang == "PL");
     ui->btnLanguageFinnish->setChecked(lang == "FI");
@@ -665,6 +674,7 @@ void MainWindow::setLanguage(const QString &lang)
         ui->labelInstruction_Transactions->setText("Recent transactions");
 
 
+
     }
     else if (lang == "PL") {
         ui->labelWelcome->setText("Witamy w S/R Banku");
@@ -724,6 +734,7 @@ void MainWindow::setLanguage(const QString &lang)
 
         ui->labelWelcome_Transactions->setText("Transakcje");
         ui->labelInstruction_Transactions->setText("Ostatnie operacje");
+
     }
     else if (lang == "FI") {
         ui->labelWelcome->setText("Tervetuloa S/R Pankkiin");
@@ -784,8 +795,9 @@ void MainWindow::setLanguage(const QString &lang)
         ui->labelWelcome_Transactions->setText("Tapahtumat");
         ui->labelInstruction_Transactions->setText("Viimeisimmät tapahtumat");
 
-
     }
+
+    updateCreditDebitButton();
 }
 
 // =====================================================
@@ -1016,6 +1028,19 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
                 qDebug() << "Login successful!";
                 qDebug() << "Token start:" << sessionToken.left(10) << "...";
 
+                // -------------------------------------------------
+                // TEMPORARY TEST DATA FOR CARD TYPE
+                // Replace this later with real backend values
+                // -------------------------------------------------
+                hasDebit = true;
+                hasCredit = true;   // DUO card test
+
+                // Default selection for DUO card = Debit
+                selectedAccountType = DebitAccount;
+
+                // Update Credit / Debit button after login
+                updateCreditDebitButton();
+
                 // Load real account data after login
                 updateBalanceDisplay();
                 updateTransactionsDisplay();
@@ -1113,11 +1138,6 @@ void MainWindow::updateBalanceDisplay()
                 obj = jsonDoc.array().first().toObject();
             } else {
                 obj = jsonDoc.object();
-            }
-
-            if (obj.contains("idaccount")) {
-                accountId = obj.value("idaccount").toVariant().toInt();
-                qDebug() << "Updated real account ID from balance endpoint:" << accountId;
             }
 
             if (obj.contains("idaccount")) {
@@ -1269,6 +1289,7 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
     json["id_account"] = accountId;
     json["amount"] = amount;
     json["description"] = description;
+    json["account_type"] = (selectedAccountType == DebitAccount) ? "debit" : "credit";
 
     qDebug() << "Starting withdrawal request";
     qDebug() << "Account ID:" << accountId;
@@ -1321,6 +1342,10 @@ void MainWindow::resetToWelcome()
     sessionToken = "";
     accountId = 0;
     resetDonationSelection();
+    hasDebit = false;
+    hasCredit = false;
+    selectedAccountType = DebitAccount;
+    updateCreditDebitButton();
 
     // Restore the default PIN instruction text
     if (ui->btnLanguageFinnish->isChecked()) {
@@ -1532,4 +1557,115 @@ QString MainWindow::loadStyleSheet(const QString &path)
 
     QTextStream stream(&file);
     return stream.readAll();
+}
+
+
+/*
+ * Toggles between Debit and Credit account (only for DUO cards).
+ *
+ * What this function does:
+ * - checks if the card supports both debit and credit
+ * - switches the selected account type
+ * - updates the button text accordingly
+ */
+void MainWindow::toggleAccountType()
+{
+    // Only allow switching if card supports BOTH debit and credit
+    if (!(hasDebit && hasCredit)) {
+        return;
+    }
+
+    // Toggle selected account type
+    if (selectedAccountType == DebitAccount) {
+        selectedAccountType = CreditAccount;
+    } else {
+        selectedAccountType = DebitAccount;
+    }
+
+    // Refresh UI
+    updateCreditDebitButton();
+}
+
+/*
+ * Updates the Credit/Debit button text and enabled state.
+ *
+ * What this function does:
+ * - sets correct label based on:
+ *   - selected account type (Debit / Credit)
+ *   - current language
+ * - enables/disables button depending on card capabilities
+ */
+void MainWindow::updateCreditDebitButton()
+{
+    // -----------------------------
+    // DUO CARD (Debit + Credit)
+    // -----------------------------
+    if (hasDebit && hasCredit) {
+
+        ui->btnCreditDebit->setEnabled(true);
+
+        if (selectedAccountType == DebitAccount) {
+            if (currentLanguage == "PL")
+                ui->btnCreditDebit->setText("Karta Debetowa");
+            else if (currentLanguage == "FI")
+                ui->btnCreditDebit->setText("Debitkortti");
+            else
+                ui->btnCreditDebit->setText("Debit Card");
+        }
+        else {
+            if (currentLanguage == "PL")
+                ui->btnCreditDebit->setText("Karta Kredytowa");
+            else if (currentLanguage == "FI")
+                ui->btnCreditDebit->setText("Luottokortti");
+            else
+                ui->btnCreditDebit->setText("Credit Card");
+        }
+    }
+
+    // -----------------------------
+    // DEBIT ONLY
+    // -----------------------------
+    else if (hasDebit) {
+
+        ui->btnCreditDebit->setEnabled(false);
+        selectedAccountType = DebitAccount;
+
+        if (currentLanguage == "PL")
+            ui->btnCreditDebit->setText("Karta Debetowa");
+        else if (currentLanguage == "FI")
+            ui->btnCreditDebit->setText("Debitkortti");
+        else
+            ui->btnCreditDebit->setText("Debit Card");
+    }
+
+    // -----------------------------
+    // CREDIT ONLY
+    // -----------------------------
+    else if (hasCredit) {
+
+        ui->btnCreditDebit->setEnabled(false);
+        selectedAccountType = CreditAccount;
+
+        if (currentLanguage == "PL")
+            ui->btnCreditDebit->setText("Karta Kredytowa");
+        else if (currentLanguage == "FI")
+            ui->btnCreditDebit->setText("Luottokortti");
+        else
+            ui->btnCreditDebit->setText("Credit Card");
+    }
+
+    // -----------------------------
+    // NO CARD / ERROR STATE
+    // -----------------------------
+    else {
+
+        ui->btnCreditDebit->setEnabled(false);
+
+        if (currentLanguage == "PL")
+            ui->btnCreditDebit->setText("Brak karty");
+        else if (currentLanguage == "FI")
+            ui->btnCreditDebit->setText("Ei korttia");
+        else
+            ui->btnCreditDebit->setText("No Card");
+    }
 }

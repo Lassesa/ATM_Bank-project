@@ -208,7 +208,8 @@ QPushButton {
 QPushButton#btnLanguageEnglish,
 QPushButton#btnLanguageFinnish,
 QPushButton#btnLanguagePolish,
-QPushButton#btnContrast {
+QPushButton#btnContrast,
+QPushButton#btnCreditDebit{
     border-radius: 12px;
     padding: 6px 14px;
     font-size: 16px;
@@ -224,7 +225,8 @@ QPushButton#btnContrast {
 
 QPushButton#btnLanguageEnglish,
 QPushButton#btnLanguageFinnish,
-QPushButton#btnLanguagePolish {
+QPushButton#btnLanguagePolish,
+QPushButton#btnCreditDebit {
     background-color: rgba(255, 255, 255, 0.55);
     color: #1E293B;
     border: 1px solid rgba(30, 41, 59, 0.35);
@@ -232,7 +234,8 @@ QPushButton#btnLanguagePolish {
 
 QPushButton#btnLanguageEnglish:hover,
 QPushButton#btnLanguageFinnish:hover,
-QPushButton#btnLanguagePolish:hover {
+QPushButton#btnLanguagePolish:hover,
+QPushButton#btnCreditDebit:hover {
     background-color: rgba(255, 255, 255, 0.90);
     border: 1px solid rgba(30, 41, 59, 0.55);
     color: #0F172A;
@@ -240,7 +243,8 @@ QPushButton#btnLanguagePolish:hover {
 
 QPushButton#btnLanguageEnglish:checked,
 QPushButton#btnLanguageFinnish:checked,
-QPushButton#btnLanguagePolish:checked {
+QPushButton#btnLanguagePolish:checked,
+QPushButton#btnCreditDebit:checked {
     background-color: #E83E6D;
     border: 1px solid #E83E6D;
     color: #FFFFFF;

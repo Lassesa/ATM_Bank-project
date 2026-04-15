@@ -1194,7 +1194,7 @@
      <rect>
       <x>30</x>
       <y>20</y>
-      <width>301</width>
+      <width>451</width>
       <height>60</height>
      </rect>
     </property>
@@ -1205,6 +1205,19 @@
      </size>
     </property>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="3">
+      <widget class="QPushButton" name="btnLanguagePolish">
+       <property name="text">
+        <string>PL</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QPushButton" name="btnLanguageFinnish">
        <property name="text">
@@ -1231,23 +1244,17 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="btnLanguagePolish">
-       <property name="text">
-        <string>PL</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="autoExclusive">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
+     <item row="0" column="4">
       <widget class="QPushButton" name="btnContrast">
        <property name="text">
         <string>CO</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5">
+      <widget class="QPushButton" name="btnCreditDebit">
+       <property name="text">
+        <string>Debit Card</string>
        </property>
       </widget>
      </item>

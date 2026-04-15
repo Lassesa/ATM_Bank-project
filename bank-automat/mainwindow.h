@@ -201,6 +201,27 @@ private:
     QString contrastStyle;
     bool contrastEnabled = false;
 
+    // =====================================================
+    // Card / Account Type Handling
+    // =====================================================
+
+    // Defines which account is currently selected
+    enum AccountType {
+        DebitAccount,
+        CreditAccount
+    };
+
+    bool hasDebit = false;     // Does the card support debit?
+    bool hasCredit = false;    // Does the card support credit?
+
+    AccountType selectedAccountType = DebitAccount; // Default selection
+
+    QString currentLanguage = "EN"; // Current UI language
+
+    void toggleAccountType();        // Handles button click (switch Debit <-> Credit)
+    void updateCreditDebitButton();  // Updates button text and state
+
+
 };
 
 #endif // MAINWINDOW_H
