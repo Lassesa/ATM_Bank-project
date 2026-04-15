@@ -530,7 +530,32 @@ void MainWindow::connectSignals()
     connect(ui->btn_amount_choice_3, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
     connect(ui->btn_amount_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
 
+
+
+    // -----------------------------
+    // Transactions menu buttons
+    // -----------------------------
+
+
+    connect(ui->Transactions_btn_choice_next, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
+        showPage(ui->page04_Withdraw);
+    });
+
+    connect(ui->Transactions_btn_choice_previous, &QPushButton::clicked, this, [this]() {
+
+        if (buttonSound)
+            buttonSound->play();
+
+        showPage(ui->page04_Withdraw);
+    });
+
 }
+
+
 
 
 // =====================================================
