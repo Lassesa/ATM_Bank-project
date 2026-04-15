@@ -10,5 +10,7 @@
         <file>sounds/error.wav</file>
         <file>sounds/withdraw.wav</file>
         <file>sounds/timeout.wav</file>
+        <file>styles/light.qss</file>
+        <file>styles/contrast.qss</file>
     </qresource>
 </RCC>

@@ -3,6 +3,7 @@ const router = express.Router();
 const transaction = require('../models/transaction_model');
 const transactionHandler = require('../models/transaction_handler_model');
 const card = require('../models/card_model');
+const atmWithdrawal = require('../models/atm_withdrawal_model');
 
 /**
  * 1. HAE TILIIN LIITTYVÄT TAPAHTUMAT
@@ -34,8 +35,10 @@ router.get('/:id', function(request, response) {
  * 2. RAHAN NOSTO (DEBIT)
  */
 router.post('/withdrawal', function(request, response) {
-    const { id_account, amount } = request.body;
+    const { id_account, amount, description } = request.body;
     const user = request.user;
+
+
 
     card.getById(user.card_number, function(err, cardResult) {
         if (err || !cardResult || cardResult.length === 0) {
@@ -55,7 +58,7 @@ router.post('/withdrawal', function(request, response) {
             });
         }
 
-        transactionHandler.withdrawal({ id_account, amount }, function(err, dbResult) {
+        transactionHandler.withdrawal({ id_account, amount, description }, function(err, dbResult) {
             if (err) response.status(500).json(err);
             else {
                 const result = dbResult[0][0];
@@ -177,5 +180,19 @@ function executeActualTransfer(source_id, target_id, amount, response) {
         }
     });
 }
+
+router.post('/atm-withdrawal', function(request, response) {
+    const { id_account, amount } = request.body;
+    const user = request.user;
+
+    atmWithdrawal.atmWithdrawal({ id_account, amount }, function(err, result) {
+        if (err) {
+            response.status(400).json({ message: err.message });
+        } else {
+            response.json({ message: 'ATM-nosto onnistui' });
+        }
+    });
+});
+
 
 module.exports = router;

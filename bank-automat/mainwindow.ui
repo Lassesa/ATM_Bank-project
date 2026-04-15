@@ -33,9 +33,9 @@
      <enum>QFrame::Shape::NoFrame</enum>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>0</number>
     </property>
-    <widget class="QWidget" name="page1_Welcome">
+    <widget class="QWidget" name="page01_Welcome">
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
@@ -107,7 +107,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page2_Pin">
+    <widget class="QWidget" name="page02_Pin">
      <widget class="QWidget" name="layoutWidget_19">
       <property name="geometry">
        <rect>
@@ -169,7 +169,7 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="page3_Main">
+    <widget class="QWidget" name="page03_Main">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -294,7 +294,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page4_Withdraw">
+    <widget class="QWidget" name="page04_Withdraw">
      <widget class="QWidget" name="layoutWidget_22">
       <property name="geometry">
        <rect>
@@ -385,7 +385,7 @@
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="page5_Balance">
+    <widget class="QWidget" name="page05_Balance">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -424,7 +424,7 @@
         <x>30</x>
         <y>50</y>
         <width>561</width>
-        <height>89</height>
+        <height>90</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Balance">
@@ -505,7 +505,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page6_Transfer">
+    <widget class="QWidget" name="page06_Transfer">
      <property name="enabled">
       <bool>true</bool>
      </property>
@@ -629,7 +629,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page7_Donation">
+    <widget class="QWidget" name="page07_Donation">
      <widget class="QWidget" name="layoutWidget_25">
       <property name="geometry">
        <rect>
@@ -743,7 +743,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page8_Exit">
+    <widget class="QWidget" name="page08_Exit">
      <widget class="QWidget" name="layoutWidget_26">
       <property name="geometry">
        <rect>
@@ -774,7 +774,7 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="page9_Other">
+    <widget class="QWidget" name="page09_Other">
      <widget class="QWidget" name="layoutWidget_27">
       <property name="geometry">
        <rect>
@@ -850,14 +850,14 @@
        <item row="1" column="0">
         <widget class="QLabel" name="labelInstruction_Accounts">
          <property name="text">
-          <string>Your session will end soon.</string>
+          <string>Accounts you can use</string>
          </property>
         </widget>
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="labelWelcome_Accounts">
          <property name="text">
-          <string>Are you still there?</string>
+          <string>Available accounts</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -881,14 +881,14 @@
        <item row="1" column="0">
         <widget class="QLabel" name="labelInstruction_Transactions">
          <property name="text">
-          <string>Your session will end soon.</string>
+          <string>Recent transactions</string>
          </property>
         </widget>
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="labelWelcome_Transactions">
          <property name="text">
-          <string>Are you still there?</string>
+          <string>Transactions</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -896,6 +896,66 @@
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QListWidget" name="Transactions_List_Full">
+      <property name="geometry">
+       <rect>
+        <x>28</x>
+        <y>140</y>
+        <width>541</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <property name="autoScroll">
+       <bool>false</bool>
+      </property>
+      <property name="dragEnabled">
+       <bool>false</bool>
+      </property>
+      <item>
+       <property name="text">
+        <string>New Item</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>570</x>
+        <y>140</y>
+        <width>171</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="1" column="0">
+        <widget class="QPushButton" name="Transactions_btn_choice_next">
+         <property name="text">
+          <string>NEXT</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="Transactions_btn_choice_previous">
+         <property name="text">
+          <string>PREVIOUS</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QLabel" name="Transactions_lbl_PageNumber">
+      <property name="geometry">
+       <rect>
+        <x>530</x>
+        <y>260</y>
+        <width>63</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="page11_Time">
@@ -968,22 +1028,6 @@
        </property>
        <property name="text">
         <string>OK</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="button_1red_CANCEL">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>55</height>
-        </size>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string>Cancel</string>
        </property>
       </widget>
      </item>
@@ -1091,6 +1135,22 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="button_1red_CANCEL">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>55</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QLabel" name="logo">
@@ -1106,6 +1166,7 @@
      <string/>
     </property>
     <property name="pixmap">
+     <pixmap resource="resources.qrc">:/logo.svg/logo.svg</pixmap>
      <pixmap resource="resources.qrc">:/logo.svg</pixmap>
     </property>
     <property name="scaledContents">
@@ -1137,7 +1198,7 @@
      <rect>
       <x>30</x>
       <y>20</y>
-      <width>301</width>
+      <width>451</width>
       <height>60</height>
      </rect>
     </property>
@@ -1148,6 +1209,19 @@
      </size>
     </property>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="3">
+      <widget class="QPushButton" name="btnLanguagePolish">
+       <property name="text">
+        <string>PL</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QPushButton" name="btnLanguageFinnish">
        <property name="text">
@@ -1174,23 +1248,17 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="btnLanguagePolish">
-       <property name="text">
-        <string>PL</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="autoExclusive">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
+     <item row="0" column="4">
       <widget class="QPushButton" name="btnContrast">
        <property name="text">
         <string>CO</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5">
+      <widget class="QPushButton" name="btnCreditDebit">
+       <property name="text">
+        <string>Debit Card</string>
        </property>
       </widget>
      </item>
