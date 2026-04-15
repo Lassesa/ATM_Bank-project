@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QMessageBox>
 
 // =====================================================
 // Qt UI
@@ -17,6 +16,7 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <QtMath>
 
 // =====================================================
 // Constructor / Destructor
@@ -1292,7 +1292,6 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
 {
     QString originalText = ui->labelInstruction_Withdraw->text();
 
-    // 1. Tarkistus automaatin puolella (Käytetään msgInvalidAmount muuttujaa!)
     if (amount <= 0 || amount % 10 != 0) {
         ui->labelInstruction_Withdraw->setText(msgInvalidAmount);
         ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
@@ -1315,59 +1314,42 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
     json["description"] = description;
     json["account_type"] = (selectedAccountType == DebitAccount) ? "debit" : "credit";
 
-    qDebug() << "Starting withdrawal request";
-    qDebug() << "Account ID:" << accountId;
-    qDebug() << "Amount:" << amount;
-    qDebug() << "Description:" << description;
-    qDebug() << "Token start:" << sessionToken.left(20);
-
     QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply, description]() {
-        QByteArray responseData = reply->readAll();
-        int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-
-        if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Successful transaction:" << description;
-            qDebug() << "HTTP status:" << statusCode;
-            qDebug() << "Backend response:" << responseData;
-
-connect(reply, &QNetworkReply::finished, this,
+    connect(reply, &QNetworkReply::finished, this,
             [this, reply, originalText]() {
 
-    if (reply->error() == QNetworkReply::NoError) {
+                if (reply->error() == QNetworkReply::NoError) {
 
-        if (withdrawSound)
-            withdrawSound->play();
+                    if (withdrawSound)
+                        withdrawSound->play();
 
-        ui->labelInstruction_Withdraw->setText(msgWithdrawSuccess);
-        ui->labelInstruction_Withdraw->setStyleSheet(
-            "color: green; font-weight: bold;");
+                    ui->labelInstruction_Withdraw->setText(msgWithdrawSuccess);
+                    ui->labelInstruction_Withdraw->setStyleSheet("color: green; font-weight: bold;");
 
-        QTimer::singleShot(2000, [this, originalText]() {
-            updateBalanceDisplay();
-            updateTransactionsDisplay();
-            ui->labelInstruction_Withdraw->setText(originalText);
-            ui->labelInstruction_Withdraw->setStyleSheet("");
-            ui->display->setCurrentWidget(ui->page03_Main);
-        });
+                    QTimer::singleShot(2000, [this, originalText]() {
+                        updateBalanceDisplay();
+                        updateTransactionsDisplay();
+                        ui->labelInstruction_Withdraw->setText(originalText);
+                        ui->labelInstruction_Withdraw->setStyleSheet("");
+                        ui->display->setCurrentWidget(ui->page03_Main);
+                    });
 
-    } else {
-        ui->labelInstruction_Withdraw->setText(msgAtmError);
-        ui->labelInstruction_Withdraw->setStyleSheet(
-            "color: red; font-weight: bold;");
+                } else {
 
-        QByteArray responseData = reply->readAll();
-        qDebug() << "ATM backend error:" << responseData;
+                    ui->labelInstruction_Withdraw->setText(msgAtmError);
+                    ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
 
-        QTimer::singleShot(4000, [this, originalText]() {
-            ui->labelInstruction_Withdraw->setText(originalText);
-            ui->labelInstruction_Withdraw->setStyleSheet("");
-        });
-    }
+                    qDebug() << "ATM backend error:" << reply->readAll();
 
-    reply->deleteLater();
-});
+                    QTimer::singleShot(4000, [this, originalText]() {
+                        ui->labelInstruction_Withdraw->setText(originalText);
+                        ui->labelInstruction_Withdraw->setStyleSheet("");
+                    });
+                }
+
+                reply->deleteLater();
+            });
 }
 
 
