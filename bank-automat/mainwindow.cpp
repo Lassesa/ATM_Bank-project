@@ -159,7 +159,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->btnLanguageEnglish->setCheckable(true);
     ui->btnLanguageFinnish->setCheckable(true);
     ui->btnLanguagePolish->setCheckable(true);
-    ui->btnLanguagePolish->setCheckable(true);
     ui->btnCreditDebit->setCheckable(true);
 
     ui->btnLanguageEnglish->setAutoExclusive(true);
