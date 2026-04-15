@@ -515,6 +515,28 @@ void MainWindow::connectSignals()
         showPage(ui->page13_Transactions);
     });
 
+    // NEXT-nappi
+    connect(ui->Transactions_btn_choice_next, &QPushButton::clicked, this, [this]() {
+        if (buttonSound)
+            buttonSound->play();
+
+        if (currentStartIndex + PAGE_SIZE < allTransactions.size()) {
+            currentStartIndex += PAGE_SIZE;
+            renderTransactionPage();
+        }
+    });
+
+    // PREVIOUS-nappi
+    connect(ui->Transactions_btn_choice_previous, &QPushButton::clicked, this, [this]() {
+        if (buttonSound)
+            buttonSound->play();
+
+        if (currentStartIndex - PAGE_SIZE >= 0) {
+            currentStartIndex -= PAGE_SIZE;
+            renderTransactionPage();
+        }
+    });
+
     // -----------------------------
     // Donation menu buttons
     // -----------------------------
@@ -536,7 +558,7 @@ void MainWindow::connectSignals()
     // Transactions menu buttons
     // -----------------------------
 
-
+/*
     connect(ui->Transactions_btn_choice_next, &QPushButton::clicked, this, [this]() {
 
         if (buttonSound)
@@ -552,7 +574,7 @@ void MainWindow::connectSignals()
 
         showPage(ui->page04_Withdraw);
     });
-
+*/
 }
 
 
@@ -621,7 +643,7 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_8->setText("8 More");
 
         ui->Balance_TitleAccountSelect->setText("Main account");
-        ui->Balance_TitleRecentTransactions->setText("Last 3 transactions");
+        ui->Balance_TitleRecentTransactions->setText("Last 5 transactions");
         ui->Balance_btn_choice_1->setText("Other Accounts");
         ui->Balance_btn_choice_2->setText("More Transactions");
 
@@ -682,7 +704,7 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_8->setText("8 Więcej");
 
         ui->Balance_TitleAccountSelect->setText("Konto główne");
-        ui->Balance_TitleRecentTransactions->setText("Ostatnie 3 transakcje");
+        ui->Balance_TitleRecentTransactions->setText("Ostatnie 5 transakcje");
         ui->Balance_btn_choice_1->setText("Inne konta");
         ui->Balance_btn_choice_2->setText("Więcej transakcji");
 
@@ -741,7 +763,7 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_8->setText("8 Lisää");
 
         ui->Balance_TitleAccountSelect->setText("Päätili");
-        ui->Balance_TitleRecentTransactions->setText("Viimeiset 3 tapahtumaa");
+        ui->Balance_TitleRecentTransactions->setText("Viimeiset 5 tapahtumaa");
         ui->Balance_btn_choice_1->setText("Muut tilit");
         ui->Balance_btn_choice_2->setText("Lisää tapahtumia");
 
@@ -1131,56 +1153,88 @@ void MainWindow::updateTransactionsDisplay()
     if (accountId <= 0) {
         qDebug() << "Transactions fetch skipped: invalid accountId:" << accountId;
         ui->Balance_ListRecentTransactions->clear();
+        ui->Transactions_List_Full->clear();
         ui->Balance_ListRecentTransactions->addItem("No transactions available.");
         return;
     }
 
+    // Haetaan reilusti tapahtumia (esim. 50), jotta sivutus on sulavaa
     QString urlStr = QString("http://localhost:3000/transaction/%1").arg(accountId);
     QUrl url(urlStr);
     QNetworkRequest request(url);
-
     request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
 
     QNetworkReply *reply = networkManager->get(request);
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        ui->Balance_ListRecentTransactions->clear();
-
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
-            QJsonArray transArray = QJsonDocument::fromJson(responseData).array();
 
-            if (transArray.isEmpty()) {
+            // Tallennetaan koko saatu lista luokan jäsenmuuttujaan
+            allTransactions = QJsonDocument::fromJson(responseData).array();
+
+            // Nollataan sivutusindeksi aina kun uusi data ladataan
+            currentStartIndex = 0;
+
+            // --- 1. Täytetään SALDOSIVUN pikalista (aina 3 ekat) ---
+            ui->Balance_ListRecentTransactions->clear();
+            if (allTransactions.isEmpty()) {
                 ui->Balance_ListRecentTransactions->addItem("Ei aiempia tapahtumia.");
             } else {
-                int count = qMin(transArray.size(), 3);
-
-                for (int i = 0; i < count; ++i) {
-                    QJsonObject obj = transArray.at(i).toObject();
-
-                    double amount = obj.value("transaction_amount").toVariant().toDouble();
-                    QString dateStr = obj.value("transaction_date").toString().left(10);
-
-                    QString description = obj.value("transaction_description").toString();
-                    if (description.isEmpty()) {
-                        description = "ATM WITHDRAW";
-                    }
-
-                    QString row = QString("%1  %2  %3 €")
-                                      .arg(dateStr)
-                                      .arg(description.left(15).trimmed().toUpper())
-                                      .arg(QString::number(amount, 'f', 2));
-
-                    ui->Balance_ListRecentTransactions->addItem(row);
+                int countShort = qMin(allTransactions.size(), 5);
+                for (int i = 0; i < countShort; ++i) {
+                    QJsonObject obj = allTransactions.at(i).toObject();
+                    ui->Balance_ListRecentTransactions->addItem(formatTransactionRow(obj));
                 }
             }
+
+            // --- 2. Täytetään TAPAHTUMASIVUN lista (käyttäen uutta render-funktiota) ---
+            renderTransactionPage();
+
         } else {
             qDebug() << "Transaction fetch failed:" << reply->errorString();
+            ui->Balance_ListRecentTransactions->clear();
             ui->Balance_ListRecentTransactions->addItem("Tapahtumia ei voitu ladata.");
         }
 
         reply->deleteLater();
     });
+}
+
+void MainWindow::renderTransactionPage() {
+    ui->Transactions_List_Full->clear();
+
+    // Lasketaan kuinka monta näytetään (max 5 tai mitä on jäljellä)
+    int count = qMin(allTransactions.size() - currentStartIndex, PAGE_SIZE);
+
+    for (int i = 0; i < count; ++i) {
+        QJsonObject obj = allTransactions.at(currentStartIndex + i).toObject();
+        ui->Transactions_List_Full->addItem(formatTransactionRow(obj));
+    }
+    int pageNum = (currentStartIndex / 5) + 1;
+
+    // Lasketaan kokonaissivunmäärä:
+    // ceil(koko / 5.0)
+    int totalPages = qCeil(allTransactions.size() / 5.0);
+    if (totalPages == 0) totalPages = 1; // Estetään "Sivu 1 / 0"
+
+    ui->Transactions_lbl_PageNumber->setText(QString(" %1 / %2").arg(pageNum).arg(totalPages));
+}
+
+
+QString MainWindow::formatTransactionRow(QJsonObject obj) {
+    double amount = obj.value("transaction_amount").toVariant().toDouble();
+    QString dateStr = obj.value("transaction_date").toString().left(10);
+    QString description = obj.value("transaction_description").toString();
+
+    if (description.isEmpty()) {
+        description = "ATM WITHDRAW";
+    }
+
+    return QString("%1  %2  %3 €")
+        .arg(dateStr)
+        .arg(description.left(50).trimmed().toUpper())
+        .arg(QString::number(amount, 'f', 2));
 }
 
 /*
@@ -1429,6 +1483,7 @@ void MainWindow::setupStyles()
 
 void MainWindow::applyCurrentStyle()
 {
+
     if (contrastEnabled) {
         this->setStyleSheet(contrastStyle);
         ui->btnContrast->setChecked(true);
