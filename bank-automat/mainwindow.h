@@ -155,9 +155,26 @@ private:
 
 
     // =====================================================
-    // Sound  Management
+    // Withdraw / ATM messages
     // =====================================================
+    QString msgInvalidAmount;
+    QString msgWithdrawSuccess;
+    QString msgNetError;
+    QString msgAtmError;
 
+    // =====================================================
+    // Styles Management
+    // =====================================================
+    QString lightStyle;
+    QString contrastStyle;
+    bool contrastEnabled = false;
+
+    void setupStyles();
+    void applyCurrentStyle();
+
+    // =====================================================
+    // Sound Management
+    // =====================================================
     QSoundEffect *keypadSound;
     QSoundEffect *okSound;
     QSoundEffect *cancelSound;
@@ -169,7 +186,7 @@ private:
     QSoundEffect *timeoutSound;
 
     // =====================================================
-    // Timer Managment
+    // Timer Management
     // =====================================================
     QTimer *pinTimer;
     QTimer *exitTimer;

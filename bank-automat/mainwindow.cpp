@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QMessageBox>
 
 // =====================================================
 // Qt UI
@@ -651,6 +652,12 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_7->setText("7 Exit");
         ui->btn_main_choice_8->setText("8 More");
 
+        msgInvalidAmount = "ERROR: Amount must be multiples of 10.";
+        msgWithdrawSuccess = "Success! Please take your cash.";
+        msgNetError = "Connection error to bank.";
+        msgAtmError = "Technical error. Please try another ATM.";
+
+
         ui->Balance_TitleAccountSelect->setText("Main account");
         ui->Balance_TitleRecentTransactions->setText("Last 5 transactions");
         ui->Balance_btn_choice_1->setText("Other Accounts");
@@ -713,6 +720,12 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_7->setText("7 Wyjście");
         ui->btn_main_choice_8->setText("8 Więcej");
 
+
+        msgInvalidAmount = "BŁĄD: Kwota musi być wielokrotnością 10.";
+        msgWithdrawSuccess = "Sukces! Proszę odebrać gotówkę.";
+        msgNetError = "Błąd połączenia z bankiem.";
+        msgAtmError = "Błąd techniczny. Spróbuj innego bankomatu.";
+
         ui->Balance_TitleAccountSelect->setText("Konto główne");
         ui->Balance_TitleRecentTransactions->setText("Ostatnie 5 transakcje");
         ui->Balance_btn_choice_1->setText("Inne konta");
@@ -772,6 +785,12 @@ void MainWindow::setLanguage(const QString &lang)
         ui->btn_main_choice_6->setText("6 Lahjoitus");
         ui->btn_main_choice_7->setText("7 Poistu");
         ui->btn_main_choice_8->setText("8 Lisää");
+
+
+        msgInvalidAmount = "VIRHE: Summan on oltava 10, 20, 50...";
+        msgWithdrawSuccess = "Nosto onnistui! Otathan rahat.";
+        msgNetError = "Yhteysvirhe pankkiin.";
+        msgAtmError = "Tekninen häiriö, kokeile toista automaattia.";
 
         ui->Balance_TitleAccountSelect->setText("Päätili");
         ui->Balance_TitleRecentTransactions->setText("Viimeiset 5 tapahtumaa");
@@ -876,11 +895,17 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
  */
 void MainWindow::setupSerialReader()
 {
+
+    // Configure the serial port used by the RFID reader
+    serial->setPortName("com4");
+
     // Your current serial port:
-    serial->setPortName("COM3");
+  //  serial->setPortName("/dev/tty.usbmodem146301");
+   // serial->setPortName("COM3");
 
     // Example alternative if another machine uses a different port:
     // serial->setPortName("/dev/tty.usbmodemXXXXXX");
+
 
     serial->setBaudRate(QSerialPort::Baud115200);
     serial->setDataBits(QSerialPort::Data8);
@@ -1102,10 +1127,8 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
 
             if (errorSound)
                 errorSound->play();
-
             ui->pinInput->clear();
         }
-
         reply->deleteLater();
     });
 }
@@ -1267,20 +1290,21 @@ QString MainWindow::formatTransactionRow(QJsonObject obj) {
  */
 void MainWindow::makeWithdrawalRequest(int amount, QString description)
 {
-    if (accountId <= 0) {
-        qDebug() << "Withdrawal blocked: invalid accountId:" << accountId;
+    QString originalText = ui->labelInstruction_Withdraw->text();
 
-        if (ui->btnLanguageFinnish->isChecked()) {
-            ui->labelInstruction_Withdraw->setText("Tilitietoja ei voitu ladata.");
-        } else if (ui->btnLanguagePolish->isChecked()) {
-            ui->labelInstruction_Withdraw->setText("Nie udało się wczytać danych konta.");
-        } else {
-            ui->labelInstruction_Withdraw->setText("Failed to load account data.");
-        }
+    // 1. Tarkistus automaatin puolella (Käytetään msgInvalidAmount muuttujaa!)
+    if (amount <= 0 || amount % 10 != 0) {
+        ui->labelInstruction_Withdraw->setText(msgInvalidAmount);
+        ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
 
+        QTimer::singleShot(3000, [this, originalText]() {
+            ui->labelInstruction_Withdraw->setText(originalText);
+            ui->labelInstruction_Withdraw->setStyleSheet("");
+        });
         return;
     }
-    QUrl url("http://localhost:3000/transaction/withdrawal");
+
+    QUrl url("http://localhost:3000/transaction/atm-withdrawal");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
@@ -1308,21 +1332,45 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
             qDebug() << "HTTP status:" << statusCode;
             qDebug() << "Backend response:" << responseData;
 
-            if (withdrawSound)
-                withdrawSound->play();
+connect(reply, &QNetworkReply::finished, this,
+            [this, reply, originalText]() {
 
+    if (reply->error() == QNetworkReply::NoError) {
+
+        if (withdrawSound)
+            withdrawSound->play();
+
+        ui->labelInstruction_Withdraw->setText(msgWithdrawSuccess);
+        ui->labelInstruction_Withdraw->setStyleSheet(
+            "color: green; font-weight: bold;");
+
+        QTimer::singleShot(2000, [this, originalText]() {
             updateBalanceDisplay();
             updateTransactionsDisplay();
+            ui->labelInstruction_Withdraw->setText(originalText);
+            ui->labelInstruction_Withdraw->setStyleSheet("");
             ui->display->setCurrentWidget(ui->page03_Main);
-        } else {
-            qDebug() << "Transaction error:" << reply->errorString();
-            qDebug() << "HTTP status:" << statusCode;
-            qDebug() << "Backend response:" << responseData;
-        }
+        });
 
-        reply->deleteLater();
-    });
+    } else {
+        ui->labelInstruction_Withdraw->setText(msgAtmError);
+        ui->labelInstruction_Withdraw->setStyleSheet(
+            "color: red; font-weight: bold;");
+
+        QByteArray responseData = reply->readAll();
+        qDebug() << "ATM backend error:" << responseData;
+
+        QTimer::singleShot(4000, [this, originalText]() {
+            ui->labelInstruction_Withdraw->setText(originalText);
+            ui->labelInstruction_Withdraw->setStyleSheet("");
+        });
+    }
+
+    reply->deleteLater();
+});
 }
+
+
 
 void MainWindow::resetToWelcome()
 {
