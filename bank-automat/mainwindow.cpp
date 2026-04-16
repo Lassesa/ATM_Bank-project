@@ -897,7 +897,7 @@ void MainWindow::setupSerialReader()
 {
 
     // Configure the serial port used by the RFID reader
-    serial->setPortName("com4");
+    serial->setPortName("com5");
 
     // Your current serial port:
   //  serial->setPortName("/dev/tty.usbmodem146301");
@@ -1782,10 +1782,10 @@ void MainWindow::handleTransferResponse(QNetworkReply *reply)
 }
 
 
-void MainWindow::on_btnContrast_clicked()
+/*void MainWindow::on_btnContrast_clicked()
 {
 
-}
+}*/
 
 void MainWindow::handleLoginResponse(QNetworkReply *reply)
 {
