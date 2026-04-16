@@ -95,8 +95,14 @@ private:
     // =====================================================
     // LISÄÄ NÄMÄ TÄHÄN (Säilytypaikka tiedoille)
     // =====================================================
-    int id_account;      // Tallentaa tilin ID:n
-    QByteArray webToken; // Tallentaa JWT-tokenin
+   // int id_account;
+    QByteArray webToken;
+    int activeAccountId;
+    int debitAccountId;
+    int creditAccountId;
+    QString accountMode;
+    bool isDualCard;
+    void on_btnCreditDebit_clicked();
 
 
     // =====================================================
@@ -116,6 +122,7 @@ private:
     // =====================================================
     QButtonGroup *donationOrgGroup;
     QButtonGroup *donationAmountGroup;
+    void makeDonationRequest(int amount, QString description);
 
     // =====================================================
     // Setup / Connections

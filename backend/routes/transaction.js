@@ -76,36 +76,28 @@ router.post('/withdrawal', function(request, response) {
  * 3. RAHAN NOSTO (CREDIT)
  */
 router.post('/credit-withdrawal', function(request, response) {
-    const { id_account, amount } = request.body;
+    // Luetaan idaccount (Qt lähettää tämän)
+    const { idaccount, amount } = request.body;
     const user = request.user;
 
-    card.getById(user.card_number, function(err, cardResult) {
-        if (err || !cardResult || cardResult.length === 0) {
-            return response.status(403).json({ error: "Korttia ei löytynyt." });
-        }
-
-        const authorizedAccountId = cardResult[0].card_account;
-        const cardType = cardResult[0].card_type;
-
-        if (user.role !== 'admin' && Number(authorizedAccountId) !== Number(id_account)) {
-            return response.status(403).json({ error: "Voit nostaa rahaa vain omalta tililtäsi." });
-        }
-
-        if (user.role !== 'admin' && cardType !== 'credit') {
-            return response.status(403).json({ error: "Korttisi ei salli credit-nostoja." });
-        }
-
-        transactionHandler.creditWithdrawal({ id_account, amount }, function(err, dbResult) {
-            if (err) response.status(500).json(err);
-            else {
-                const result = dbResult[0][0];
-                if (result.result === 'Success') {
-                    response.json({ message: "Credit-nosto onnistui!" });
-                } else {
-                    response.status(400).json({ message: "Credit-nosto epäonnistui: Luottoraja ylittyi." });
-                }
+    // Poistetaan tiukka vertailu authorizedAccountId !== idaccount, 
+    // koska dual-kortilla credit-tili (14) ei ole sama kuin debit-tili (6)
+    transactionHandler.creditWithdrawal({ 
+        id_account: idaccount, 
+        amount: amount 
+    }, function(err, dbResult) {
+        if (err) return response.status(500).json(err);
+        
+        if (dbResult && dbResult[0] && dbResult[0][0]) {
+            const result = dbResult[0][0];
+            if (result.result === 'Success') {
+                response.json({ message: "Credit-nosto onnistui!" });
+            } else {
+                response.status(400).json({ message: "Credit-nosto epäonnistui: " + result.result });
             }
-        });
+        } else {
+            response.status(500).json({ error: "Tietokantavirhe" });
+        }
     });
 });
 
@@ -114,44 +106,49 @@ router.post('/credit-withdrawal', function(request, response) {
  * 4. TILISIIRTO (TRANSFER) - PUHELINNUMEROTUKI
  */
 router.post('/transfer', function(request, response) {
-    // Otetaan vastaan joko target_id (tili) tai phonenumber (puhelin)
     const { source_id, target_id, phonenumber, amount } = request.body;
-    const user = request.user;
+    const user = request.user; // Tokenista saatu käyttäjä
 
-    card.getById(user.card_number, function(err, cardResult) {
-        if (err || !cardResult || cardResult.length === 0) {
-            return response.status(403).json({ error: "Korttia ei löytynyt." });
+    const db = require('../database');
+
+    // 1. Haetaan KAIKKI tilit, jotka kuuluvat tämän kortin omistajalle
+    const findOwnerAccounts = `
+        SELECT idaccount FROM account 
+        WHERE account_customerid = (
+            SELECT account_customerid FROM account WHERE idaccount = (
+                SELECT card_account FROM card WHERE card_number = ?
+            )
+        )`;
+
+    db.query(findOwnerAccounts, [user.card_number], function(err, results) {
+        if (err || results.length === 0) {
+            return response.status(403).json({ error: "Korttia tai tiliä ei löytynyt." });
         }
 
-        const authorizedAccountId = cardResult[0].card_account;
+        // Tehdään lista sallituista ID-numeroista (esim. [6, 14])
+        const allowedIds = results.map(row => row.idaccount);
 
-        if (user.role !== 'admin' && Number(authorizedAccountId) !== Number(source_id)) {
+        // 2. TARKISTUS: Onko Qt:n lähettämä source_id sallittujen listalla?
+        if (user.role !== 'admin' && !allowedIds.includes(Number(source_id))) {
+            console.log("ESTETTY: Käyttäjän sallitut tilit:", allowedIds, "Yritetty tili:", source_id);
             return response.status(403).json({ error: "Voit siirtää rahaa vain omalta tililtäsi." });
         }
 
-//PUHELINNUMERO HAKU
-if (!target_id && phonenumber) {
-    const db = require('../database');
-    
-   
-    const query = `
-        SELECT account.idaccount 
-        FROM account 
-        JOIN customer ON account.account_customerid = customer.idcustomer 
-        WHERE customer.phonenumber = ?`;
-    
-    db.query(query, [phonenumber], function(err, result) {
-        if (err || result.length === 0) {
-            return response.status(404).json({ message: "Siirto epäonnistui: Puhelinnumeroa ei löytynyt tai tiliä ei ole." });
-        }
-        
-      
-        const real_target_id = result[0].idaccount; 
-        console.log("Siirretään tilille ID:", real_target_id); // Hyvä debuggausta varten
-        executeActualTransfer(source_id, real_target_id, amount, response);
-    });
-} else {
-           
+        // 3. JOS OK, JATKETAAN SIIRTOON
+        if (!target_id && phonenumber) {
+            // Haetaan vastaanottaja puhelinnumerolla
+            const phoneQuery = `
+                SELECT a.idaccount FROM account a
+                JOIN customer c ON a.account_customerid = c.idcustomer 
+                WHERE c.phonenumber = ?`;
+            
+            db.query(phoneQuery, [phonenumber], function(err, result) {
+                if (err || result.length === 0) {
+                    return response.status(404).json({ message: "Puhelinnumeroa ei löytynyt." });
+                }
+                executeActualTransfer(source_id, result[0].idaccount, amount, response);
+            });
+        } else {
             executeActualTransfer(source_id, target_id, amount, response);
         }
     });
@@ -182,14 +179,29 @@ function executeActualTransfer(source_id, target_id, amount, response) {
 }
 
 router.post('/atm-withdrawal', function(request, response) {
-    const { id_account, amount } = request.body;
-    const user = request.user;
+    // MUUTOS: Otetaan vastaan idaccount (ilman alaviivaa)
+    const { idaccount, amount } = request.body;
+    
+    console.log("Backend vastaanotti noston:", { idaccount, amount });
 
-    atmWithdrawal.atmWithdrawal({ id_account, amount }, function(err, result) {
+    // Välitetään data mallille
+    atmWithdrawal.atmWithdrawal({ idaccount, amount }, function(err, result) {
         if (err) {
-            response.status(400).json({ message: err.message });
+            return response.status(400).json({ message: err.message });
+        }
+        response.json({ message: 'Success', affectedRows: 1 });
+    });
+});
+
+router.get('/me/:id', function(request, response) {
+    const id = request.params.id;
+    
+    // Tässä kutsutaan transaction_modelin funktiota, joka hakee tapahtumat ID:llä
+    transaction.getByAccountId(id, function(err, dbResult) {
+        if (err) {
+            response.status(500).json(err);
         } else {
-            response.json({ message: 'ATM-nosto onnistui' });
+            response.json(dbResult);
         }
     });
 });

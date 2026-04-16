@@ -1,51 +1,27 @@
-/*const express = require('express');
+const express = require('express');
 const router = express.Router();
-const db = require('../db');
-const auth = require('../middleware/auth');
+const transactionHandler = require('../models/transaction_handler_model');
 
-router.post('/', auth, async (req, res) => {
-    const { amount } = req.body;
-    const cardId = req.user.cardId;
+router.post('/', function(req, res) {
+    // Luetaan idaccount (vastaa Qt:n lähetystä)
+    const { idaccount, amount, description } = req.body;
 
-    if (!amount) {
-        return res.status(400).json({ error: "Amount missing" });
+    if (!idaccount || !amount) {
+        return res.status(400).json({ message: "Tiedot puuttuvat" });
     }
 
-    try {
-        // Haetaan tilin saldo
-        const [account] = await db.query(
-            "SELECT balance FROM account WHERE card_id = ?",
-            [cardId]
-        );
-
-        if (account.length === 0) {
-            return res.status(404).json({ error: "Account not found" });
+    // TÄRKEÄÄ: Käytetään transactionHandler.withdrawal, EI atmWithdrawal
+    // Tämä kutsuu suoraan SQL-proseduuria ilman setelitarkistuksia.
+    transactionHandler.withdrawal({
+        id_account: idaccount,
+        amount: amount,
+        description: description || "Donation" // Nyt lokiin tulee oikea teksti
+    }, function(err, result) {
+        if (err) {
+            return res.status(400).json({ message: err.message || "Lahjoitus epäonnistui" });
         }
-
-        const balance = account[0].balance;
-
-        if (balance < amount) {
-            return res.status(400).json({ error: "Insufficient funds" });
-        }
-
-        // Päivitetään saldo
-        await db.query(
-            "UPDATE account SET balance = balance - ? WHERE card_id = ?",
-            [amount, cardId]
-        );
-
-        // Lisätään transaction
-        await db.query(
-            "INSERT INTO transaction (card_id, type, amount) VALUES (?, 'donation', ?)",
-            [cardId, amount]
-        );
-
-        res.json({ message: "Donation successful", donated: amount });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server error" });
-    }
+        res.json({ message: "Success", affectedRows: 1 });
+    });
 });
 
-module.exports = router;*/
+module.exports = router;
