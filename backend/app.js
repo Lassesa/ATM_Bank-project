@@ -15,6 +15,7 @@ const cardRouter = require('./routes/card');
 const accountRouter = require('./routes/account');
 const transactionRouter = require('./routes/transaction');
 const loginRouter = require('./routes/login');
+const donationRouter = require('./routes/donation');
 
 const app = express();
 
@@ -52,6 +53,8 @@ app.use('/', indexRouter);
 app.use('/customer', customerRouter);
 app.use('/account', accountRouter);
 app.use('/transaction', transactionRouter);
+app.use('/donation', donationRouter);
+
 
 //PALVELIMEN KÄYNNISTYS
 

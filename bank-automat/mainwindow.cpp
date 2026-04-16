@@ -236,9 +236,9 @@ void MainWindow::connectSignals()
     // -----------------------------
     // DEBIT / CREDIT Button
     // -----------------------------
-
-    connect(ui->btnCreditDebit, &QPushButton::clicked,
-            this, &MainWindow::toggleAccountType);
+    connect(ui->btnCreditDebit, &QPushButton::clicked, this, &MainWindow::on_btnCreditDebit_clicked);
+    /*connect(ui->btnCreditDebit, &QPushButton::clicked,
+            this, &MainWindow::toggleAccountType);*/
 
     // -----------------------------
     // Keypad number buttons
@@ -408,6 +408,7 @@ void MainWindow::connectSignals()
             makeLoginRequest(currentCard, currentPin);
         }
         else if (ui->display->currentWidget() == ui->page04_Withdraw) {
+            qDebug() << "Yritetään nostoa tililtä:" << activeAccountId; // LISÄÄ TÄMÄ RIVI
             QString amountText = ui->amountInput->text();
             amountText.remove("€");
             amountText = amountText.trimmed();
@@ -897,7 +898,7 @@ void MainWindow::setupSerialReader()
 {
 
     // Configure the serial port used by the RFID reader
-    serial->setPortName("com4");
+    serial->setPortName("com5");
 
     // Your current serial port:
   //  serial->setPortName("/dev/tty.usbmodem146301");
@@ -1038,106 +1039,93 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
     QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        // Read the response once and store it
         QByteArray responseData = reply->readAll();
         int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-        // Successful login
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument resDoc = QJsonDocument::fromJson(responseData);
-
             if (!resDoc.isNull() && resDoc.isObject()) {
-                QJsonObject resObj = resDoc.object();
-                sessionToken = resObj.value("token").toString();
+                QJsonObject jsonObj = resDoc.object();
 
-                QJsonValue idVal = resObj.contains("idaccount")
-                                       ? resObj.value("idaccount")
-                                       : resObj.value("id_account");
-
-                accountId = idVal.isDouble() ? idVal.toInt() : idVal.toString().toInt();
-
-
+                // 1. Tallennetaan Tokenit
+                sessionToken = jsonObj.value("token").toString();
                 this->webToken = sessionToken.toUtf8();
-                this->id_account = accountId;
 
-                qDebug() << "Login successful!";
-                qDebug() << "Token start:" << sessionToken.left(10) << "...";
+                // 2. Selvitetään kortin tyyppi (tuki sekä "dual" että "debit+credit" merkkijonoille)
+                QString cardType = jsonObj["card_type"].toString().toLower();
+                isDualCard = (cardType == "dual" || cardType == "debit+credit");
 
-                // -------------------------------------------------
-                // TEMPORARY TEST DATA FOR CARD TYPE
-                // Replace this later with real backend values
-                // -------------------------------------------------
-                hasDebit = true;
-                hasCredit = true;   // DUO card test
+                // 3. Asetetaan tili-ID:t huolellisesti
+                if (isDualCard) {
+                    ui->btnCreditDebit->setEnabled(true);
+                    ui->btnCreditDebit->setText("DEBIT");
 
-                // Default selection for DUO card = Debit
-                selectedAccountType = DebitAccount;
+                    // Pakotetaan valittu tila enum-muuttujaan (jos käytössä)
+                    selectedAccountType = DebitAccount;
+                    accountMode = "debit";
 
-                // Update Credit / Debit button after login
+                    // HAETAAN ID:T - kokeillaan useampaa nimeä siltä varalta, että bäkärissä on eri avaimet
+                    if (jsonObj.contains("id_debit")) debitAccountId = jsonObj["id_debit"].toInt();
+                    else if (jsonObj.contains("debit_id")) debitAccountId = jsonObj["debit_id"].toInt();
+                    else debitAccountId = 6; // Viimeinen hätävara, jos bäkärin vaste puutteellinen
+
+                    if (jsonObj.contains("id_credit")) creditAccountId = jsonObj["id_credit"].toInt();
+                    else if (jsonObj.contains("credit_id")) creditAccountId = jsonObj["credit_id"].toInt();
+                    else creditAccountId = 14; // Viimeinen hätävara
+
+                    // Asetetaan oletukseksi debit kirjautumisen jälkeen
+                    this->activeAccountId = debitAccountId;
+                    this->accountId = debitAccountId;
+                }
+                else {
+                    ui->btnCreditDebit->setEnabled(false);
+                    ui->btnCreditDebit->setText(cardType.toUpper());
+                    selectedAccountType = DebitAccount; // Yksittäiskortilla aina oletus
+
+                    // Haetaan yksittäinen ID
+                    int id = 0;
+                    if (jsonObj.contains("idaccount")) id = jsonObj["idaccount"].toInt();
+                    else if (jsonObj.contains("id_account")) id = jsonObj["id_account"].toInt();
+                    else if (jsonObj.contains("accountId")) id = jsonObj["accountId"].toInt();
+
+                    this->activeAccountId = id;
+                    this->accountId = id;
+                    this->debitAccountId = id; // Tallennetaan myös tänne varmuuden vuoksi
+                }
+
+                // DEBUG-TULOSTEET - Näet heti konsolista, saatiinko ID:t talteen
+                qDebug() << "-----------------------------------------";
+                qDebug() << "LOGIN ONNISTUI!";
+                qDebug() << "Kortin tyyppi:" << cardType;
+                qDebug() << "Debit ID:" << this->debitAccountId;
+                qDebug() << "Credit ID:" << this->creditAccountId;
+                qDebug() << "Aktiivinen tili nyt:" << this->activeAccountId;
+                qDebug() << "-----------------------------------------";
+
+                // Käyttöliittymän päivitys
                 updateCreditDebitButton();
-
-                // Load real account data after login
                 updateBalanceDisplay();
                 updateTransactionsDisplay();
 
+                // Ajastimet ja äänet
                 inactivityTimer->start(30000);
+                if (successSound) successSound->play();
 
-                if (successSound)
-                    successSound->play();
-
+                // Siirtyminen pääsivulle
                 ui->display->setCurrentWidget(ui->page03_Main);
                 ui->pinInput->clear();
             }
         }
-        // Wrong PIN
         else if (statusCode == 401) {
             QJsonObject resObj = QJsonDocument::fromJson(responseData).object();
             int remaining = resObj.value("remaining").toInt();
-
-            QString errorMsg;
-            if (ui->btnLanguageFinnish->isChecked()) {
-                errorMsg = QString("Väärä PIN! Yrityksiä jäljellä: %1").arg(remaining);
-            } else if (ui->btnLanguagePolish->isChecked()) {
-                errorMsg = QString("Błędny PIN! Pozostało prób: %1").arg(remaining);
-            } else {
-                errorMsg = QString("Wrong PIN! Remaining attempts: %1").arg(remaining);
-            }
-
-            ui->labelInstruction_PIN->setText(errorMsg);
+            ui->labelInstruction_PIN->setText(QString("Väärä PIN! Yrityksiä jäljellä: %1").arg(remaining));
             ui->pinInput->clear();
-            pinTimer->start(10000);
-
-            if (errorSound)
-                errorSound->play();
+            if (errorSound) errorSound->play();
         }
-        // Locked card
-        else if (statusCode == 403) {
-            QString errorMsg;
-            if (ui->btnLanguageFinnish->isChecked()) {
-                errorMsg = "Kortti on lukittu. Ota yhteys pankkiin.";
-            } else if (ui->btnLanguagePolish->isChecked()) {
-                errorMsg = "Karta jest zablokowana. Skontaktuj się z bankiem.";
-            } else {
-                errorMsg = "Card is locked. Please contact the bank.";
-            }
-
-            ui->labelInstruction_PIN->setText(errorMsg);
-            ui->pinInput->clear();
-            ui->pinInput->setEnabled(false);
-
-            if (errorSound)
-                errorSound->play();
-
-            QTimer::singleShot(5000, this, &MainWindow::resetToWelcome);
-        }
-        // Other network or backend error
         else {
             qDebug() << "Login error:" << reply->errorString();
-            qDebug() << "Backend response:" << responseData;
-
-            if (errorSound)
-                errorSound->play();
-            ui->pinInput->clear();
+            if (errorSound) errorSound->play();
         }
         reply->deleteLater();
     });
@@ -1150,49 +1138,40 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
  */
 void MainWindow::updateBalanceDisplay()
 {
-    QUrl url("http://localhost:3000/account/balance/me");
+    // Varmistetaan, että meillä on ID mitä hakea
+    if (activeAccountId == 0) {
+        qDebug() << "Virhe: activeAccountId on 0, ei voida hakea saldoa.";
+        return;
+    }
+
+    // Lisätään ID osoitteen perään -> /balance/me/6 tai /balance/me/7
+    QUrl url("http://localhost:3000/account/balance/me/" + QString::number(activeAccountId));
     QNetworkRequest request(url);
 
-    request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
+    // Huom: Käytä sitä muuttujan nimeä mikä sinulla on (aiemmin se oli webToken)
+    request.setRawHeader("Authorization", "Bearer " + this->webToken);
 
-    qDebug() << "Starting balance request to:" << url.toString();
+    qDebug() << "Lähetetään saldokysely osoitteeseen:" << url.toString();
 
     QNetworkReply *reply = networkManager->get(request);
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
-            qDebug() << "Backend raw balance data:" << responseData;
-
             QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
-            QJsonObject obj;
-
-            if (jsonDoc.isArray()) {
-                obj = jsonDoc.array().first().toObject();
-            } else {
-                obj = jsonDoc.object();
-            }
-
-            if (obj.contains("idaccount")) {
-                accountId = obj.value("idaccount").toVariant().toInt();
-                qDebug() << "Updated real account ID from balance endpoint:" << accountId;
-            }
+            QJsonObject obj = jsonDoc.object();
 
             if (obj.contains("account_balance")) {
                 double balance = obj.value("account_balance").toVariant().toDouble();
                 ui->Balance_Amount->setText(QString::number(balance, 'f', 2) + " €");
-                qDebug() << "Balance updated successfully:" << balance;
-            } else {
-                qDebug() << "Error: 'account_balance' field not found. Keys:" << obj.keys();
-                ui->Balance_Amount->setText("Virhe");
+                qDebug() << "Saldo päivitetty ID:lle" << activeAccountId << ":" << balance;
             }
-
         } else {
-            qDebug() << "Balance fetch failed:" << reply->errorString();
-            qDebug() << "Server error message:" << reply->readAll();
-            ui->Balance_Amount->setText("Yhteysvirhe");
+            qDebug() << "Saldon haku epäonnistui:" << reply->errorString();
+            // Tulostetaan backendin virheviesti jos sellainen tuli
+            qDebug() << "Backend virhe:" << reply->readAll();
+            ui->Balance_Amount->setText("Virhe");
         }
-
         reply->deleteLater();
     });
 }
@@ -1203,33 +1182,34 @@ void MainWindow::updateBalanceDisplay()
  */
 void MainWindow::updateTransactionsDisplay()
 {
-    if (accountId <= 0) {
-        qDebug() << "Transactions fetch skipped: invalid accountId:" << accountId;
+    // KORJAUS: Käytetään activeAccountId, joka on se 6 tai 7
+    if (activeAccountId <= 0) {
+        qDebug() << "Transactions fetch skipped: invalid activeAccountId:" << activeAccountId;
         ui->Balance_ListRecentTransactions->clear();
         ui->Transactions_List_Full->clear();
-        ui->Balance_ListRecentTransactions->addItem("No transactions available.");
+        ui->Balance_ListRecentTransactions->addItem("Ei tiliä valittuna.");
         return;
     }
 
-    // Haetaan reilusti tapahtumia (esim. 50), jotta sivutus on sulavaa
-    QString urlStr = QString("http://localhost:3000/transaction/%1").arg(accountId);
+    // KORJAUS: Osoite vastaamaan uutta suojattua reittiä /transactions/me/:id
+    // Huom: Varmista onko bäkärissäsi reitti /transaction/ vai /transactions/ (monikko)
+    QString urlStr = QString("http://localhost:3000/transaction/me/%1").arg(activeAccountId);
     QUrl url(urlStr);
     QNetworkRequest request(url);
+
+    // Käytetään samaa tokenia kuin saldon haussa
     request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
+
+    qDebug() << "Haetaan tilitapahtumat osoitteesta:" << urlStr;
 
     QNetworkReply *reply = networkManager->get(request);
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
-
-            // Tallennetaan koko saatu lista luokan jäsenmuuttujaan
             allTransactions = QJsonDocument::fromJson(responseData).array();
-
-            // Nollataan sivutusindeksi aina kun uusi data ladataan
             currentStartIndex = 0;
 
-            // --- 1. Täytetään SALDOSIVUN pikalista (aina 3 ekat) ---
             ui->Balance_ListRecentTransactions->clear();
             if (allTransactions.isEmpty()) {
                 ui->Balance_ListRecentTransactions->addItem("Ei aiempia tapahtumia.");
@@ -1240,16 +1220,13 @@ void MainWindow::updateTransactionsDisplay()
                     ui->Balance_ListRecentTransactions->addItem(formatTransactionRow(obj));
                 }
             }
-
-            // --- 2. Täytetään TAPAHTUMASIVUN lista (käyttäen uutta render-funktiota) ---
             renderTransactionPage();
 
         } else {
             qDebug() << "Transaction fetch failed:" << reply->errorString();
             ui->Balance_ListRecentTransactions->clear();
-            ui->Balance_ListRecentTransactions->addItem("Tapahtumia ei voitu ladata.");
+            ui->Balance_ListRecentTransactions->addItem("Virhe ladattaessa tapahtumia.");
         }
-
         reply->deleteLater();
     });
 }
@@ -1302,10 +1279,10 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
 {
     QString originalText = ui->labelInstruction_Withdraw->text();
 
+    // 1. Summan tarkistus (10 jaollisuus)
     if (amount <= 0 || amount % 10 != 0) {
         ui->labelInstruction_Withdraw->setText(msgInvalidAmount);
         ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
-
         QTimer::singleShot(3000, [this, originalText]() {
             ui->labelInstruction_Withdraw->setText(originalText);
             ui->labelInstruction_Withdraw->setStyleSheet("");
@@ -1313,53 +1290,76 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
         return;
     }
 
-    QUrl url("http://localhost:3000/transaction/atm-withdrawal");
+    // 2. DYNAAMINEN VALINTA (Käytetään accountMode-muuttujaa, joka on joko "debit" tai "credit")
+    QString path;
+    int currentId;
+
+    if (this->accountMode == "credit") {
+        path = "/transaction/credit-withdrawal";
+        currentId = this->creditAccountId; // ID 14
+    } else {
+        path = "/transaction/atm-withdrawal";
+        currentId = this->debitAccountId;  // ID 6
+    }
+
+    QUrl url("http://localhost:3000" + path);
+
+    // Debug-varmistus konsoliin ennen lähetystä
+    qDebug() << "--- NOSTO-LÄHETYS ALKAA ---";
+    qDebug() << "Tila:" << accountMode;
+    qDebug() << "URL:" << url.toString();
+    qDebug() << "Käytettävä ID:" << currentId;
+
+    // 3. Verkkopyynnön valmistelu
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
 
+    // 4. JSON-datan rakentaminen
     QJsonObject json;
-    json["id_account"] = accountId;
+    json["idaccount"] = currentId;
     json["amount"] = amount;
     json["description"] = description;
-    json["account_type"] = (selectedAccountType == DebitAccount) ? "debit" : "credit";
+    json["account_type"] = accountMode;
 
+    qDebug() << "DATA:" << QJsonDocument(json).toJson(QJsonDocument::Compact);
+
+    // 5. Lähetys
     QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
 
-    connect(reply, &QNetworkReply::finished, this,
-            [this, reply, originalText]() {
+    // 6. Vastauksen käsittely
+    connect(reply, &QNetworkReply::finished, this, [this, reply, originalText]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            if (withdrawSound) withdrawSound->play();
 
-                if (reply->error() == QNetworkReply::NoError) {
+            ui->labelInstruction_Withdraw->setText(msgWithdrawSuccess);
+            ui->labelInstruction_Withdraw->setStyleSheet("color: green; font-weight: bold;");
 
-                    if (withdrawSound)
-                        withdrawSound->play();
-
-                    ui->labelInstruction_Withdraw->setText(msgWithdrawSuccess);
-                    ui->labelInstruction_Withdraw->setStyleSheet("color: green; font-weight: bold;");
-
-                    QTimer::singleShot(2000, [this, originalText]() {
-                        updateBalanceDisplay();
-                        updateTransactionsDisplay();
-                        ui->labelInstruction_Withdraw->setText(originalText);
-                        ui->labelInstruction_Withdraw->setStyleSheet("");
-                        ui->display->setCurrentWidget(ui->page03_Main);
-                    });
-
-                } else {
-
-                    ui->labelInstruction_Withdraw->setText(msgAtmError);
-                    ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
-
-                    qDebug() << "ATM backend error:" << reply->readAll();
-
-                    QTimer::singleShot(4000, [this, originalText]() {
-                        ui->labelInstruction_Withdraw->setText(originalText);
-                        ui->labelInstruction_Withdraw->setStyleSheet("");
-                    });
-                }
-
-                reply->deleteLater();
+            QTimer::singleShot(2000, [this, originalText]() {
+                updateBalanceDisplay();
+                updateTransactionsDisplay();
+                ui->labelInstruction_Withdraw->setText(originalText);
+                ui->labelInstruction_Withdraw->setStyleSheet("");
+                ui->display->setCurrentWidget(ui->page03_Main);
             });
+        } else {
+            // Virhetilanne (esim. katteen puute tai bäkärin esto)
+            QByteArray responseData = reply->readAll();
+            qDebug() << "BACKEND VIRHE:" << responseData;
+
+            // Jos bäkäriltä tulee viesti, näytetään se, muuten yleinen virheviesti
+            ui->labelInstruction_Withdraw->setText(msgAtmError);
+            ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
+
+            if (errorSound) errorSound->play();
+
+            QTimer::singleShot(4000, [this, originalText]() {
+                ui->labelInstruction_Withdraw->setText(originalText);
+                ui->labelInstruction_Withdraw->setStyleSheet("");
+            });
+        }
+        reply->deleteLater();
+    });
 }
 
 
@@ -1414,7 +1414,7 @@ void MainWindow::resetInactivity()
     // If the user is logged in, reset the inactivity timer
     if (inactivityTimer->isActive()) {
         inactivityTimer->start(30000);
-        qDebug() << "Ajastin resetoitu napin painalluksesta";
+        //qDebug() << "Ajastin resetoitu napin painalluksesta";
     }
 }
 
@@ -1504,7 +1504,7 @@ void MainWindow::on_btnConfirmDonation_clicked()
         return;
     }
 
-    makeWithdrawalRequest(pendingDonationAmount, "DONATION: " + selectedCharity);
+    makeDonationRequest(pendingDonationAmount, "DONATION: " + selectedCharity);
 }
 
 void MainWindow::resetDonationSelection()
@@ -1610,22 +1610,28 @@ QString MainWindow::loadStyleSheet(const QString &path)
  */
 void MainWindow::toggleAccountType()
 {
-    // Only allow switching if card supports BOTH debit and credit
-    if (!(hasDebit && hasCredit)) {
+    qDebug() << "Nappia painettu. Tila ennen:" << accountMode << "isDual:" << isDualCard;
+
+    if (!isDualCard) {
+        qDebug() << "Ei dual-kortti, keskeytetään vaihto.";
         return;
     }
 
-    // Toggle selected account type
-    if (selectedAccountType == DebitAccount) {
-        selectedAccountType = CreditAccount;
+    if (accountMode == "debit") {
+        accountMode = "credit";
+        activeAccountId = creditAccountId;
     } else {
-        selectedAccountType = DebitAccount;
+        accountMode = "debit";
+        activeAccountId = debitAccountId;
     }
 
-    // Refresh UI
-    updateCreditDebitButton();
-}
+    qDebug() << "Tila nyt:" << accountMode << "ID nyt:" << activeAccountId;
 
+    // Kutsutaan päivitysfunktioita
+    updateCreditDebitButton();
+    updateBalanceDisplay();
+    updateTransactionsDisplay();
+}
 /*
  * Updates the Credit/Debit button text and enabled state.
  *
@@ -1637,76 +1643,35 @@ void MainWindow::toggleAccountType()
  */
 void MainWindow::updateCreditDebitButton()
 {
-    // -----------------------------
-    // DUO CARD (Debit + Credit)
-    // -----------------------------
-    if (hasDebit && hasCredit) {
-
+    // Käytetään meidän isDualCard-muuttujaa
+    if (isDualCard) {
         ui->btnCreditDebit->setEnabled(true);
 
-        if (selectedAccountType == DebitAccount) {
-            if (currentLanguage == "PL")
-                ui->btnCreditDebit->setText("Karta Debetowa");
-            else if (currentLanguage == "FI")
-                ui->btnCreditDebit->setText("Debitkortti");
-            else
-                ui->btnCreditDebit->setText("Debit Card");
+        if (accountMode == "debit") {
+            if (currentLanguage == "PL") ui->btnCreditDebit->setText("Karta Debetowa");
+            else if (currentLanguage == "FI") ui->btnCreditDebit->setText("Debitkortti");
+            else ui->btnCreditDebit->setText("Debit Card");
         }
         else {
-            if (currentLanguage == "PL")
-                ui->btnCreditDebit->setText("Karta Kredytowa");
-            else if (currentLanguage == "FI")
-                ui->btnCreditDebit->setText("Luottokortti");
-            else
-                ui->btnCreditDebit->setText("Credit Card");
+            if (currentLanguage == "PL") ui->btnCreditDebit->setText("Karta Kredytowa");
+            else if (currentLanguage == "FI") ui->btnCreditDebit->setText("Luottokortti");
+            else ui->btnCreditDebit->setText("Credit Card");
         }
     }
-
-    // -----------------------------
-    // DEBIT ONLY
-    // -----------------------------
-    else if (hasDebit) {
-
-        ui->btnCreditDebit->setEnabled(false);
-        selectedAccountType = DebitAccount;
-
-        if (currentLanguage == "PL")
-            ui->btnCreditDebit->setText("Karta Debetowa");
-        else if (currentLanguage == "FI")
-            ui->btnCreditDebit->setText("Debitkortti");
-        else
-            ui->btnCreditDebit->setText("Debit Card");
-    }
-
-    // -----------------------------
-    // CREDIT ONLY
-    // -----------------------------
-    else if (hasCredit) {
-
-        ui->btnCreditDebit->setEnabled(false);
-        selectedAccountType = CreditAccount;
-
-        if (currentLanguage == "PL")
-            ui->btnCreditDebit->setText("Karta Kredytowa");
-        else if (currentLanguage == "FI")
-            ui->btnCreditDebit->setText("Luottokortti");
-        else
-            ui->btnCreditDebit->setText("Credit Card");
-    }
-
-    // -----------------------------
-    // NO CARD / ERROR STATE
-    // -----------------------------
+    // Jos on vain yksi tili (ei dual)
     else {
-
         ui->btnCreditDebit->setEnabled(false);
 
-        if (currentLanguage == "PL")
-            ui->btnCreditDebit->setText("Brak karty");
-        else if (currentLanguage == "FI")
-            ui->btnCreditDebit->setText("Ei korttia");
-        else
-            ui->btnCreditDebit->setText("No Card");
+        // Katsotaan onko se debit vai credit (tämä tulee loginista)
+        if (accountMode == "credit") {
+            if (currentLanguage == "PL") ui->btnCreditDebit->setText("Karta Kredytowa");
+            else if (currentLanguage == "FI") ui->btnCreditDebit->setText("Luottokortti");
+            else ui->btnCreditDebit->setText("Credit Card");
+        } else {
+            if (currentLanguage == "PL") ui->btnCreditDebit->setText("Karta Debetowa");
+            else if (currentLanguage == "FI") ui->btnCreditDebit->setText("Debitkortti");
+            else ui->btnCreditDebit->setText("Debit Card");
+        }
     }
 }
 
@@ -1737,7 +1702,7 @@ void MainWindow::on_button_3green_OK_clicked()
 
     // 3. Luodaan JSON-paketti
     QJsonObject json;
-    json["source_id"] = this->id_account; // Kirjautuessa tallennettu ID
+    json["source_id"] = this->activeAccountId; // aktiivinen tallennettu ID
     json["phonenumber"] = targetPhone;    // Käyttäjän syöttämä puhelinnumero
     json["amount"] = amount;
 
@@ -1781,28 +1746,98 @@ void MainWindow::handleTransferResponse(QNetworkReply *reply)
     reply->deleteLater();
 }
 
-void MainWindow::handleLoginResponse(QNetworkReply *reply)
+
+/*void MainWindow::on_btnContrast_clicked()
 {
-    // Tarkistetaan, että verkkoyhteys toimi
+
+}*/
+
+// mainwindow.cpp
+
+void MainWindow::handleLoginResponse(QNetworkReply *reply) {
     if (reply->error() == QNetworkReply::NoError) {
-        // Luetaan bäkärin vastaus (sisältää tokenin ja idaccountin)
         QByteArray response_data = reply->readAll();
         QJsonDocument json_doc = QJsonDocument::fromJson(response_data);
         QJsonObject json_obj = json_doc.object();
 
-        // TALLENNETAAN TIEDOT MUUTTUJIIN
-        // Nämä muuttujat pitää olla määritelty mainwindow.h tiedostossa
+        qDebug() << "Login JSON:" << json_doc.toJson();
+
+        // DEBUG: Tulosta koko vastaus nähdäksesi mitä sieltä tulee
+        qDebug() << "Backend login response:" << json_doc.toJson();
+
         this->webToken = json_obj.value("token").toString().toUtf8();
-        this->id_account = json_obj.value("idaccount").toInt();
 
-        qDebug() << "Kirjautuminen onnistui. Token ja ID tallennettu.";
+        QString cardType = json_obj["card_type"].toString();
+        isDualCard = (cardType == "dual" || cardType == "admin");
 
-        // Siirrytään pääsivulle (Index 2 on yleensä Page 3)
+        if (isDualCard) {
+            this->debitAccountId = json_obj["id_debit"].toInt();
+            this->creditAccountId = json_obj["id_credit"].toInt();
+            this->activeAccountId = this->debitAccountId;
+            qDebug() << "Kortti tunnistettu DUAL-kortiksi. Debit ID:" << debitAccountId << "Credit ID:" << creditAccountId;
+        } else {
+            this->activeAccountId = json_obj["idaccount"].toInt();
+        }
+
+        qDebug() << "Asetettu activeAccountId:" << activeAccountId;
+
         ui->display->setCurrentIndex(2);
-    }
-    else {
-        // Jos PIN oli väärin tai muu virhe, näytetään se lokissa
-        qDebug() << "Kirjautuminen epäonnistui:" << reply->readAll();
+        updateCreditDebitButton();
+        updateBalanceDisplay(); // Nyt tämän pitäisi lähteä osoitteeseen /me/6
     }
     reply->deleteLater();
+}
+
+void MainWindow::on_btnCreditDebit_clicked()
+{
+    qDebug() << "Nappia klikattu. Nykyinen tila:" << accountMode;
+
+    if (!isDualCard) {
+        qDebug() << "Ei dual-kortti, ei tehdä mitään.";
+        return;
+    }
+
+    // Vaihdetaan tilaa
+    if (accountMode == "debit") {
+        accountMode = "credit";
+        activeAccountId = creditAccountId;
+    } else {
+        accountMode = "debit";
+        activeAccountId = debitAccountId;
+    }
+
+    qDebug() << "Uusi tila:" << accountMode << "Uusi ID:" << activeAccountId;
+
+    // Päivitetään UI ja haetaan uudet tiedot
+    updateCreditDebitButton();
+    updateBalanceDisplay();
+    updateTransactionsDisplay();
+}
+
+void MainWindow::makeDonationRequest(int amount, QString description)
+{
+    // Osoite bäkärin donation-reittiin
+    QUrl url("http://localhost:3000/donation");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
+
+    QJsonObject json;
+    json["idaccount"] = activeAccountId; // Käytetään oikeaa ID:tä (6)
+    json["amount"] = amount;      // Nyt voi olla vaikka 5 tai 13 euroa
+    json["description"] = description;
+
+    QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            qDebug() << "Lahjoitus onnistui!";
+            ui->labelInstruction_Donation->setText("Thank you for your donation!");
+            updateBalanceDisplay(); // Päivitetään saldo heti
+        } else {
+            qDebug() << "Lahjoitusvirhe:" << reply->readAll();
+            ui->labelInstruction_Donation->setText("Donation failed.");
+        }
+        reply->deleteLater();
+    });
 }
