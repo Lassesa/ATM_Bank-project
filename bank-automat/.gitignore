@@ -1,4 +1,4 @@
-
+*.mp4
 .qtcreator/
 db_config.h
 backend/node_modules/
