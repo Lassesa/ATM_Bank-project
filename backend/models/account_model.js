@@ -39,7 +39,11 @@ const account = {
     // Poista tili
     delete(id, callback) {
         return db.query("DELETE FROM account WHERE idaccount = ?", [id], callback);
-    }
+    },
+
+    getBalance: function(id, callback) {
+    return db.query('select * from account where idaccount = ?', [id], callback);
+}
 };
 
 module.exports = account;

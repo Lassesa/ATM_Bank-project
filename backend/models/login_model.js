@@ -1,10 +1,10 @@
 const db = require('../database'); 
 
 const login = {
-  checkPin: function(card_number, callback) {
+checkPin: function(card_number, callback) {
     return db.query(
-      // Lisätään pin_attempts hakuun
-      'SELECT card_pin, card_account AS idaccount, card_status, pin_attempts FROM card WHERE card_number = ?', 
+      // LISÄTTY card_type hakuun
+      'SELECT card_pin, card_account AS idaccount, card_status, card_type, card_owner, pin_attempts FROM card WHERE card_number = ?', 
       [card_number], 
       callback
     );

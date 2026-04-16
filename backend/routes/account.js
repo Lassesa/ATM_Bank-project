@@ -119,4 +119,19 @@ router.get('/balance/me', function(request, response) {
     });
 });
 
+router.get('/balance/me/:id', function(request, response) {
+    const requestedAccountId = request.params.id;
+    
+    // MUUTOS: Käytä getById, koska se on määritelty account_modelissa
+    account.getById(requestedAccountId, function(err, dbResult) {
+        if (err) {
+            response.status(500).json(err);
+        } else if (dbResult && dbResult.length > 0) {
+            response.json(dbResult[0]);
+        } else {
+            response.status(404).json({ error: "Tiliä ei löytynyt" });
+        }
+    });
+});
+
 module.exports = router;

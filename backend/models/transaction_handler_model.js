@@ -1,11 +1,11 @@
 const db = require('../database');
 
 const transactionHandler = {
-    // 1. Perusnosto
+    // 1. Perusnosto (käyttää proseduuria, joka tarkistaa saldon/luoton)
     withdrawal: function(data, callback) {
         return db.query(
             "CALL credit_withdrawal(?, ?, ?)", 
-            [data.id_account, data.amount, data.description],
+            [data.id_account, data.amount, data.description || 'Nosto'],
             callback
         );
     },
@@ -14,21 +14,21 @@ const transactionHandler = {
     transfer: function(data, callback) {
         return db.query(
             'CALL transfer_money(?, ?, ?, ?)',
-            [data.source_id, data.target_id, data.amount, data.description],
+            [data.source_id, data.target_id, data.amount, data.description || 'Tilisiirto'],
             callback
         );
     },
 
-    // 3. Luoton nosto
+    // 3. Luoton nosto (sama proseduuri kuin perusnostossa)
     creditWithdrawal: function(data, callback) {
         return db.query(
-            'CALL credit_withdrawal(?, ?)', 
-            [data.id_account, data.amount], 
+            'CALL credit_withdrawal(?, ?, ?)', 
+            [data.id_account, data.amount, 'Luoton nosto'], 
             callback
         );
     },
-
-    // 4. ATM-nosto (seteliautomatiikka)
+/* kommentoitu pois testin vuoks
+    // 4. ATM-nosto (seteliautomatiikka + saldon vähennys proseduurilla)
     atmWithdrawal: function (data, callback) {
         const ATM_ID = 1;
 
@@ -82,14 +82,17 @@ const transactionHandler = {
                             function (err) {
                                 if (err) return rollback(err);
 
-                                // 3️⃣ Vähennä tilin saldo
+                                // 3️⃣ Vähennä tilin saldo PROSEDUURILLA (tämä mahdollistaa credit-miinuksen)
+                                // Käytetään samaa credit_withdrawal-proseduuria kuin kohdassa 1.
                                 conn.query(
-                                    `UPDATE account
-                                     SET account_balance = account_balance - ?
-                                     WHERE idaccount = ?`,
-                                    [data.amount, data.id_account],
+                                    "CALL credit_withdrawal(?, ?, 'ATM withdrawal')",
+                                    [data.id_account, data.amount],
                                     function (err) {
-                                        if (err) return rollback(err);
+                                        if (err) {
+                                            // Jos proseduuri hylkää noston (ei katetta/luottoa), 
+                                            // rollback palauttaa myös ATM-setelitilanteen.
+                                            return rollback(err);
+                                        }
 
                                         conn.commit(function (err) {
                                             if (err) return rollback(err);
@@ -111,8 +114,7 @@ const transactionHandler = {
                 }
             });
         });
-    }
+    }*/
 };
 
-// Viedään koko objekti, jotta kaikki metodit ovat käytettävissä
 module.exports = transactionHandler;
