@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "translations.h"
 
 // =====================================================
 // Qt UI
@@ -23,6 +24,8 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QVideoWidget>
+
+
 
 // =====================================================
 // Constructor / Destructor
@@ -56,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     moreVideoPlayer->setAudioOutput(moreVideoAudio);
     moreVideoPlayer->setVideoOutput(moreVideoWidget);
+    moreVideoPlayer->setLoops(QMediaPlayer::Infinite);
 
     moreVideoWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     moreVideoWidget->setMinimumSize(0, 0);
@@ -65,22 +69,12 @@ MainWindow::MainWindow(QWidget *parent)
     videoLayout->setSpacing(0);
     videoLayout->addWidget(moreVideoWidget);
 
-    connect(moreVideoPlayer, &QMediaPlayer::mediaStatusChanged, this,
-            [this](QMediaPlayer::MediaStatus status) {
-                qDebug() << "VIDEO STATUS:" << status;
-                if (status == QMediaPlayer::EndOfMedia) {
-                    moreVideoPlayer->setPosition(0);
-                    moreVideoPlayer->play();
-                }
-            });
-
     connect(moreVideoPlayer, &QMediaPlayer::errorOccurred, this,
             [](QMediaPlayer::Error error, const QString &errorString) {
                 qDebug() << "VIDEO ERROR:" << error << errorString;
             });
 
     moreVideoPlayer->setSource(QUrl("qrc:/videos/video1.mp4"));
-    moreVideoPlayer->setPosition(0);
     moreVideoPlayer->play();
 
     // loop
@@ -660,244 +654,91 @@ void MainWindow::connectSignals()
 void MainWindow::setLanguage(const QString &lang)
 {
     currentLanguage = lang;
+    UiTexts texts = getTexts(lang);
+
     ui->btnLanguageEnglish->setChecked(lang == "EN");
     ui->btnLanguagePolish->setChecked(lang == "PL");
     ui->btnLanguageFinnish->setChecked(lang == "FI");
 
-    if (lang == "EN") {
-        ui->labelWelcome->setText("Welcome to S/R Bank");
-        ui->labelInstruction->setText("Insert your card to begin");
+    ui->labelWelcome->setText(texts.welcomeTitle);
+    ui->labelInstruction->setText(texts.welcomeInstruction);
 
-        ui->labelWelcome_PIN->setText("Please enter your PIN");
-        ui->labelInstruction_PIN->setText("Please cover the keypad while entering your PIN");
+    ui->labelWelcome_PIN->setText(texts.pinTitle);
+    ui->labelInstruction_PIN->setText(texts.pinInstruction);
 
-        ui->labelWelcome_Main->setText("Choose a transaction");
-        ui->labelInstruction_Main->setText("Select a service to continue");
+    ui->labelWelcome_Main->setText(texts.mainTitle);
+    ui->labelInstruction_Main->setText(texts.mainInstruction);
 
-        ui->labelWelcome_Withdraw->setText("Withdraw Cash");
-        ui->labelInstruction_Withdraw->setText("Enter amount and press OK");
+    ui->labelWelcome_Withdraw->setText(texts.withdrawTitle);
+    ui->labelInstruction_Withdraw->setText(texts.withdrawInstruction);
 
-        ui->labelWelcome_Balance->setText("Account balance");
-        ui->labelInstruction_Balance->setText("View your current available balance");
+    ui->labelWelcome_Balance->setText(texts.balanceTitle);
+    ui->labelInstruction_Balance->setText(texts.balanceInstruction);
 
+    ui->labelWelcome_Transfer->setText(texts.transferTitle);
+    ui->labelInstruction_Transfer->setText(texts.transferInstruction);
 
-        ui->labelWelcome_Transfer->setText("Transfer Money");
-        ui->labelInstruction_Transfer->setText("Send money to another account");
+    ui->labelWelcome_Donation->setText(texts.donationTitle);
+    ui->labelInstruction_Donation->setText(texts.donationInstruction);
 
-        ui->labelWelcome_Donation->setText("Donation");
-        ui->labelInstruction_Donation->setText("Support a cause or organization");
+    ui->labelWelcome_Exit->setText(texts.exitTitle);
+    ui->labelInstruction_Exit->setText(texts.exitInstruction);
 
-        ui->labelWelcome_Exit->setText("Thank you!");
-        ui->labelInstruction_Exit->setText("Please remember to take your card");
+    ui->labelWelcome_Other->setText(texts.otherTitle);
+    ui->labelInstruction_Other->setText(texts.otherInstruction);
 
-        ui->labelWelcome_Other->setText("Other");
-        ui->labelInstruction_Other->setText("Access more features and settings");
+    ui->btn_main_choice_1->setText(texts.mainChoice1);
+    ui->btn_main_choice_2->setText(texts.mainChoice2);
+    ui->btn_main_choice_3->setText(texts.mainChoice3);
+    ui->btn_main_choice_4->setText(texts.mainChoice4);
+    ui->btn_main_choice_5->setText(texts.mainChoice5);
+    ui->btn_main_choice_6->setText(texts.mainChoice6);
+    ui->btn_main_choice_7->setText(texts.mainChoice7);
+    ui->btn_main_choice_8->setText(texts.mainChoice8);
 
-        ui->btn_main_choice_1->setText("50 €");
-        ui->btn_main_choice_2->setText("100 €");
-        ui->btn_main_choice_3->setText("3 Other amount");
-        ui->btn_main_choice_4->setText("4 Balance");
-        ui->btn_main_choice_5->setText("5 Transfer");
-        ui->btn_main_choice_6->setText("6 Donation");
-        ui->btn_main_choice_7->setText("7 Exit");
-        ui->btn_main_choice_8->setText("8 More");
+    msgInvalidAmount = texts.msgInvalidAmount;
+    msgWithdrawSuccess = texts.msgWithdrawSuccess;
+    msgNetError = texts.msgNetError;
+    msgAtmError = texts.msgAtmError;
 
-        msgInvalidAmount = "ERROR: Amount must be multiples of 10.";
-        msgWithdrawSuccess = "Success! Please take your cash.";
-        msgNetError = "Connection error to bank.";
-        msgAtmError = "Technical error. Please try another ATM.";
+    ui->Balance_TitleAccountSelect->setText(texts.balanceMainAccount);
+    ui->Balance_TitleRecentTransactions->setText(texts.balanceRecentTransactions);
+    ui->Balance_btn_choice_1->setText(texts.balanceOtherAccounts);
+    ui->Balance_btn_choice_2->setText(texts.balanceMoreTransactions);
 
+    ui->btn_donation_choice_1->setText(texts.donationChoice1);
+    ui->btn_donation_choice_2->setText(texts.donationChoice2);
+    ui->btn_donation_choice_3->setText(texts.donationChoice3);
+    ui->btn_donation_choice_4->setText(texts.donationChoice4);
 
-        ui->Balance_TitleAccountSelect->setText("Main account");
-        ui->Balance_TitleRecentTransactions->setText("Last 5 transactions");
-        ui->Balance_btn_choice_1->setText("Other Accounts");
-        ui->Balance_btn_choice_2->setText("More Transactions");
+    ui->labelWelcome_Error->setText(texts.errorTitle);
+    ui->labelInstruction_Error->setText(texts.errorInstruction);
 
-        ui->btn_donation_choice_1->setText("Red Cross");
-        ui->btn_donation_choice_2->setText("Cancer Foundation");
-        ui->btn_donation_choice_3->setText("UNICEF");
-        ui->btn_donation_choice_4->setText("Hair transplant for Arttu");
+    ui->labelWelcome_Time->setText(texts.timeTitle);
+    ui->labelInstruction_Time->setText(texts.timeInstruction);
 
-        ui->labelWelcome_Error->setText("Out of Service");
-        ui->labelInstruction_Error->setText("Please use another ATM.");
+    ui->labelWelcome_Accounts->setText(texts.accountsTitle);
+    ui->labelInstruction_Accounts->setText(texts.accountsInstruction);
 
-        ui->labelWelcome_Time->setText("Are you still there?");
-        ui->labelInstruction_Time->setText("Your session will end soon.");
+    ui->labelWelcome_Transactions->setText(texts.transactionsTitle);
+    ui->labelInstruction_Transactions->setText(texts.transactionsInstruction);
 
-        ui->labelWelcome_Accounts->setText("Available accounts");
-        ui->labelInstruction_Accounts->setText("Accounts you can use");
+    ui->Accounts_MainAccount_Title->setText(texts.accountsMainTitle);
+    ui->Accounts_Balance_Title->setText(texts.accountsBalanceTitle);
+    ui->Accounts_Available_Title->setText(texts.accountsAvailableTitle);
+    ui->Accounts_Limit_Title->setText(texts.accountsLimitTitle);
+    ui->Accounts_Limit_Used_Title->setText(texts.accountsLimitUsedTitle);
 
-        ui->labelWelcome_Transactions->setText("Transactions");
-        ui->labelInstruction_Transactions->setText("Recent transactions");
+    ui->Accounts_Credit_Title->setText(texts.accountsCreditTitle);
+    ui->Accounts_CreditLimit_Title->setText(texts.accountsCreditLimitTitle);
+    ui->Accounts_CreditUsed_Title->setText(texts.accountsCreditUsedTitle);
+    ui->Accounts_AvailableCredit_Title->setText(texts.accountsAvailableCreditTitle);
 
-        ui->Accounts_MainAccount_Title->setText("Main Account");
-        ui->Accounts_Balance_Title->setText("Balance:");
-        ui->Accounts_Available_Title->setText("Available Funds:");
-        ui->Accounts_Limit_Title->setText("Overdraft Limit:");
-        ui->Accounts_Limit_Used_Title->setText("Used Overdraft:");
+    ui->Transactions_btn_choice_next->setText(texts.transactionsNextButton);
+    ui->Transactions_btn_choice_previous->setText(texts.transactionsPreviousButton);
 
-        ui->Accounts_Credit_Title->setText("Credit Account");
-        ui->Accounts_CreditLimit_Title->setText("Credit Limit:");
-        ui->Accounts_CreditUsed_Title->setText("Used Credit:");
-        ui->Accounts_AvailableCredit_Title->setText("Available Credit:");
-
-
-
-    }
-    else if (lang == "PL") {
-        ui->labelWelcome->setText("Witamy w S/R Banku");
-        ui->labelInstruction->setText("Włóż kartę, aby rozpocząć");
-
-        ui->labelWelcome_PIN->setText("Proszę wprowadzić PIN");
-        ui->labelInstruction_PIN->setText("Proszę zasłonić klawiaturę podczas wpisywania PIN-u");
-
-        ui->labelWelcome_Main->setText("Wybierz transakcję");
-        ui->labelInstruction_Main->setText("Wybierz usługę, aby kontynuować");
-
-        ui->labelWelcome_Withdraw->setText("Wypłata gotówki");
-        ui->labelInstruction_Withdraw->setText("Wpisz kwotę i naciśnij OK");
-
-        ui->labelWelcome_Balance->setText("Saldo konta");
-        ui->labelInstruction_Balance->setText("Sprawdź aktualne dostępne saldo");
-
-        ui->labelWelcome_Transfer->setText("Przelew");
-        ui->labelInstruction_Transfer->setText("Wyślij pieniądze na inne konto");
-
-        ui->labelWelcome_Donation->setText("Darowizna");
-        ui->labelInstruction_Donation->setText("Wesprzyj wybraną organizację");
-
-        ui->labelWelcome_Exit->setText("Dziękujemy!");
-        ui->labelInstruction_Exit->setText("Pamiętaj, aby zabrać kartę");
-
-        ui->labelWelcome_Other->setText("Inne usługi");
-        ui->labelInstruction_Other->setText("Dostęp do dodatkowych usług bankowych");
-
-        ui->btn_main_choice_1->setText("50 €");
-        ui->btn_main_choice_2->setText("100 €");
-        ui->btn_main_choice_3->setText("3 Inna kwota");
-        ui->btn_main_choice_4->setText("4 Saldo");
-        ui->btn_main_choice_5->setText("5 Przelew");
-        ui->btn_main_choice_6->setText("6 Darowizna");
-        ui->btn_main_choice_7->setText("7 Wyjście");
-        ui->btn_main_choice_8->setText("8 Więcej");
-
-
-        msgInvalidAmount = "BŁĄD: Kwota musi być wielokrotnością 10.";
-        msgWithdrawSuccess = "Sukces! Proszę odebrać gotówkę.";
-        msgNetError = "Błąd połączenia z bankiem.";
-        msgAtmError = "Błąd techniczny. Spróbuj innego bankomatu.";
-
-        ui->Balance_TitleAccountSelect->setText("Konto główne");
-        ui->Balance_TitleRecentTransactions->setText("Ostatnie 5 transakcje");
-        ui->Balance_btn_choice_1->setText("Inne konta");
-        ui->Balance_btn_choice_2->setText("Więcej transakcji");
-
-        ui->btn_donation_choice_1->setText("Czerwony Krzyż");
-        ui->btn_donation_choice_2->setText("Fundacja Onkologiczna");
-        ui->btn_donation_choice_3->setText("UNICEF");
-        ui->btn_donation_choice_4->setText("Przeszczep włosów dla Arttu");
-
-        ui->labelWelcome_Error->setText("Przerwa techniczna");
-        ui->labelInstruction_Error->setText("Prosimy skorzystać z innego bankomatu.");
-
-        ui->labelWelcome_Time->setText("Czy nadal jesteś tam?");
-        ui->labelInstruction_Time->setText("Twoja sesja wkrótce wygaśnie.");
-
-        ui->labelWelcome_Accounts->setText("Dostępne konta");
-        ui->labelInstruction_Accounts->setText("Twoje konta");
-
-        ui->labelWelcome_Transactions->setText("Transakcje");
-        ui->labelInstruction_Transactions->setText("Ostatnie operacje");
-
-        ui->Accounts_MainAccount_Title->setText("Konto główne");
-        ui->Accounts_Balance_Title->setText("Saldo:");
-        ui->Accounts_Available_Title->setText("Dostępne środki:");
-        ui->Accounts_Limit_Title->setText("Limit debetowy:");
-        ui->Accounts_Limit_Used_Title->setText("Wykorzystany debet:");
-
-        ui->Accounts_Credit_Title->setText("Konto kredytowe");
-        ui->Accounts_CreditLimit_Title->setText("Limit kredytowy:");
-        ui->Accounts_CreditUsed_Title->setText("Wykorzystany kredyt:");
-        ui->Accounts_AvailableCredit_Title->setText("Dostępny kredyt:");
-
-    }
-    else if (lang == "FI") {
-        ui->labelWelcome->setText("Tervetuloa S/R Pankkiin");
-        ui->labelInstruction->setText("Aseta kortti aloittaaksesi");
-
-        ui->labelWelcome_PIN->setText("Anna PIN-koodi");
-        ui->labelInstruction_PIN->setText("Suojaa näppäimistö PIN-koodia syöttäessäsi");
-
-        ui->labelWelcome_Main->setText("Valitse tapahtuma");
-        ui->labelInstruction_Main->setText("Valitse palvelu jatkaaksesi");
-
-        ui->labelWelcome_Withdraw->setText("Nosta käteistä");
-        ui->labelInstruction_Withdraw->setText("Syötä summa ja paina OK");
-
-        ui->labelWelcome_Balance->setText("Tilin saldo");
-        ui->labelInstruction_Balance->setText("Näet tilisi tämänhetkisen saldon");
-
-        ui->labelWelcome_Transfer->setText("Tilisiirto");
-        ui->labelInstruction_Transfer->setText("Lähetä rahaa toiselle tilille");
-
-        ui->labelWelcome_Donation->setText("Lahjoitus");
-        ui->labelInstruction_Donation->setText("Tue valitsemaasi kohdetta");
-
-        ui->labelWelcome_Exit->setText("Kiitos!");
-        ui->labelInstruction_Exit->setText("Muista ottaa korttisi");
-
-        ui->labelWelcome_Other->setText("Muut palvelut");
-        ui->labelInstruction_Other->setText("Käytä muita pankkipalveluita");
-
-        ui->btn_main_choice_1->setText("50 €");
-        ui->btn_main_choice_2->setText("100 €");
-        ui->btn_main_choice_3->setText("3 Muu summa");
-        ui->btn_main_choice_4->setText("4 Saldo");
-        ui->btn_main_choice_5->setText("5 Siirto");
-        ui->btn_main_choice_6->setText("6 Lahjoitus");
-        ui->btn_main_choice_7->setText("7 Poistu");
-        ui->btn_main_choice_8->setText("8 Lisää");
-
-
-        msgInvalidAmount = "VIRHE: Summan on oltava 10, 20, 50...";
-        msgWithdrawSuccess = "Nosto onnistui! Otathan rahat.";
-        msgNetError = "Yhteysvirhe pankkiin.";
-        msgAtmError = "Tekninen häiriö, kokeile toista automaattia.";
-
-        ui->Balance_TitleAccountSelect->setText("Päätili");
-        ui->Balance_TitleRecentTransactions->setText("Viimeiset 5 tapahtumaa");
-        ui->Balance_btn_choice_1->setText("Muut tilit");
-        ui->Balance_btn_choice_2->setText("Lisää tapahtumia");
-
-        ui->btn_donation_choice_1->setText("Punainen Risti");
-        ui->btn_donation_choice_2->setText("Syöpäsäätiö");
-        ui->btn_donation_choice_3->setText("UNICEF");
-        ui->btn_donation_choice_4->setText("Artulle hiussiirto");
-
-        ui->labelWelcome_Error->setText("Tilapäinen häiriö");
-        ui->labelInstruction_Error->setText("Käytä toista pankkiautomaattia.");
-
-        ui->labelWelcome_Time->setText("Oletko vielä paikalla?");
-        ui->labelInstruction_Time->setText("Istuntosi päättyy pian.");
-
-        ui->labelWelcome_Accounts->setText("Saatavilla olevat tilit");
-        ui->labelInstruction_Accounts->setText("Omat tilit");
-
-        ui->labelWelcome_Transactions->setText("Tapahtumat");
-        ui->labelInstruction_Transactions->setText("Viimeisimmät tapahtumat");
-
-        ui->Accounts_MainAccount_Title->setText("Päätili");
-        ui->Accounts_Balance_Title->setText("Saldo:");
-        ui->Accounts_Available_Title->setText("Käytettävissä:");
-        ui->Accounts_Limit_Title->setText("Tilin käyttöraja:");
-        ui->Accounts_Limit_Used_Title->setText("Käytetty tilinylitys:");
-
-        ui->Accounts_Credit_Title->setText("Luottotili");
-        ui->Accounts_CreditLimit_Title->setText("Luottoraja:");
-        ui->Accounts_CreditUsed_Title->setText("Käytetty luotto:");
-        ui->Accounts_AvailableCredit_Title->setText("Vapaa luotto:");
-
-    }
+    ui->PhoneNumberInput_Transfer->setPlaceholderText(texts.transferPhonePlaceholder);
+    ui->amountInput_Transfer->setPlaceholderText(texts.transferAmountPlaceholder);
 
     updateCreditDebitButton();
     updateAccountsPage();
@@ -1027,33 +868,18 @@ void MainWindow::readCardData()
 
         qDebug() << "Received line:" << line;
 
-
         if (line.isEmpty() || line == ">") {
             continue;
         }
 
-
         currentCardUid = line;
 
-        // Restore the PIN instruction text based on the selected language
-        if (ui->btnLanguageFinnish->isChecked()) {
-            ui->labelInstruction_PIN->setText("Suojaa näppäimistö PIN-koodia syöttäessäsi");
-        } else if (ui->btnLanguagePolish->isChecked()) {
-            ui->labelInstruction_PIN->setText("Proszę zasłonić klawiaturę podczas wpisywania PIN-u");
-        } else {
-            ui->labelInstruction_PIN->setText("Please cover the keypad while entering your PIN");
-        }
+        UiTexts texts = getTexts(currentLanguage);
 
-        // Show the welcome page and display the scanned card
+        ui->labelInstruction_PIN->setText(texts.msgPinCover);
+
         ui->display->setCurrentWidget(ui->page01_Welcome);
-
-        if (ui->btnLanguageFinnish->isChecked()) {
-            ui->labelInstruction->setText("Kortti tunnistettu");
-        } else if (ui->btnLanguagePolish->isChecked()) {
-            ui->labelInstruction->setText("Wykryto kartę");
-        } else {
-            ui->labelInstruction->setText("Card detected");
-        }
+        ui->labelInstruction->setText(texts.msgCardDetected);
 
         ui->CardNumberDisplay->setText(currentCardUid);
         ui->CardNumberDisplay->update();
@@ -1201,16 +1027,23 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
             }
         }
         else if (statusCode == 401) {
+            UiTexts texts = getTexts(currentLanguage);
+
             QJsonObject resObj = QJsonDocument::fromJson(responseData).object();
             int remaining = resObj.value("remaining").toInt();
-            ui->labelInstruction_PIN->setText(QString("Väärä PIN! Yrityksiä jäljellä: %1").arg(remaining));
+
+            ui->labelInstruction_PIN->setText(texts.msgWrongPinRemaining.arg(remaining));
             ui->pinInput->clear();
-            if (errorSound) errorSound->play();
+
+            if (errorSound)
+                errorSound->play();
         }
         else {
             qDebug() << "Login error:" << reply->errorString();
-            if (errorSound) errorSound->play();
+            if (errorSound)
+                errorSound->play();
         }
+
         reply->deleteLater();
     });
 }
@@ -1256,7 +1089,8 @@ void MainWindow::updateBalanceDisplay()
         } else {
             qDebug() << "Saldon haku epäonnistui:" << reply->errorString();
             qDebug() << "Backend virhe:" << reply->readAll();
-            ui->Balance_Amount->setText("Virhe");
+            UiTexts texts = getTexts(currentLanguage);
+            ui->Balance_Amount->setText(texts.msgGenericError);
         }
         reply->deleteLater();
     });
@@ -1268,22 +1102,19 @@ void MainWindow::updateBalanceDisplay()
  */
 void MainWindow::updateTransactionsDisplay()
 {
-    // KORJAUS: Käytetään activeAccountId, joka on se 6 tai 7
+    UiTexts texts = getTexts(currentLanguage);
+
     if (activeAccountId <= 0) {
         qDebug() << "Transactions fetch skipped: invalid activeAccountId:" << activeAccountId;
         ui->Balance_ListRecentTransactions->clear();
         ui->Transactions_List_Full->clear();
-        ui->Balance_ListRecentTransactions->addItem("Ei tiliä valittuna.");
+        ui->Balance_ListRecentTransactions->addItem(texts.msgNoAccountSelected);
         return;
     }
 
-    // KORJAUS: Osoite vastaamaan uutta suojattua reittiä /transactions/me/:id
-    // Huom: Varmista onko bäkärissäsi reitti /transaction/ vai /transactions/ (monikko)
     QString urlStr = QString("http://localhost:3000/transaction/me/%1").arg(activeAccountId);
     QUrl url(urlStr);
     QNetworkRequest request(url);
-
-    // Käytetään samaa tokenia kuin saldon haussa
     request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
 
     qDebug() << "Haetaan tilitapahtumat osoitteesta:" << urlStr;
@@ -1291,6 +1122,8 @@ void MainWindow::updateTransactionsDisplay()
     QNetworkReply *reply = networkManager->get(request);
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        UiTexts texts = getTexts(currentLanguage);
+
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
             allTransactions = QJsonDocument::fromJson(responseData).array();
@@ -1298,7 +1131,7 @@ void MainWindow::updateTransactionsDisplay()
 
             ui->Balance_ListRecentTransactions->clear();
             if (allTransactions.isEmpty()) {
-                ui->Balance_ListRecentTransactions->addItem("Ei aiempia tapahtumia.");
+                ui->Balance_ListRecentTransactions->addItem(texts.msgNoTransactions);
             } else {
                 int countShort = qMin(allTransactions.size(), 5);
                 for (int i = 0; i < countShort; ++i) {
@@ -1311,7 +1144,7 @@ void MainWindow::updateTransactionsDisplay()
         } else {
             qDebug() << "Transaction fetch failed:" << reply->errorString();
             ui->Balance_ListRecentTransactions->clear();
-            ui->Balance_ListRecentTransactions->addItem("Virhe ladattaessa tapahtumia.");
+            ui->Balance_ListRecentTransactions->addItem(texts.msgTransactionsLoadError);
         }
         reply->deleteLater();
     });
@@ -1343,8 +1176,9 @@ QString MainWindow::formatTransactionRow(QJsonObject obj) {
     QString dateStr = obj.value("transaction_date").toString().left(10);
     QString description = obj.value("transaction_description").toString();
 
+    UiTexts texts = getTexts(currentLanguage);
     if (description.isEmpty()) {
-        description = "ATM WITHDRAW";
+        description = texts.defaultTransactionDescription;
     }
 
     return QString("%1  %2  %3 €")
@@ -1604,13 +1438,8 @@ void MainWindow::resetToWelcome()
     updateCreditDebitButton();
 
     // Restore the default PIN instruction text
-    if (ui->btnLanguageFinnish->isChecked()) {
-        ui->labelInstruction_PIN->setText("Suojaa näppäimistö PIN-koodia syöttäessäsi");
-    } else if (ui->btnLanguagePolish->isChecked()) {
-        ui->labelInstruction_PIN->setText("Proszę zasłonić klawiaturę podczas wpisywania PIN-u");
-    } else {
-        ui->labelInstruction_PIN->setText("Please cover the keypad while entering your PIN");
-    }
+    UiTexts texts = getTexts(currentLanguage);
+    ui->labelInstruction_PIN->setText(texts.msgPinCover);
 
     // Return to the welcome page
     ui->display->setCurrentWidget(ui->page01_Welcome);
@@ -1647,21 +1476,19 @@ void MainWindow::showInactivityPage()
 
 void MainWindow::lockCardRequest(QString cardNum)
 {
-    QUrl url("http://localhost:3000/card/lock"); // Make sure the backend route is correct
+    QUrl url("http://localhost:3000/card/lock");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QJsonObject json;
     json["card_number"] = cardNum;
 
-    // Send the card lock request to the backend
     networkManager->put(request, QJsonDocument(json).toJson());
 
-    // Show a message to the user
-    ui->labelInstruction_PIN->setText("Kortti on lukittu. Ota yhteys pankkiin.");
-    ui->pinInput->setEnabled(false); // Estetään syöttö
+    UiTexts texts = getTexts(currentLanguage);
+    ui->labelInstruction_PIN->setText(texts.msgCardLocked);
+    ui->pinInput->setEnabled(false);
 
-    // Return to the welcome screen after 5 seconds
     QTimer::singleShot(5000, this, &MainWindow::resetToWelcome);
 }
 
@@ -1710,13 +1537,8 @@ void MainWindow::on_btnConfirmDonation_clicked()
     if (activeAccountId <= 0) {
         qDebug() << "Donation blocked: invalid activeAccountId:" << activeAccountId;
 
-        if (ui->btnLanguageFinnish->isChecked()) {
-            ui->labelInstruction_Donation->setText("Tilitietoja ei voitu ladata.");
-        } else if (ui->btnLanguagePolish->isChecked()) {
-            ui->labelInstruction_Donation->setText("Nie udało się wczytać danych konta.");
-        } else {
-            ui->labelInstruction_Donation->setText("Failed to load account data.");
-        }
+        UiTexts texts = getTexts(currentLanguage);
+        ui->labelInstruction_Donation->setText(texts.msgAccountDataFailed);
 
         return;
     }
@@ -1748,13 +1570,8 @@ void MainWindow::makeDonationRequest(int amount, const QString &charity)
     QString originalText = ui->labelInstruction_Donation->text();
 
     if (amount <= 0) {
-        if (ui->btnLanguageFinnish->isChecked()) {
-            ui->labelInstruction_Donation->setText("Virheellinen summa.");
-        } else if (ui->btnLanguagePolish->isChecked()) {
-            ui->labelInstruction_Donation->setText("Nieprawidłowa kwota.");
-        } else {
-            ui->labelInstruction_Donation->setText("Invalid amount.");
-        }
+        UiTexts texts = getTexts(currentLanguage);
+        ui->labelInstruction_Donation->setText(texts.msgDonationInvalidAmount);
 
         ui->labelInstruction_Donation->setStyleSheet("color: red; font-weight: bold;");
 
@@ -1785,13 +1602,8 @@ void MainWindow::makeDonationRequest(int amount, const QString &charity)
             if (successSound)
                 successSound->play();
 
-            if (ui->btnLanguageFinnish->isChecked()) {
-                ui->labelInstruction_Donation->setText("Lahjoitus onnistui!");
-            } else if (ui->btnLanguagePolish->isChecked()) {
-                ui->labelInstruction_Donation->setText("Darowizna została wykonana!");
-            } else {
-                ui->labelInstruction_Donation->setText("Donation successful!");
-            }
+            UiTexts texts = getTexts(currentLanguage);
+            ui->labelInstruction_Donation->setText(texts.msgDonationSuccess);
 
             ui->labelInstruction_Donation->setStyleSheet("color: green; font-weight: bold;");
 
@@ -1811,13 +1623,8 @@ void MainWindow::makeDonationRequest(int amount, const QString &charity)
             if (errorSound)
                 errorSound->play();
 
-            if (ui->btnLanguageFinnish->isChecked()) {
-                ui->labelInstruction_Donation->setText("Lahjoitus epäonnistui.");
-            } else if (ui->btnLanguagePolish->isChecked()) {
-                ui->labelInstruction_Donation->setText("Nie udało się wykonać darowizny.");
-            } else {
-                ui->labelInstruction_Donation->setText("Donation failed.");
-            }
+            UiTexts texts = getTexts(currentLanguage);
+            ui->labelInstruction_Donation->setText(texts.msgDonationFailed);
 
             ui->labelInstruction_Donation->setStyleSheet("color: red; font-weight: bold;");
 
@@ -1946,35 +1753,22 @@ void MainWindow::toggleAccountType()
  */
 void MainWindow::updateCreditDebitButton()
 {
-    // Käytetään meidän isDualCard-muuttujaa
+    UiTexts texts = getTexts(currentLanguage);
+
     if (isDualCard) {
         ui->btnCreditDebit->setEnabled(true);
 
-        if (accountMode == "debit") {
-            if (currentLanguage == "PL") ui->btnCreditDebit->setText("Karta Debetowa");
-            else if (currentLanguage == "FI") ui->btnCreditDebit->setText("Debitkortti");
-            else ui->btnCreditDebit->setText("Debit Card");
-        }
-        else {
-            if (currentLanguage == "PL") ui->btnCreditDebit->setText("Karta Kredytowa");
-            else if (currentLanguage == "FI") ui->btnCreditDebit->setText("Luottokortti");
-            else ui->btnCreditDebit->setText("Credit Card");
-        }
-    }
-    // Jos on vain yksi tili (ei dual)
-    else {
+        if (accountMode == "debit")
+            ui->btnCreditDebit->setText(texts.debitCardLabel);
+        else
+            ui->btnCreditDebit->setText(texts.creditCardLabel);
+    } else {
         ui->btnCreditDebit->setEnabled(false);
 
-        // Katsotaan onko se debit vai credit (tämä tulee loginista)
-        if (accountMode == "credit") {
-            if (currentLanguage == "PL") ui->btnCreditDebit->setText("Karta Kredytowa");
-            else if (currentLanguage == "FI") ui->btnCreditDebit->setText("Luottokortti");
-            else ui->btnCreditDebit->setText("Credit Card");
-        } else {
-            if (currentLanguage == "PL") ui->btnCreditDebit->setText("Karta Debetowa");
-            else if (currentLanguage == "FI") ui->btnCreditDebit->setText("Debitkortti");
-            else ui->btnCreditDebit->setText("Debit Card");
-        }
+        if (accountMode == "credit")
+            ui->btnCreditDebit->setText(texts.creditCardLabel);
+        else
+            ui->btnCreditDebit->setText(texts.debitCardLabel);
     }
 }
 
