@@ -76,6 +76,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(autoLogoutTimer, &QTimer::timeout, this, &MainWindow::resetToWelcome);
 
     QList<QPushButton *> allButtons = this->findChildren<QPushButton *>();
+    for(QPushButton* btn : allButtons) {
+        btn->setFocusPolicy(Qt::NoFocus);
+    }
 
     for (QPushButton *btn : allButtons) {
         // Connect every button click to the inactivity reset handler
@@ -125,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->amountInput->setText("0 €");
 
     // Set application window icon
-    this->setWindowIcon(QIcon(":/logo.icns"));
+    this->setWindowIcon(QIcon(":/logo.png"));
 
     // Set initial keypad mode
     currentMode = PinMode;
