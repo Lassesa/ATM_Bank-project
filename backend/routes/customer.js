@@ -25,7 +25,7 @@ router.get('/:id', function(request, response) {
             else response.json(result[0]);
         });
     } else {
-        // TARKISTUS: Kuka omistaa kortin, jolla on kirjauduttu?
+        // kuka omistaa kortin, jolla on kirjauduttu
         card.getById(user.card_number, function(err, cardResult) {
             if (err || !cardResult || cardResult.length === 0) {
                 console.log("VIRHE: Korttia ei löydy DB:stä:", user.card_number);
