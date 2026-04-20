@@ -241,32 +241,32 @@ void MainWindow::connectSignals()
     });
 
     connect(ui->num_2, &QPushButton::clicked, this, [this]() {
-        handleDigit("3");
+        handleDigit("2");
         media->playKeypad();
     });
 
     connect(ui->num_3, &QPushButton::clicked, this, [this]() {
-        handleDigit("4");
+        handleDigit("3");
         media->playKeypad();
     });
 
     connect(ui->num_4, &QPushButton::clicked, this, [this]() {
-        handleDigit("5");
+        handleDigit("4");
         media->playKeypad();
     });
 
     connect(ui->num_5, &QPushButton::clicked, this, [this]() {
-        handleDigit("6");
+        handleDigit("5");
         media->playKeypad();
     });
 
     connect(ui->num_6, &QPushButton::clicked, this, [this]() {
-        handleDigit("7");
+        handleDigit("6");
         media->playKeypad();
     });
 
     connect(ui->num_7, &QPushButton::clicked, this, [this]() {
-        handleDigit("8");
+        handleDigit("7");
         media->playKeypad();
     });
 
