@@ -105,6 +105,12 @@ UiTexts getTexts(const QString &lang)
         t.debitCardLabel = "Karta Debetowa";
         t.creditCardLabel = "Karta Kredytowa";
 
+        t.msgTransferSuccess = "Przelew został wykonany pomyślnie.";
+        t.msgTransferFailed = "Nie udało się wykonać przelewu. Spróbuj ponownie.";
+        t.msgTransferMissingPhone = "Wprowadź numer telefonu.";
+        t.msgTransferMissingAmount = "Wprowadź kwotę.";
+        t.msgTransferInvalidAmount = "Nieprawidłowa kwota przelewu.";
+
 
     }
     else if (lang == "FI") {
@@ -208,6 +214,13 @@ UiTexts getTexts(const QString &lang)
         t.defaultTransactionDescription = "AUTOMAATTINOSTO";
         t.debitCardLabel = "Debitkortti";
         t.creditCardLabel = "Luottokortti";
+
+        t.msgTransferSuccess = "Siirto onnistui.";
+        t.msgTransferFailed = "Siirto epäonnistui. Yritä uudelleen.";
+        t.msgTransferMissingPhone = "Syötä puhelinnumero.";
+        t.msgTransferMissingAmount = "Syötä summa.";
+        t.msgTransferInvalidAmount = "Virheellinen siirtosumma.";
+
     }
     else {
         // ...English
@@ -312,6 +325,12 @@ UiTexts getTexts(const QString &lang)
         t.defaultTransactionDescription = "ATM WITHDRAW";
         t.debitCardLabel = "Debit Card";
         t.creditCardLabel = "Credit Card";
+
+        t.msgTransferSuccess = "Transfer completed successfully.";
+        t.msgTransferFailed = "Transfer failed. Please try again.";
+        t.msgTransferMissingPhone = "Please enter phone number.";
+        t.msgTransferMissingAmount = "Please enter amount.";
+        t.msgTransferInvalidAmount = "Invalid transfer amount.";
     }
 
     return t;

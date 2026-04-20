@@ -377,6 +377,23 @@ void MainWindow::connectSignals()
                 ui->amountInput->setText(text + " €");
             }
         }
+        else if (ui->display->currentWidget() == ui->page06_Transfer) {
+            if (ui->PhoneNumberInput_Transfer->hasFocus()) {
+                QString text = ui->PhoneNumberInput_Transfer->text();
+                text.chop(1);
+                ui->PhoneNumberInput_Transfer->setText(text);
+            }
+            else if (ui->amountInput_Transfer->hasFocus()) {
+                QString text = ui->amountInput_Transfer->text();
+                text.chop(1);
+                ui->amountInput_Transfer->setText(text);
+            }
+            else {
+                QString text = ui->PhoneNumberInput_Transfer->text();
+                text.chop(1);
+                ui->PhoneNumberInput_Transfer->setText(text);
+            }
+        }
     });
 
     // -----------------------------
@@ -400,8 +417,11 @@ void MainWindow::connectSignals()
         }
         else if (current == ui->page04_Withdraw ||
                  current == ui->page05_Balance ||
-                 current == ui->page06_Transfer ||
                  current == ui->page09_Other) {
+            ui->display->setCurrentWidget(ui->page03_Main);
+        }
+        else if (current == ui->page06_Transfer) {
+            resetTransferForm();
             ui->display->setCurrentWidget(ui->page03_Main);
         }
         else if (current == ui->page07_Donation) {
@@ -517,6 +537,7 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
+        resetTransferForm();
         showPage(ui->page06_Transfer);
     });
 
@@ -740,8 +761,16 @@ void MainWindow::setLanguage(const QString &lang)
     ui->PhoneNumberInput_Transfer->setPlaceholderText(texts.transferPhonePlaceholder);
     ui->amountInput_Transfer->setPlaceholderText(texts.transferAmountPlaceholder);
 
+    msgTransferSuccess = texts.msgTransferSuccess;
+    msgTransferFailed = texts.msgTransferFailed;
+    msgTransferMissingPhone = texts.msgTransferMissingPhone;
+    msgTransferMissingAmount = texts.msgTransferMissingAmount;
+    msgTransferInvalidAmount = texts.msgTransferInvalidAmount;
+
     updateCreditDebitButton();
     updateAccountsPage();
+
+
 }
 
 // =====================================================
@@ -752,8 +781,9 @@ void MainWindow::setLanguage(const QString &lang)
  * Handles one digit from the keypad or keyboard.
  *
  * What this function does:
- * - on PIN page: appends one digit to the PIN field
- * - on withdraw page: appends one digit to the amount field
+ * - on PIN page: appends digit to PIN field
+ * - on Withdraw page: appends digit to amount field
+ * - on Transfer page: appends digit to focused input (phone or amount)
  */
 void MainWindow::handleDigit(const QString &digit)
 {
@@ -773,6 +803,30 @@ void MainWindow::handleDigit(const QString &digit)
         }
 
         ui->amountInput->setText(currentText + digit + " €");
+    }
+    else if (ui->display->currentWidget() == ui->page06_Transfer) {
+
+        // If phone number field is focused → append digit there
+        if (ui->PhoneNumberInput_Transfer->hasFocus()) {
+            ui->PhoneNumberInput_Transfer->setText(
+                ui->PhoneNumberInput_Transfer->text() + digit
+                );
+        }
+
+        // If amount field is focused → append digit there
+        else if (ui->amountInput_Transfer->hasFocus()) {
+            ui->amountInput_Transfer->setText(
+                ui->amountInput_Transfer->text() + digit
+                );
+        }
+
+        // If nothing is focused → default to phone number field
+        else {
+            ui->PhoneNumberInput_Transfer->setFocus();
+            ui->PhoneNumberInput_Transfer->setText(
+                ui->PhoneNumberInput_Transfer->text() + digit
+                );
+        }
     }
 }
 
@@ -795,6 +849,18 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             QString text = ui->pinInput->text();
             text.chop(1);
             ui->pinInput->setText(text);
+        }
+        else if (ui->display->currentWidget() == ui->page06_Transfer) {
+            if (ui->PhoneNumberInput_Transfer->hasFocus()) {
+                QString text = ui->PhoneNumberInput_Transfer->text();
+                text.chop(1);
+                ui->PhoneNumberInput_Transfer->setText(text);
+            }
+            else if (ui->amountInput_Transfer->hasFocus()) {
+                QString text = ui->amountInput_Transfer->text();
+                text.chop(1);
+                ui->amountInput_Transfer->setText(text);
+            }
         }
     }
     else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
@@ -1432,6 +1498,7 @@ void MainWindow::resetToWelcome()
     accountMode = "debit";
     clearAccountsPage();
     resetDonationSelection();
+    resetTransferForm();
     hasDebit = false;
     hasCredit = false;
     selectedAccountType = DebitAccount;
@@ -1779,23 +1846,63 @@ void MainWindow::updateCreditDebitButton()
 
 //siirto
 
+/*
+ * Handles OK button on Transfer page.
+ *
+ * Flow:
+ * - if phone number is missing, show error
+ * - if amount is missing, move focus or show error
+ * - if both values are valid, send transfer request
+ */
 void MainWindow::handleTransferOk()
 {
-    QString targetAccount = ui->PhoneNumberInput_Transfer->text();
-    QString amountStr = ui->amountInput_Transfer->text();
+    QString originalText = ui->labelInstruction_Transfer->text();
 
-    if (targetAccount.isEmpty() || amountStr.isEmpty()) {
-        qDebug() << "Täytä molemmat kentät!";
-        if(errorSound) errorSound->play();
+    QString phone = ui->PhoneNumberInput_Transfer->text().trimmed();
+    QString amountStr = ui->amountInput_Transfer->text().trimmed();
+
+    // If phone is missing, show error and keep focus on phone field
+    if (phone.isEmpty()) {
+        ui->PhoneNumberInput_Transfer->setFocus();
+        ui->labelInstruction_Transfer->setText(msgTransferMissingPhone);
+        ui->labelInstruction_Transfer->setStyleSheet("color: red; font-weight: bold;");
+
+        if (errorSound) errorSound->play();
+
+        QTimer::singleShot(3000, [this, originalText]() {
+            ui->labelInstruction_Transfer->setText(originalText);
+            ui->labelInstruction_Transfer->setStyleSheet("");
+        });
         return;
     }
 
-    QString targetPhone = ui->PhoneNumberInput_Transfer->text().trimmed();
-    int amount = ui->amountInput_Transfer->text().toInt();
+    // If phone exists but amount is empty, move to amount field
+    if (!phone.isEmpty() && amountStr.isEmpty()) {
+        ui->amountInput_Transfer->setFocus();
+        return;
+    }
+
+    bool ok = false;
+    int amount = amountStr.toInt(&ok);
+
+    // If amount is invalid, show error
+    if (!ok || amount <= 0) {
+        ui->amountInput_Transfer->setFocus();
+        ui->labelInstruction_Transfer->setText(msgTransferInvalidAmount);
+        ui->labelInstruction_Transfer->setStyleSheet("color: red; font-weight: bold;");
+
+        if (errorSound) errorSound->play();
+
+        QTimer::singleShot(3000, [this, originalText]() {
+            ui->labelInstruction_Transfer->setText(originalText);
+            ui->labelInstruction_Transfer->setStyleSheet("");
+        });
+        return;
+    }
 
     QJsonObject json;
-    json["source_id"] = this->activeAccountId; // aktiivinen tallennettu ID
-    json["phonenumber"] = targetPhone;    // Käyttäjän syöttämä puhelinnumero
+    json["source_id"] = this->activeAccountId;
+    json["phonenumber"] = phone;
     json["amount"] = amount;
 
     QJsonDocument doc(json);
@@ -1808,31 +1915,62 @@ void MainWindow::handleTransferOk()
 
     QNetworkReply *reply = networkManager->post(request, data);
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        handleTransferResponse(reply);
+    connect(reply, &QNetworkReply::finished, this, [this, reply, originalText]() {
+        handleTransferResponse(reply, originalText);
     });
 
-    if(buttonSound) buttonSound->play();
+    if (buttonSound) buttonSound->play();
 }
 
 
-void MainWindow::handleTransferResponse(QNetworkReply *reply)
+/*
+ * Handles backend response for transfer request.
+ *
+ * On success:
+ * - shows success message
+ * - refreshes balance and transactions
+ * - clears transfer form
+ * - returns to main menu
+ *
+ * On failure:
+ * - shows error message
+ * - keeps user on transfer page
+ */
+void MainWindow::handleTransferResponse(QNetworkReply *reply, const QString &originalText)
 {
     if (reply->error() == QNetworkReply::NoError) {
-        qDebug() << "Rahat siirretty onnistuneesti!";
-        if(successSound) successSound->play();
+        qDebug() << "Transfer completed successfully!";
+        qDebug() << "Backend response:" << reply->readAll();
 
+        if (successSound) successSound->play();
 
-        ui->PhoneNumberInput_Transfer->clear();
-        ui->amountInput_Transfer->clear();
+        ui->labelInstruction_Transfer->setText(msgTransferSuccess);
+        ui->labelInstruction_Transfer->setStyleSheet("color: green; font-weight: bold;");
 
-
-        ui->display->setCurrentIndex(2);
-
-    } else {
-        qDebug() << "Virhe siirrossa:" << reply->readAll();
-        if(errorSound) errorSound->play();
+        QTimer::singleShot(2000, [this, originalText]() {
+            updateBalanceDisplay();
+            updateTransactionsDisplay();
+            resetTransferForm();
+            ui->labelInstruction_Transfer->setText(originalText);
+            ui->labelInstruction_Transfer->setStyleSheet("");
+            ui->display->setCurrentWidget(ui->page03_Main);
+        });
     }
+    else {
+        QByteArray responseData = reply->readAll();
+        qDebug() << "Transfer failed:" << responseData;
+
+        if (errorSound) errorSound->play();
+
+        ui->labelInstruction_Transfer->setText(msgTransferFailed);
+        ui->labelInstruction_Transfer->setStyleSheet("color: red; font-weight: bold;");
+
+        QTimer::singleShot(4000, [this, originalText]() {
+            ui->labelInstruction_Transfer->setText(originalText);
+            ui->labelInstruction_Transfer->setStyleSheet("");
+        });
+    }
+
     reply->deleteLater();
 }
 
@@ -1906,4 +2044,15 @@ void MainWindow::handleCreditDebitClick()
     updateBalanceDisplay();
     updateTransactionsDisplay();
     updateAccountsPage();
+}
+
+
+/*
+ * Clears transfer form fields and restores default focus.
+ */
+void MainWindow::resetTransferForm()
+{
+    ui->PhoneNumberInput_Transfer->clear();
+    ui->amountInput_Transfer->clear();
+    ui->PhoneNumberInput_Transfer->setFocus();
 }
