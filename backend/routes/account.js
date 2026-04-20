@@ -101,7 +101,7 @@ router.get('/balance/me', function(request, response) {
             return response.status(404).json({ error: "Korttia ei löytynyt." });
         }
 
-        // TÄSSÄ SE KORJAUS: Käytetään card_owner -kenttää
+        
         const customerId = cardResult[0].card_owner; 
         
         console.log("Haetaan tilit asiakkaalle ID:", customerId);
@@ -111,9 +111,7 @@ router.get('/balance/me', function(request, response) {
                 return response.status(404).json({ error: "Asiakkaalla ei ole tilejä." });
             }
 
-            // Palautetaan ensimmäinen tili (miljoonatili, jos se on listan eka)
-            // Varmista että lähetät kentän nimellä 'balance' tai 'account_balance' 
-            // sen mukaan, kumpaa Qt-koodisi nyt lukee!
+            // Palautetaan ensimmäinen tili
             response.json(accountResults[0]); 
         });
     });
@@ -122,7 +120,7 @@ router.get('/balance/me', function(request, response) {
 router.get('/balance/me/:id', function(request, response) {
     const requestedAccountId = request.params.id;
     
-    // MUUTOS: Käytä getById, koska se on määritelty account_modelissa
+    
     account.getById(requestedAccountId, function(err, dbResult) {
         if (err) {
             response.status(500).json(err);

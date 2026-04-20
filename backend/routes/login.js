@@ -30,7 +30,7 @@ router.post('/', function(request, response) {
                 process.env.MY_TOKEN, { expiresIn: '1h' }
               );
 
-              // HAETAAN TILIT, jotta Qt saa ID:t (activeAccountId ei jää nollaksi)
+              // HAETAAN TILIT, jotta Qt saa ID:t, activeAccountId ei saa jäädä nollaksi
               account.getByCustomerId(dbCard.card_owner, (err, accounts) => {
                 if (err || !accounts || accounts.length === 0) {
                   // Jos haku epäonnistuu, palautetaan edes korttiin suoraan kytketty tili
@@ -41,7 +41,7 @@ router.post('/', function(request, response) {
                   });
                 } else if (cardType === 'dual' || cardType === 'admin') {
                   // DUAL-KORTTI: Lähetetään molemmat ID:t
-                  // accounts[0] = debit, accounts[1] = credit (olettaen että ne on tässä järjestyksessä)
+                  
                   response.json({
                     token: token,
                     card_type: cardType,

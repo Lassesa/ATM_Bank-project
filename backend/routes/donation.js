@@ -10,12 +10,12 @@ router.post('/', function(req, res) {
         return res.status(400).json({ message: "Tiedot puuttuvat" });
     }
 
-    // TÄRKEÄÄ: Käytetään transactionHandler.withdrawal, EI atmWithdrawal
+    // Käytetään transactionHandler.withdrawal, EI atmWithdrawal
     // Tämä kutsuu suoraan SQL-proseduuria ilman setelitarkistuksia.
     transactionHandler.withdrawal({
         id_account: idaccount,
         amount: amount,
-        description: description || "Donation" // Nyt lokiin tulee oikea teksti
+        description: description || "Donation" //lokiin tulee oikea teksti
     }, function(err, result) {
         if (err) {
             return res.status(400).json({ message: err.message || "Lahjoitus epäonnistui" });
