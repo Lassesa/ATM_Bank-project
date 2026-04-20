@@ -28,7 +28,7 @@ const account = {
             callback
         );
     },
-    // Päivitä tilin tiedot (esim. saldo tai tyyppi)
+    // Päivitä tilin tiedot esim. saldo tai tyyppi
     update(id, acc, callback) {
         return db.query(
             "UPDATE account SET account_number=?, account_type=?, account_balance=?, account_limit=?, account_currency=? WHERE idaccount=?",

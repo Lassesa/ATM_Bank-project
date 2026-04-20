@@ -47,7 +47,7 @@ router.post('/withdrawal', function(request, response) {
 
         const authorizedAccountId = cardResult[0].card_account;
 
-        // DEBUG: Tulostetaan bäckärin konsoliin molemmat arvot
+        //Tulostetaan bäckärin konsoliin molemmat arvot
         console.log("NOSTO-VERTAILU -> Kortin tili:", authorizedAccountId, "Pyydetty tili:", id_account);
 
         // Pakotetaan molemmat numeroiksi Number()-funktiolla
@@ -80,8 +80,6 @@ router.post('/credit-withdrawal', function(request, response) {
     const { idaccount, amount } = request.body;
     const user = request.user;
 
-    // Poistetaan tiukka vertailu authorizedAccountId !== idaccount, 
-    // koska dual-kortilla credit-tili (14) ei ole sama kuin debit-tili (6)
     transactionHandler.creditWithdrawal({ 
         id_account: idaccount, 
         amount: amount 
@@ -125,10 +123,10 @@ router.post('/transfer', function(request, response) {
             return response.status(403).json({ error: "Korttia tai tiliä ei löytynyt." });
         }
 
-        // Tehdään lista sallituista ID-numeroista (esim. [6, 14])
+        // Tehdään lista sallituista ID numeroista
         const allowedIds = results.map(row => row.idaccount);
 
-        // 2. TARKISTUS: Onko Qt:n lähettämä source_id sallittujen listalla?
+        // 2. TARKISTUS, onko Qtn lähettämä source_id sallittujen listalla?
         if (user.role !== 'admin' && !allowedIds.includes(Number(source_id))) {
             console.log("ESTETTY: Käyttäjän sallitut tilit:", allowedIds, "Yritetty tili:", source_id);
             return response.status(403).json({ error: "Voit siirtää rahaa vain omalta tililtäsi." });
@@ -179,7 +177,7 @@ function executeActualTransfer(source_id, target_id, amount, response) {
 }
 
 router.post('/atm-withdrawal', function(request, response) {
-    // MUUTOS: Otetaan vastaan idaccount (ilman alaviivaa)
+    //Otetaan vastaan idaccount
     const { idaccount, amount } = request.body;
     
     console.log("Backend vastaanotti noston:", { idaccount, amount });
@@ -196,7 +194,7 @@ router.post('/atm-withdrawal', function(request, response) {
 router.get('/me/:id', function(request, response) {
     const id = request.params.id;
     
-    // Tässä kutsutaan transaction_modelin funktiota, joka hakee tapahtumat ID:llä
+    // Tässä kutsutaan transaction_modelin funktiota, joka hakee tapahtumat idllä
     transaction.getByAccountId(id, function(err, dbResult) {
         if (err) {
             response.status(500).json(err);
