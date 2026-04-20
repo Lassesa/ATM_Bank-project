@@ -35,4 +35,4 @@ Sovellus noudattaa MVC-mallia (Model-View-Controller):
 * **Middleware:** Reittien yhteyteen toteutettu tarkistuslogiikka varmistaa, että vain kirjautuneet käyttäjät, joilla on voimassa oleva JWT-token, pääsevät tekemään tilitapahtumia.
 
  ## Tietokannan ER-malli
-<img width="786" height="1193" alt="bank_model" src="https://github.com/user-attachments/assets/4139010b-c342-4a0d-ac71-67a00c607e52" />
+<img alt="bank_model" src="https://raw.githubusercontent.com/tvt25spo-bank/group_8/refs/heads/main/bank-automat/docs/bank_model.png?token=GHSAT0AAAAAADZD27UKEBANWS4OE6MDYA662PGD5JA" />
