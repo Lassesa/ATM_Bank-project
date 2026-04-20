@@ -6,8 +6,10 @@ Tämä on Node.js-pohjainen REST API, joka toimii pankkiautomaattijärjestelmän
 
 * **Tietokanta ja CRUD:** Täydet hallintatyökalut asiakkaille, korteille ja tileille.
 * **Tietoturva:** Korttien PIN-koodit tallennetaan tietokantaan suojattuina bcrypt-algoritmilla.
+* **Automaattinen korttilukitus:** Järjestelmä seuraa virheellisiä PIN-koodin syöttöyrityksiä tietokantatasolla. Kolmen peräkkäisen virheen jälkeen kortti lukittuu automaattisesti, mikä estää luvattoman käytön. Onnistunut kirjautuminen nollaa yrityslaskurin.
 * **Autentikaatio:** Järjestelmä käyttää korttinumeroa ja PIN-koodia kirjautumiseen, mistä palautetaan JSON Web Token (JWT).
 * **Pankkilogiikka:** Kaikki kriittiset rahaoperaatiot, kuten nostot ja tilisiirrot, on toteutettu tietokantatason proseduureilla. Tämä varmistaa transaktioiden atomisuuden, katesuojan ja tietojen eheyden.
+* **Tilitapahtumien selaus:** Käyttöliittymä tarjoaa selkeän listanäkymän tilin historiasta (pvm, tapahtumatyyppi, summa). Haku on rajattu hakemaan 50 viimeisintä tapahtumaa joko Debit- tai Credit-puolelta valitun tilin mukaan.
 * **Älykäs pankkiautomaattilogiikka (ATM Vault):** Järjestelmä seuraa automaatin fyysistä rahamäärää reaaliajassa omasta tietokantataulustaan. 
     * Kone tarkistaa ennen nostoa, onko automaatissa riittävästi seteleitä ja pystytäänkö summa muodostamaan olemassa olevilla nimellisarvoilla (esim. 150€ -> 1x100€ + 1x50€). 
     * Noston yhteydessä automaatin saldo päivittyy automaattisesti, ja järjestelmä estää nostot, mikäli tarvittavia seteleitä ei ole saatavilla.
@@ -20,8 +22,8 @@ Tämä on Node.js-pohjainen REST API, joka toimii pankkiautomaattijärjestelmän
 
 Käyttöliittymä on suunniteltu huomioimaan erilaiset käyttäjätarpeet ja tarjoamaan miellyttävä käyttökokemus:
 
-* **Monikielisyys:** Sovellus tukee täyttä lokalisointia kolmelle kielelle: Suomi, Englanti ja Puola. Kieli on vaihdettavissa yhdellä painalluksella jokaisella sivulla.
-* **Kontrastitilat (Light/Dark Mode):** Käyttäjä voi valita visuaalisen teeman tarpeen mukaan. Saatavilla on selkeä vaalea teema sekä silmiä säästävä tumma tila.
+* **Monikielisyys:** Sovelluksessa on tuki kolmelle kielelle: Suomi, Englanti ja Puola. Kieli on vaihdettavissa yhdellä painalluksella jokaisella sivulla.
+* **Kontrastitilat:** Käyttäjä voi valita visuaalisen teeman tarpeen mukaan. Saatavilla on selkeä vaalea teema sekä silmiä säästävä tumma tila.
 * **Interaktiiviset näppäinäänet:** Käyttökokemusta on parannettu äänipalautteella. Eri toiminnoille (kuten näppäinpainallukset, onnistuneet tapahtumat ja virhetilanteet) on omat tunnistettavat ääniefektinsä, mikä helpottaa laitteen käyttöä.
 
 ## Rakenne
