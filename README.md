@@ -1,21 +1,29 @@
-# Pankkiautomaatti-projekti (Ryhmä 8)
+# Pankkiautomaatti-projekti (Ryhmä SPO-08)
 
-Tämä on Node.js-pohjainen REST API, joka toimii pankkiautomaattijärjestelmän taustapalveluna. Sovellus hallinnoi asiakastietoja, pankkikortteja, tilejä ja tilitapahtumia.
+Tämä on Node.js-pohjainen **REST API**, joka toimii pankkiautomaattijärjestelmän taustapalveluna. Sovellus hallinnoi asiakastietoja, pankkikortteja, tilejä ja tilitapahtumia tarjoten turvallisen rajapinnan Qt-pohjaiselle asiakasohjelmalle.
 
-## Toteutetut ominaisuudet
+##  Toteutetut ominaisuudet
 
 * **Tietokanta ja CRUD:** Täydet hallintatyökalut asiakkaille, korteille ja tileille.
-* **Tietoturva:** Korttien PIN-koodit tallennetaan tietokantaan suojattuina bcrypt-algoritmilla.
-* **Autentikaatio:** Järjestelmä käyttää korttinumeroa ja PIN-koodia kirjautumiseen, mistä palautetaan JSON Web Token (JWT).
-* **Pankkilogiikka:** Rahansiirrot, kuten nostot ja tilisiirrot, on toteutettu tietokantatason proseduureilla (Stored Procedures). Ne hyödyntävät transaktioita ja katesuojaa, mikä varmistaa, että tili ei mene luvatta miinukselle ja tiedot pysyvät ehyinä virhetilanteissa.
+* **Tietoturva:**
+    * Korttien PIN-koodit tallennetaan tietokantaan suojattuina **bcrypt**-algoritmilla.
+    * Suojatut reitit vaativat voimassa olevan **JWT (JSON Web Token)** -tunnisteen.
+* **Autentikaatio:** Järjestelmä käyttää korttinumeroa ja PIN-koodia kirjautumiseen.
+* **Pankkilogiikka:**
+    * Rahansiirrot, kuten nostot ja lahjoitukset, on toteutettu tietokantatason proseduureilla (Stored Procedures).
+    * Hyödyntää transaktioita ja katesuojaa: tili ei mene luvatta miinukselle.
+* **Erityisominaisuudet:**
+    * **Kortin lukitus:** Rajapinta lukitsee kortin automaattisesti kolmen virheellisen PIN-syötön jälkeen.
+    * **Monikielisyys ja esteettömyys:** Tuki kielen vaihdolle (FI/EN/PL) ja korkean kontrastin tilalle.
+    * **Lahjoitukset:** Mahdollisuus tehdä lahjoituksia hyväntekeväisyyteen noston yhteydessä.
 
-## Rakenne
+##  Tekninen rakenne (MVC-malli)
 
-Sovellus noudattaa MVC-mallia (Model-View-Controller):
+Sovelluksen arkkitehtuuri on jaettu loogisiin kerroksiin ylläpidettävyyden ja tietoturvan varmistamiseksi:
 
-* **Routes:** Reitit (esim. account.js, transaction.js) ottavat vastaan pyynnöt ja tarkistavat käyttäjän oikeudet.
-* **Models:** Tiedostot (esim. card_model.js) sisältävät varsinaiset SQL-kyselyt.
-* **Middleware:** authenticateToken.js tarkistaa jokaisen suojatun pyynnön yhteydessä, että mukana on voimassa oleva JWT-token.
+* **Routes:** Reitit (esim. `account.js`, `transaction.js`) ottavat vastaan HTTP-pyynnöt.
+* **Models:** Mallit (esim. `card_model.js`) sisältävät SQL-kyselyt ja kommunikoivat MySQL-tietokannan kanssa.
+* **Middleware:** `authenticateToken.js` tarkistaa jokaisen pyynnön otsikosta JWT-tokenin oikeellisuuden.
 
  ## Tietokannan ER-malli
 <img width="786" height="1193" alt="bank_model" src="https://github.com/user-attachments/assets/4139010b-c342-4a0d-ac71-67a00c607e52" />
