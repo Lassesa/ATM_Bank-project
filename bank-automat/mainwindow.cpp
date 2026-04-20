@@ -48,31 +48,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-
-    // VIDEO SETUP (MORE PAGE)
-    moreVideoPlayer = new QMediaPlayer(this);
-    moreVideoAudio = new QAudioOutput(this);
-    moreVideoWidget = new QVideoWidget(ui->videoContainer);
-
-    moreVideoPlayer->setAudioOutput(moreVideoAudio);
-    moreVideoPlayer->setVideoOutput(moreVideoWidget);
-    moreVideoAudio->setVolume(0.5);
-
-    connect(moreVideoPlayer, &QMediaPlayer::errorOccurred, this,
-            [this](QMediaPlayer::Error error, const QString &errorString) {
-                qDebug() << "VIDEO ERROR:" << error << errorString;
-            });
-
-    connect(moreVideoPlayer, &QMediaPlayer::mediaStatusChanged, this,
-            [this](QMediaPlayer::MediaStatus status) {
-                qDebug() << "VIDEO STATUS:" << status;
-                if (status == QMediaPlayer::EndOfMedia) {
-                    moreVideoPlayer->setPosition(0);
-                    moreVideoPlayer->play();
-                }
-            });
-
-
     // Video
     moreVideoPlayer = new QMediaPlayer(this);
     moreVideoAudio = new QAudioOutput(this);
@@ -308,7 +283,7 @@ void MainWindow::connectSignals()
     // -----------------------------
     // DEBIT / CREDIT Button
     // -----------------------------
-    connect(ui->btnCreditDebit, &QPushButton::clicked, this, &MainWindow::on_btnCreditDebit_clicked);
+    connect(ui->btnCreditDebit, &QPushButton::clicked, this, &MainWindow::handleCreditDebitClick);
     /*connect(ui->btnCreditDebit, &QPushButton::clicked,
             this, &MainWindow::toggleAccountType);*/
 
@@ -587,6 +562,7 @@ void MainWindow::connectSignals()
         if (buttonSound)
             buttonSound->play();
 
+        updateAccountsPage();
         showPage(ui->page12_Accounts);
     });
 
@@ -754,6 +730,17 @@ void MainWindow::setLanguage(const QString &lang)
         ui->labelWelcome_Transactions->setText("Transactions");
         ui->labelInstruction_Transactions->setText("Recent transactions");
 
+        ui->Accounts_MainAccount_Title->setText("Main Account");
+        ui->Accounts_Balance_Title->setText("Balance:");
+        ui->Accounts_Available_Title->setText("Available Funds:");
+        ui->Accounts_Limit_Title->setText("Overdraft Limit:");
+        ui->Accounts_Limit_Used_Title->setText("Used Overdraft:");
+
+        ui->Accounts_Credit_Title->setText("Credit Account");
+        ui->Accounts_CreditLimit_Title->setText("Credit Limit:");
+        ui->Accounts_CreditUsed_Title->setText("Used Credit:");
+        ui->Accounts_AvailableCredit_Title->setText("Available Credit:");
+
 
 
     }
@@ -822,6 +809,17 @@ void MainWindow::setLanguage(const QString &lang)
         ui->labelWelcome_Transactions->setText("Transakcje");
         ui->labelInstruction_Transactions->setText("Ostatnie operacje");
 
+        ui->Accounts_MainAccount_Title->setText("Konto główne");
+        ui->Accounts_Balance_Title->setText("Saldo:");
+        ui->Accounts_Available_Title->setText("Dostępne środki:");
+        ui->Accounts_Limit_Title->setText("Limit debetowy:");
+        ui->Accounts_Limit_Used_Title->setText("Wykorzystany debet:");
+
+        ui->Accounts_Credit_Title->setText("Konto kredytowe");
+        ui->Accounts_CreditLimit_Title->setText("Limit kredytowy:");
+        ui->Accounts_CreditUsed_Title->setText("Wykorzystany kredyt:");
+        ui->Accounts_AvailableCredit_Title->setText("Dostępny kredyt:");
+
     }
     else if (lang == "FI") {
         ui->labelWelcome->setText("Tervetuloa S/R Pankkiin");
@@ -888,9 +886,21 @@ void MainWindow::setLanguage(const QString &lang)
         ui->labelWelcome_Transactions->setText("Tapahtumat");
         ui->labelInstruction_Transactions->setText("Viimeisimmät tapahtumat");
 
+        ui->Accounts_MainAccount_Title->setText("Päätili");
+        ui->Accounts_Balance_Title->setText("Saldo:");
+        ui->Accounts_Available_Title->setText("Käytettävissä:");
+        ui->Accounts_Limit_Title->setText("Tilin käyttöraja:");
+        ui->Accounts_Limit_Used_Title->setText("Käytetty tilinylitys:");
+
+        ui->Accounts_Credit_Title->setText("Luottotili");
+        ui->Accounts_CreditLimit_Title->setText("Luottoraja:");
+        ui->Accounts_CreditUsed_Title->setText("Käytetty luotto:");
+        ui->Accounts_AvailableCredit_Title->setText("Vapaa luotto:");
+
     }
 
     updateCreditDebitButton();
+    updateAccountsPage();
 }
 
 // =====================================================
@@ -1179,6 +1189,7 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
                 updateCreditDebitButton();
                 updateBalanceDisplay();
                 updateTransactionsDisplay();
+                updateAccountsPage();
 
                 // Ajastimet ja äänet
                 inactivityTimer->start(30000);
@@ -1211,17 +1222,18 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
  */
 void MainWindow::updateBalanceDisplay()
 {
-    // Varmistetaan, että meillä on ID mitä hakea
+    qDebug() << "===== BALANCE REQUEST =====";
+    qDebug() << "activeAccountId used:" << activeAccountId;
+
     if (activeAccountId == 0) {
         qDebug() << "Virhe: activeAccountId on 0, ei voida hakea saldoa.";
         return;
     }
 
-    // Lisätään ID osoitteen perään -> /balance/me/6 tai /balance/me/7
     QUrl url("http://localhost:3000/account/balance/me/" + QString::number(activeAccountId));
-    QNetworkRequest request(url);
+    qDebug() << "URL:" << url.toString();
 
-    // Huom: Käytä sitä muuttujan nimeä mikä sinulla on (aiemmin se oli webToken)
+    QNetworkRequest request(url);
     request.setRawHeader("Authorization", "Bearer " + this->webToken);
 
     qDebug() << "Lähetetään saldokysely osoitteeseen:" << url.toString();
@@ -1231,6 +1243,8 @@ void MainWindow::updateBalanceDisplay()
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         if (reply->error() == QNetworkReply::NoError) {
             QByteArray responseData = reply->readAll();
+            qDebug() << "BALANCE RESPONSE:" << responseData;
+
             QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
             QJsonObject obj = jsonDoc.object();
 
@@ -1241,7 +1255,6 @@ void MainWindow::updateBalanceDisplay()
             }
         } else {
             qDebug() << "Saldon haku epäonnistui:" << reply->errorString();
-            // Tulostetaan backendin virheviesti jos sellainen tuli
             qDebug() << "Backend virhe:" << reply->readAll();
             ui->Balance_Amount->setText("Virhe");
         }
@@ -1436,6 +1449,131 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
 }
 
 
+QString MainWindow::formatMoney(double amount) const
+{
+    return QString::number(amount, 'f', 2) + " €";
+}
+
+void MainWindow::setAmountLabel(QLabel *label, double amount)
+{
+    if (!label) return;
+
+    label->setText(formatMoney(amount));
+
+    // Optional: mark negative values
+    if (amount < 0) {
+        label->setProperty("negative", true);
+    } else {
+        label->setProperty("negative", false);
+    }
+
+    label->style()->unpolish(label);
+    label->style()->polish(label);
+    label->update();
+}
+
+void MainWindow::clearAccountsPage()
+{
+    ui->Accounts_Balance->setText("-- €");
+    ui->Accounts_Available->setText("-- €");
+    ui->Accounts_Limit->setText("-- €");
+    ui->Accounts_Limit_Used->setText("-- €");
+
+    ui->Accounts_CreditLimit->setText("-- €");
+    ui->Accounts_CreditUsed->setText("-- €");
+    ui->Accounts_AvailableCredit->setText("-- €");
+}
+
+void MainWindow::updateAccountsPage()
+{
+    clearAccountsPage();
+
+    if (sessionToken.isEmpty()) {
+        qDebug() << "Accounts page update skipped: no session token.";
+        return;
+    }
+
+    // -----------------------------
+    // 1. Main / active debit account
+    // -----------------------------
+    if (debitAccountId > 0) {
+        QUrl debitUrl("http://localhost:3000/account/balance/me/" + QString::number(debitAccountId));
+        QNetworkRequest debitRequest(debitUrl);
+        debitRequest.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
+
+        QNetworkReply *debitReply = networkManager->get(debitRequest);
+
+        connect(debitReply, &QNetworkReply::finished, this, [this, debitReply]() {
+            QByteArray responseData = debitReply->readAll();
+            qDebug() << "MAIN ACCOUNT JSON:" << responseData;
+
+            if (debitReply->error() == QNetworkReply::NoError) {
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+                QJsonObject obj = jsonDoc.object();
+
+                double balance = obj.value("account_balance").toVariant().toDouble();
+                double limit = obj.value("account_limit").toVariant().toDouble();
+
+                double usedOverdraft = qMax(0.0, -balance);
+                double availableFunds = balance + limit;
+
+                setAmountLabel(ui->Accounts_Balance, balance);
+                setAmountLabel(ui->Accounts_Available, availableFunds);
+                setAmountLabel(ui->Accounts_Limit, limit);
+                setAmountLabel(ui->Accounts_Limit_Used, usedOverdraft);
+
+                qDebug() << "Main account data updated.";
+            } else {
+                qDebug() << "Failed to load main account data:" << debitReply->errorString();
+                qDebug() << "Backend response:" << responseData;
+            }
+
+            debitReply->deleteLater();
+        });
+    }
+
+    // -----------------------------
+    // 2. Credit account
+    // -----------------------------
+    if (creditAccountId > 0) {
+        QUrl creditUrl("http://localhost:3000/account/balance/me/" + QString::number(creditAccountId));
+        QNetworkRequest creditRequest(creditUrl);
+        creditRequest.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
+
+        QNetworkReply *creditReply = networkManager->get(creditRequest);
+
+        connect(creditReply, &QNetworkReply::finished, this, [this, creditReply]() {
+            QByteArray responseData = creditReply->readAll();
+            qDebug() << "CREDIT ACCOUNT JSON:" << responseData;
+
+            if (creditReply->error() == QNetworkReply::NoError) {
+                QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+                QJsonObject obj = jsonDoc.object();
+
+                // Adjust these names to match backend response
+                double balance = obj.value("account_balance").toVariant().toDouble();
+                double limit = obj.value("account_limit").toVariant().toDouble();
+
+                // Credit logic based on current DB structure
+                double usedCredit = qAbs(balance);
+                double availableCredit = limit - usedCredit;
+
+                setAmountLabel(ui->Accounts_CreditLimit, limit);
+                setAmountLabel(ui->Accounts_CreditUsed, usedCredit);
+                setAmountLabel(ui->Accounts_AvailableCredit, availableCredit);
+
+                qDebug() << "Credit account data updated.";
+            } else {
+                qDebug() << "Failed to load credit account data:" << creditReply->errorString();
+                qDebug() << "Backend response:" << responseData;
+            }
+
+            creditReply->deleteLater();
+        });
+    }
+}
+
+
 
 void MainWindow::resetToWelcome()
 {
@@ -1454,6 +1592,11 @@ void MainWindow::resetToWelcome()
     currentCardUid = "";
     sessionToken = "";
     accountId = 0;
+    activeAccountId = 0;
+    debitAccountId = 0;
+    creditAccountId = 0;
+    accountMode = "debit";
+    clearAccountsPage();
     resetDonationSelection();
     hasDebit = false;
     hasCredit = false;
@@ -1555,7 +1698,7 @@ void MainWindow::on_btnConfirmDonation_clicked()
 {
     qDebug() << "DONATION CLICK WORKS";
     qDebug() << "Donation attempt:";
-    qDebug() << "accountId =" << accountId;
+    qDebug() << "activeAccountId =" << activeAccountId;
     qDebug() << "selectedCharity =" << selectedCharity;
     qDebug() << "pendingDonationAmount =" << pendingDonationAmount;
 
@@ -1564,8 +1707,8 @@ void MainWindow::on_btnConfirmDonation_clicked()
         return;
     }
 
-    if (accountId <= 0) {
-        qDebug() << "Donation blocked: invalid accountId:" << accountId;
+    if (activeAccountId <= 0) {
+        qDebug() << "Donation blocked: invalid activeAccountId:" << activeAccountId;
 
         if (ui->btnLanguageFinnish->isChecked()) {
             ui->labelInstruction_Donation->setText("Tilitietoja ei voitu ladata.");
@@ -1790,6 +1933,7 @@ void MainWindow::toggleAccountType()
     updateCreditDebitButton();
     updateBalanceDisplay();
     updateTransactionsDisplay();
+    updateAccountsPage();
 }
 /*
  * Updates the Credit/Debit button text and enabled state.
@@ -1940,16 +2084,19 @@ void MainWindow::handleLoginResponse(QNetworkReply *reply) {
     reply->deleteLater();
 }
 
-void MainWindow::on_btnCreditDebit_clicked()
+void MainWindow::handleCreditDebitClick()
 {
-    qDebug() << "Nappia klikattu. Nykyinen tila:" << accountMode;
+    qDebug() << "===== CLICK CREDIT/DEBIT =====";
+    qDebug() << "BEFORE -> mode:" << accountMode
+             << "activeAccountId:" << activeAccountId
+             << "debitId:" << debitAccountId
+             << "creditId:" << creditAccountId;
 
     if (!isDualCard) {
         qDebug() << "Ei dual-kortti, ei tehdä mitään.";
         return;
     }
 
-    // Vaihdetaan tilaa
     if (accountMode == "debit") {
         accountMode = "credit";
         activeAccountId = creditAccountId;
@@ -1958,10 +2105,11 @@ void MainWindow::on_btnCreditDebit_clicked()
         activeAccountId = debitAccountId;
     }
 
-    qDebug() << "Uusi tila:" << accountMode << "Uusi ID:" << activeAccountId;
+    qDebug() << "AFTER -> mode:" << accountMode
+             << "activeAccountId:" << activeAccountId;
 
-    // Päivitetään UI ja haetaan uudet tiedot
     updateCreditDebitButton();
     updateBalanceDisplay();
     updateTransactionsDisplay();
+    updateAccountsPage();
 }
