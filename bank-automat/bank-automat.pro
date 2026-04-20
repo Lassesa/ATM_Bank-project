@@ -11,10 +11,12 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    media.cpp \
     translations.cpp
 
 HEADERS += \
     mainwindow.h \
+    media.h \
     translations.h
 
 FORMS += \

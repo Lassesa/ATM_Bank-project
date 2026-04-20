@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+
+#include "media.h"
 // =====================================================
 // Qt Core / Widgets
 // =====================================================
@@ -99,6 +101,8 @@ private:
 
     };
 
+    Media *media;
+
     // =====================================================
     // UI / Core Objects
     // =====================================================
@@ -195,27 +199,6 @@ private:
     QString msgWithdrawSuccess;
     QString msgNetError;
     QString msgAtmError;
-
-    // =====================================================
-    // Sound Management
-    // =====================================================
-    QSoundEffect *keypadSound;
-    QSoundEffect *okSound;
-    QSoundEffect *cancelSound;
-    QSoundEffect *clearSound;
-    QSoundEffect *buttonSound;
-    QSoundEffect *successSound;
-    QSoundEffect *errorSound;
-    QSoundEffect *withdrawSound;
-    QSoundEffect *timeoutSound;
-
-
-    // =====================================================
-    // Video Management
-    // =====================================================
-    QMediaPlayer *moreVideoPlayer;
-    QAudioOutput *moreVideoAudio;
-    QVideoWidget *moreVideoWidget;
 
     // =====================================================
     // Timer Management
