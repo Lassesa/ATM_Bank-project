@@ -33,7 +33,7 @@
      <enum>QFrame::Shape::NoFrame</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="page01_Welcome">
      <widget class="QWidget" name="layoutWidget">
@@ -105,6 +105,16 @@
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="videoContainer" native="true">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>140</y>
+        <width>111</width>
+        <height>131</height>
+       </rect>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="page02_Pin">
@@ -269,7 +279,7 @@
        <rect>
         <x>30</x>
         <y>50</y>
-        <width>961</width>
+        <width>581</width>
         <height>89</height>
        </rect>
       </property>
@@ -407,7 +417,7 @@
        <rect>
         <x>30</x>
         <y>200</y>
-        <width>211</width>
+        <width>151</width>
         <height>51</height>
        </rect>
       </property>
@@ -450,9 +460,9 @@
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>260</x>
+        <x>200</x>
         <y>170</y>
-        <width>311</width>
+        <width>371</width>
         <height>112</height>
        </rect>
       </property>
@@ -663,9 +673,9 @@
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>130</y>
+        <y>135</y>
         <width>701</width>
-        <height>141</height>
+        <height>148</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="DonationGrid">
@@ -1166,7 +1176,6 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/logo.svg/logo.svg</pixmap>
      <pixmap resource="resources.qrc">:/logo.svg</pixmap>
     </property>
     <property name="scaledContents">

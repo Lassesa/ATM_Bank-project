@@ -41,6 +41,14 @@
 
 #include <QButtonGroup>
 
+// =====================================================
+// Qt VIDEO
+// =====================================================
+
+#include <QMediaPlayer>
+#include <QAudioOutput>
+#include <QVideoWidget>
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -61,7 +69,7 @@ protected:
 
 private slots:
 
-    void on_button_3green_OK_clicked();
+    void handleTransferOk();
     void handleTransferResponse(QNetworkReply *reply);
     void on_btnContrast_clicked();
     void onOkClicked();
@@ -73,7 +81,7 @@ private slots:
     void handleDonationSelection();
     void handleDonationAmountSelection();
     void resetDonationSelection();
-
+    void makeDonationRequest(int amount, const QString &charity);
     void on_btnConfirmTransfer_clicked();
 private:
     // =====================================================
@@ -122,7 +130,6 @@ private:
     // =====================================================
     QButtonGroup *donationOrgGroup;
     QButtonGroup *donationAmountGroup;
-    void makeDonationRequest(int amount, QString description);
 
     // =====================================================
     // Setup / Connections
@@ -193,6 +200,14 @@ private:
     QSoundEffect *errorSound;
     QSoundEffect *withdrawSound;
     QSoundEffect *timeoutSound;
+
+
+    // =====================================================
+    // Video Management
+    // =====================================================
+    QMediaPlayer *moreVideoPlayer;
+    QAudioOutput *moreVideoAudio;
+    QVideoWidget *moreVideoWidget;
 
     // =====================================================
     // Timer Management

@@ -18,6 +18,12 @@
 #include <QTextStream>
 #include <QtMath>
 
+// Video Management
+#include <QVBoxLayout>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+#include <QVideoWidget>
+
 // =====================================================
 // Constructor / Destructor
 // =====================================================
@@ -42,6 +48,72 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+
+    // VIDEO SETUP (MORE PAGE)
+    moreVideoPlayer = new QMediaPlayer(this);
+    moreVideoAudio = new QAudioOutput(this);
+    moreVideoWidget = new QVideoWidget(ui->videoContainer);
+
+    moreVideoPlayer->setAudioOutput(moreVideoAudio);
+    moreVideoPlayer->setVideoOutput(moreVideoWidget);
+    moreVideoAudio->setVolume(0.5);
+
+    connect(moreVideoPlayer, &QMediaPlayer::errorOccurred, this,
+            [this](QMediaPlayer::Error error, const QString &errorString) {
+                qDebug() << "VIDEO ERROR:" << error << errorString;
+            });
+
+    connect(moreVideoPlayer, &QMediaPlayer::mediaStatusChanged, this,
+            [this](QMediaPlayer::MediaStatus status) {
+                qDebug() << "VIDEO STATUS:" << status;
+                if (status == QMediaPlayer::EndOfMedia) {
+                    moreVideoPlayer->setPosition(0);
+                    moreVideoPlayer->play();
+                }
+            });
+
+
+    // Video
+    moreVideoPlayer = new QMediaPlayer(this);
+    moreVideoAudio = new QAudioOutput(this);
+    moreVideoWidget = new QVideoWidget(ui->videoContainer);
+    moreVideoWidget->setAspectRatioMode(Qt::IgnoreAspectRatio);
+
+    moreVideoPlayer->setAudioOutput(moreVideoAudio);
+    moreVideoPlayer->setVideoOutput(moreVideoWidget);
+
+    moreVideoWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    moreVideoWidget->setMinimumSize(0, 0);
+
+    QVBoxLayout *videoLayout = new QVBoxLayout(ui->videoContainer);
+    videoLayout->setContentsMargins(0, 0, 0, 0);
+    videoLayout->setSpacing(0);
+    videoLayout->addWidget(moreVideoWidget);
+
+    connect(moreVideoPlayer, &QMediaPlayer::mediaStatusChanged, this,
+            [this](QMediaPlayer::MediaStatus status) {
+                qDebug() << "VIDEO STATUS:" << status;
+                if (status == QMediaPlayer::EndOfMedia) {
+                    moreVideoPlayer->setPosition(0);
+                    moreVideoPlayer->play();
+                }
+            });
+
+    connect(moreVideoPlayer, &QMediaPlayer::errorOccurred, this,
+            [](QMediaPlayer::Error error, const QString &errorString) {
+                qDebug() << "VIDEO ERROR:" << error << errorString;
+            });
+
+    moreVideoPlayer->setSource(QUrl("qrc:/videos/video1.mp4"));
+    moreVideoPlayer->setPosition(0);
+    moreVideoPlayer->play();
+
+    // loop
+    connect(moreVideoPlayer, &QMediaPlayer::errorOccurred, this,
+            [](QMediaPlayer::Error error, const QString &errorString) {
+                qDebug() << "VIDEO ERROR CODE:" << static_cast<int>(error);
+                qDebug() << "VIDEO ERROR TEXT:" << errorString;
+            });
 
     // Sound management
     keypadSound = new QSoundEffect(this);
@@ -422,10 +494,12 @@ void MainWindow::connectSignals()
                 ui->amountInput->setText("0 €");
             }
         }
+        else if (ui->display->currentWidget() == ui->page06_Transfer) {
+            handleTransferOk();
+        }
         else if (ui->display->currentWidget() == ui->page07_Donation) {
             qDebug() << "OK painettu lahjoitussivulla";
             on_btnConfirmDonation_clicked();
-            resetDonationSelection(); // added check
         }
     });
 
@@ -496,11 +570,10 @@ void MainWindow::connectSignals()
 
 
     connect(ui->btn_main_choice_8, &QPushButton::clicked, this, [this]() {
-
         if (buttonSound)
             buttonSound->play();
 
-        showPage(ui->page09_Other); /// to be changed
+        showPage(ui->page09_Other);
     });
 
 
@@ -1480,6 +1553,7 @@ void MainWindow::handleDonationAmountSelection()
 
 void MainWindow::on_btnConfirmDonation_clicked()
 {
+    qDebug() << "DONATION CLICK WORKS";
     qDebug() << "Donation attempt:";
     qDebug() << "accountId =" << accountId;
     qDebug() << "selectedCharity =" << selectedCharity;
@@ -1503,8 +1577,7 @@ void MainWindow::on_btnConfirmDonation_clicked()
 
         return;
     }
-
-    makeDonationRequest(pendingDonationAmount, "DONATION: " + selectedCharity);
+    makeDonationRequest(pendingDonationAmount, selectedCharity);
 }
 
 void MainWindow::resetDonationSelection()
@@ -1527,7 +1600,93 @@ void MainWindow::resetDonationSelection()
     donationAmountGroup->setExclusive(true);
 }
 
+void MainWindow::makeDonationRequest(int amount, const QString &charity)
+{
+    QString originalText = ui->labelInstruction_Donation->text();
 
+    if (amount <= 0) {
+        if (ui->btnLanguageFinnish->isChecked()) {
+            ui->labelInstruction_Donation->setText("Virheellinen summa.");
+        } else if (ui->btnLanguagePolish->isChecked()) {
+            ui->labelInstruction_Donation->setText("Nieprawidłowa kwota.");
+        } else {
+            ui->labelInstruction_Donation->setText("Invalid amount.");
+        }
+
+        ui->labelInstruction_Donation->setStyleSheet("color: red; font-weight: bold;");
+
+        QTimer::singleShot(3000, [this, originalText]() {
+            ui->labelInstruction_Donation->setText(originalText);
+            ui->labelInstruction_Donation->setStyleSheet("");
+        });
+        return;
+    }
+
+    QUrl url("http://localhost:3000/donation");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
+
+    QJsonObject json;
+    json["idaccount"] = activeAccountId;
+    json["amount"] = amount;
+    json["description"] = "DONATION: " + charity;
+    json["account_type"] = (selectedAccountType == DebitAccount) ? "debit" : "credit";
+
+    QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, originalText]() {
+
+        if (reply->error() == QNetworkReply::NoError) {
+
+            if (successSound)
+                successSound->play();
+
+            if (ui->btnLanguageFinnish->isChecked()) {
+                ui->labelInstruction_Donation->setText("Lahjoitus onnistui!");
+            } else if (ui->btnLanguagePolish->isChecked()) {
+                ui->labelInstruction_Donation->setText("Darowizna została wykonana!");
+            } else {
+                ui->labelInstruction_Donation->setText("Donation successful!");
+            }
+
+            ui->labelInstruction_Donation->setStyleSheet("color: green; font-weight: bold;");
+
+            QTimer::singleShot(2000, [this, originalText]() {
+                updateBalanceDisplay();
+                updateTransactionsDisplay();
+                resetDonationSelection();
+                ui->labelInstruction_Donation->setText(originalText);
+                ui->labelInstruction_Donation->setStyleSheet("");
+                ui->display->setCurrentWidget(ui->page03_Main);
+            });
+
+        } else {
+
+            qDebug() << "Donation backend error:" << reply->readAll();
+
+            if (errorSound)
+                errorSound->play();
+
+            if (ui->btnLanguageFinnish->isChecked()) {
+                ui->labelInstruction_Donation->setText("Lahjoitus epäonnistui.");
+            } else if (ui->btnLanguagePolish->isChecked()) {
+                ui->labelInstruction_Donation->setText("Nie udało się wykonać darowizny.");
+            } else {
+                ui->labelInstruction_Donation->setText("Donation failed.");
+            }
+
+            ui->labelInstruction_Donation->setStyleSheet("color: red; font-weight: bold;");
+
+            QTimer::singleShot(4000, [this, originalText]() {
+                ui->labelInstruction_Donation->setText(originalText);
+                ui->labelInstruction_Donation->setStyleSheet("");
+            });
+        }
+
+        reply->deleteLater();
+    });
+}
 
 /*
  * Managing STYLES
@@ -1682,9 +1841,8 @@ void MainWindow::updateCreditDebitButton()
 
 //siirto
 
-void MainWindow::on_button_3green_OK_clicked()
+void MainWindow::handleTransferOk()
 {
-
     QString targetAccount = ui->PhoneNumberInput_Transfer->text();
     QString amountStr = ui->amountInput_Transfer->text();
 
@@ -1694,13 +1852,9 @@ void MainWindow::on_button_3green_OK_clicked()
         return;
     }
 
-    // 1. Haetaan tiedot käyttöliittymästä muuttujiin
-    // Varmista, että ui->... nimet vastaavat sinun UI-elementtiesi nimiä!
-    // Muuta tämä rivi (rivi 2272 kuvassasi):
     QString targetPhone = ui->PhoneNumberInput_Transfer->text().trimmed();
     int amount = ui->amountInput_Transfer->text().toInt();
 
-    // 3. Luodaan JSON-paketti
     QJsonObject json;
     json["source_id"] = this->activeAccountId; // aktiivinen tallennettu ID
     json["phonenumber"] = targetPhone;    // Käyttäjän syöttämä puhelinnumero
@@ -1709,7 +1863,6 @@ void MainWindow::on_button_3green_OK_clicked()
     QJsonDocument doc(json);
     QByteArray data = doc.toJson();
 
-    // 3. Lähetys backendille
     QUrl url("http://localhost:3000/transaction/transfer");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -1717,7 +1870,6 @@ void MainWindow::on_button_3green_OK_clicked()
 
     QNetworkReply *reply = networkManager->post(request, data);
 
-    // Kytketään vastaus
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         handleTransferResponse(reply);
     });
@@ -1812,32 +1964,4 @@ void MainWindow::on_btnCreditDebit_clicked()
     updateCreditDebitButton();
     updateBalanceDisplay();
     updateTransactionsDisplay();
-}
-
-void MainWindow::makeDonationRequest(int amount, QString description)
-{
-    // Osoite bäkärin donation-reittiin
-    QUrl url("http://localhost:3000/donation");
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setRawHeader("Authorization", "Bearer " + sessionToken.toUtf8());
-
-    QJsonObject json;
-    json["idaccount"] = activeAccountId; // Käytetään oikeaa ID:tä (6)
-    json["amount"] = amount;      // Nyt voi olla vaikka 5 tai 13 euroa
-    json["description"] = description;
-
-    QNetworkReply *reply = networkManager->post(request, QJsonDocument(json).toJson());
-
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Lahjoitus onnistui!";
-            ui->labelInstruction_Donation->setText("Thank you for your donation!");
-            updateBalanceDisplay(); // Päivitetään saldo heti
-        } else {
-            qDebug() << "Lahjoitusvirhe:" << reply->readAll();
-            ui->labelInstruction_Donation->setText("Donation failed.");
-        }
-        reply->deleteLater();
-    });
 }
