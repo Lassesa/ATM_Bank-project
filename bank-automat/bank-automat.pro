@@ -31,3 +31,7 @@ RESOURCES += \
     resources.qrc
 
 QT += svg
+
+macx {
+    ICON = resources/logo.icns
+}
