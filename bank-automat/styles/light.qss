@@ -184,7 +184,7 @@ QListWidget#Balance_ListRecentTransactions {
 }
 
 QLabel#Balance_Amount {
-    font-size: 25px;
+    font-size: 20px;
     font-weight: 800;
     color: #0F172A;
 }
@@ -498,4 +498,64 @@ QPushButton#btn_amount_choice_4:checked {
         stop:0 #DB2777,
         stop:1 #9D174D
     );
+}
+/* =====================================================
+   ACCOUNTS PAGE (CLEAN / UNIFORM)
+   ===================================================== */
+
+/* Main container */
+#page12_Accounts {
+    background: transparent;
+}
+
+/* Section titles: Main Account / Credit Account */
+QLabel#Accounts_MainAccount_Title,
+QLabel#Accounts_Credit_Title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1E293B;
+    padding: 0px;
+    margin: 0px;
+}
+
+/* Field labels */
+QLabel#Accounts_Balance_Title,
+QLabel#Accounts_Available_Title,
+QLabel#Accounts_Limit_Title,
+QLabel#Accounts_Limit_Used_Title,
+QLabel#Accounts_CreditLimit_Title,
+QLabel#Accounts_CreditUsed_Title,
+QLabel#Accounts_AvailableCredit_Title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    padding: 0px;
+    margin: 0px;
+}
+
+/* Field values */
+QLabel#Accounts_Balance,
+QLabel#Accounts_Available,
+QLabel#Accounts_Limit,
+QLabel#Accounts_Limit_Used,
+QLabel#Accounts_CreditLimit,
+QLabel#Accounts_CreditUsed,
+QLabel#Accounts_AvailableCredit {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1E293B;
+    padding: 0px;
+    margin: 0px;
+}
+
+/* Invisible placeholders used only to keep grid alignment */
+QLabel#EmptyHolder0,
+QLabel#EmptyHolder1,
+QLabel#EmptyHolder2,
+QLabel#EmptyHolder3,
+QLabel#EmptyHolder4 {
+    color: transparent;
+    padding: 0px;
+    margin: 0px;
+    min-height: 4px;
 }

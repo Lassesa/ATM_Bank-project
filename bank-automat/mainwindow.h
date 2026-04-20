@@ -48,6 +48,10 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include <QVideoWidget>
+// =====================================================
+// Qt LABEL FOR ACCOUNTS MORE PAGE
+// =====================================================
+#include <QLabel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -110,7 +114,7 @@ private:
     int creditAccountId;
     QString accountMode;
     bool isDualCard;
-    void on_btnCreditDebit_clicked();
+    void handleCreditDebitClick();
 
 
     // =====================================================
@@ -260,6 +264,14 @@ private:
     void toggleAccountType();        // Handles button click (switch Debit <-> Credit)
     void updateCreditDebitButton();  // Updates button text and state
 
+    // =====================================================
+    // Accounts Page
+    // =====================================================
+
+    void updateAccountsPage();
+    void clearAccountsPage();
+    QString formatMoney(double amount) const;
+    void setAmountLabel(QLabel *label, double amount);
 
 };
 
