@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "translations.h"
-
+#include "media.h"
 // =====================================================
 // Qt UI
 // =====================================================
@@ -51,76 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Video
-    moreVideoPlayer = new QMediaPlayer(this);
-    moreVideoAudio = new QAudioOutput(this);
-    moreVideoWidget = new QVideoWidget(ui->videoContainer);
-    moreVideoWidget->setAspectRatioMode(Qt::IgnoreAspectRatio);
-
-    moreVideoPlayer->setAudioOutput(moreVideoAudio);
-    moreVideoPlayer->setVideoOutput(moreVideoWidget);
-    moreVideoPlayer->setLoops(QMediaPlayer::Infinite);
-
-    moreVideoWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    moreVideoWidget->setMinimumSize(0, 0);
-
-    QVBoxLayout *videoLayout = new QVBoxLayout(ui->videoContainer);
-    videoLayout->setContentsMargins(0, 0, 0, 0);
-    videoLayout->setSpacing(0);
-    videoLayout->addWidget(moreVideoWidget);
-
-    connect(moreVideoPlayer, &QMediaPlayer::errorOccurred, this,
-            [](QMediaPlayer::Error error, const QString &errorString) {
-                qDebug() << "VIDEO ERROR:" << error << errorString;
-            });
-
-    moreVideoPlayer->setSource(QUrl("qrc:/videos/video1.mp4"));
-    moreVideoPlayer->play();
-
-    // loop
-    connect(moreVideoPlayer, &QMediaPlayer::errorOccurred, this,
-            [](QMediaPlayer::Error error, const QString &errorString) {
-                qDebug() << "VIDEO ERROR CODE:" << static_cast<int>(error);
-                qDebug() << "VIDEO ERROR TEXT:" << errorString;
-            });
-
-    // Sound management
-    keypadSound = new QSoundEffect(this);
-    keypadSound->setSource(QUrl("qrc:/sounds/keypad.wav"));
-    keypadSound->setVolume(0.5);
-
-    okSound = new QSoundEffect(this);
-    okSound->setSource(QUrl("qrc:/sounds/ok.wav"));
-    okSound->setVolume(0.5);
-
-    cancelSound = new QSoundEffect(this);
-    cancelSound->setSource(QUrl("qrc:/sounds/cancel.wav"));
-    cancelSound->setVolume(0.5);
-
-    clearSound = new QSoundEffect(this);
-    clearSound->setSource(QUrl("qrc:/sounds/clear.wav"));
-    clearSound->setVolume(0.5);
-
-    buttonSound = new QSoundEffect(this);
-    buttonSound->setSource(QUrl("qrc:/sounds/button.wav"));
-    buttonSound->setVolume(0.5);
-
-    successSound = new QSoundEffect(this);
-    successSound->setSource(QUrl("qrc:/sounds/success.wav"));
-    successSound->setVolume(0.5);
-
-    errorSound = new QSoundEffect(this);
-    errorSound->setSource(QUrl("qrc:/sounds/error.wav"));
-    errorSound->setVolume(0.5);
-
-    withdrawSound = new QSoundEffect(this);
-    withdrawSound->setSource(QUrl("qrc:/sounds/withdraw.wav"));
-    withdrawSound->setVolume(0.5);
-
-    timeoutSound = new QSoundEffect(this);
-    timeoutSound->setSource(QUrl("qrc:/sounds/timeout.wav"));
-    timeoutSound->setVolume(0.5);
-
+    // Setup for media
+    media = new Media(this);
+    media->setupVideo(ui->videoContainer);
 
     // Create network manager for backend API calls
     networkManager = new QNetworkAccessManager(this);
@@ -299,52 +232,52 @@ void MainWindow::connectSignals()
 
     connect(ui->num_0, &QPushButton::clicked, this, [this]() {
         handleDigit("0");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        media->playKeypad();
     });
 
     connect(ui->num_1, &QPushButton::clicked, this, [this]() {
         handleDigit("1");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        media->playKeypad();
     });
 
     connect(ui->num_2, &QPushButton::clicked, this, [this]() {
-        handleDigit("2");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        handleDigit("3");
+        media->playKeypad();
     });
 
     connect(ui->num_3, &QPushButton::clicked, this, [this]() {
-        handleDigit("3");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        handleDigit("4");
+        media->playKeypad();
     });
 
     connect(ui->num_4, &QPushButton::clicked, this, [this]() {
-        handleDigit("4");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        handleDigit("5");
+        media->playKeypad();
     });
 
     connect(ui->num_5, &QPushButton::clicked, this, [this]() {
-        handleDigit("5");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        handleDigit("6");
+        media->playKeypad();
     });
 
     connect(ui->num_6, &QPushButton::clicked, this, [this]() {
-        handleDigit("6");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        handleDigit("7");
+        media->playKeypad();
     });
 
     connect(ui->num_7, &QPushButton::clicked, this, [this]() {
-        handleDigit("7");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        handleDigit("8");
+        media->playKeypad();
     });
 
     connect(ui->num_8, &QPushButton::clicked, this, [this]() {
         handleDigit("8");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        media->playKeypad();
     });
 
     connect(ui->num_9, &QPushButton::clicked, this, [this]() {
         handleDigit("9");
-        QTimer::singleShot(0, this, [this]() { if (keypadSound) keypadSound->play(); });
+        media->playKeypad();
     });
 
 
@@ -354,8 +287,7 @@ void MainWindow::connectSignals()
     // -----------------------------
     connect(ui->button_2yellow_CLEAR, &QPushButton::clicked, this, [this]() {
 
-        if (clearSound)
-            clearSound->play();
+        media->playClear();
 
         if (ui->display->currentWidget() == ui->page02_Pin) {
             QString text = ui->pinInput->text();
@@ -401,8 +333,7 @@ void MainWindow::connectSignals()
     // -----------------------------
     connect(ui->button_1red_CANCEL, &QPushButton::clicked, this, [this]() {
 
-        if (cancelSound)
-            cancelSound->play();
+        media->playCancel();
 
         QWidget *current = ui->display->currentWidget();
 
@@ -439,8 +370,7 @@ void MainWindow::connectSignals()
     // -----------------------------
     connect(ui->button_3green_OK, &QPushButton::clicked, this, [this]() {
 
-        if (okSound)
-            okSound->play();
+        media->playOk();
 
         if (ui->display->currentWidget() == ui->page01_Welcome) {
 
@@ -497,8 +427,7 @@ void MainWindow::connectSignals()
     // -----------------------------
     connect(ui->btn_main_choice_1, &QPushButton::clicked, this, [this]() {
 
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         selectAmount(50);
         showPage(ui->page04_Withdraw);
@@ -506,8 +435,7 @@ void MainWindow::connectSignals()
 
     connect(ui->btn_main_choice_2, &QPushButton::clicked, this, [this]() {
 
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         selectAmount(100);
         showPage(ui->page04_Withdraw);
@@ -515,8 +443,7 @@ void MainWindow::connectSignals()
 
     connect(ui->btn_main_choice_3, &QPushButton::clicked, this, [this]() {
 
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         selectAmount(0);
         showPage(ui->page04_Withdraw);
@@ -524,8 +451,7 @@ void MainWindow::connectSignals()
 
     connect(ui->btn_main_choice_4, &QPushButton::clicked, this, [this]() {
 
-        if (buttonSound)
-            buttonSound->play();
+       media->playButton();
 
         updateBalanceDisplay();
         updateTransactionsDisplay();
@@ -534,8 +460,7 @@ void MainWindow::connectSignals()
 
     connect(ui->btn_main_choice_5, &QPushButton::clicked, this, [this]() {
 
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         resetTransferForm();
         showPage(ui->page06_Transfer);
@@ -543,16 +468,14 @@ void MainWindow::connectSignals()
 
     connect(ui->btn_main_choice_6, &QPushButton::clicked, this, [this]() {
 
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         showPage(ui->page07_Donation);
     });
 
     connect(ui->btn_main_choice_7, &QPushButton::clicked, this, [this]() {
 
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         showPage(ui->page08_Exit);
         exitTimer->start(5000);
@@ -560,8 +483,7 @@ void MainWindow::connectSignals()
 
 
     connect(ui->btn_main_choice_8, &QPushButton::clicked, this, [this]() {
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         showPage(ui->page09_Other);
     });
@@ -574,8 +496,7 @@ void MainWindow::connectSignals()
 
     connect(ui->Balance_btn_choice_1, &QPushButton::clicked, this, [this]() {
 
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         updateAccountsPage();
         showPage(ui->page12_Accounts);
@@ -583,16 +504,14 @@ void MainWindow::connectSignals()
 
     connect(ui->Balance_btn_choice_2, &QPushButton::clicked, this, [this]() {
 
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         showPage(ui->page13_Transactions);
     });
 
     // NEXT-nappi
     connect(ui->Transactions_btn_choice_next, &QPushButton::clicked, this, [this]() {
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         if (currentStartIndex + PAGE_SIZE < allTransactions.size()) {
             currentStartIndex += PAGE_SIZE;
@@ -602,8 +521,7 @@ void MainWindow::connectSignals()
 
     // PREVIOUS-nappi
     connect(ui->Transactions_btn_choice_previous, &QPushButton::clicked, this, [this]() {
-        if (buttonSound)
-            buttonSound->play();
+        media->playButton();
 
         if (currentStartIndex - PAGE_SIZE >= 0) {
             currentStartIndex -= PAGE_SIZE;
@@ -1085,7 +1003,7 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
 
                 // Ajastimet ja äänet
                 inactivityTimer->start(30000);
-                if (successSound) successSound->play();
+                media->playSuccess();
 
                 // Siirtyminen pääsivulle
                 ui->display->setCurrentWidget(ui->page03_Main);
@@ -1101,13 +1019,11 @@ void MainWindow::makeLoginRequest(QString cardNum, QString pin)
             ui->labelInstruction_PIN->setText(texts.msgWrongPinRemaining.arg(remaining));
             ui->pinInput->clear();
 
-            if (errorSound)
-                errorSound->play();
+            media->playError();
         }
         else {
             qDebug() << "Login error:" << reply->errorString();
-            if (errorSound)
-                errorSound->play();
+            media->playError();
         }
 
         reply->deleteLater();
@@ -1316,7 +1232,7 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
     // 6. Vastauksen käsittely
     connect(reply, &QNetworkReply::finished, this, [this, reply, originalText]() {
         if (reply->error() == QNetworkReply::NoError) {
-            if (withdrawSound) withdrawSound->play();
+            media->playWithdraw();
 
             ui->labelInstruction_Withdraw->setText(msgWithdrawSuccess);
             ui->labelInstruction_Withdraw->setStyleSheet("color: green; font-weight: bold;");
@@ -1337,7 +1253,7 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
             ui->labelInstruction_Withdraw->setText(msgAtmError);
             ui->labelInstruction_Withdraw->setStyleSheet("color: red; font-weight: bold;");
 
-            if (errorSound) errorSound->play();
+            media->playError();
 
             QTimer::singleShot(4000, [this, originalText]() {
                 ui->labelInstruction_Withdraw->setText(originalText);
@@ -1666,8 +1582,7 @@ void MainWindow::makeDonationRequest(int amount, const QString &charity)
 
         if (reply->error() == QNetworkReply::NoError) {
 
-            if (successSound)
-                successSound->play();
+            media->playSuccess();
 
             UiTexts texts = getTexts(currentLanguage);
             ui->labelInstruction_Donation->setText(texts.msgDonationSuccess);
@@ -1687,8 +1602,7 @@ void MainWindow::makeDonationRequest(int amount, const QString &charity)
 
             qDebug() << "Donation backend error:" << reply->readAll();
 
-            if (errorSound)
-                errorSound->play();
+            media->playError();
 
             UiTexts texts = getTexts(currentLanguage);
             ui->labelInstruction_Donation->setText(texts.msgDonationFailed);
@@ -1867,7 +1781,7 @@ void MainWindow::handleTransferOk()
         ui->labelInstruction_Transfer->setText(msgTransferMissingPhone);
         ui->labelInstruction_Transfer->setStyleSheet("color: red; font-weight: bold;");
 
-        if (errorSound) errorSound->play();
+        media->playError();
 
         QTimer::singleShot(3000, [this, originalText]() {
             ui->labelInstruction_Transfer->setText(originalText);
@@ -1891,7 +1805,7 @@ void MainWindow::handleTransferOk()
         ui->labelInstruction_Transfer->setText(msgTransferInvalidAmount);
         ui->labelInstruction_Transfer->setStyleSheet("color: red; font-weight: bold;");
 
-        if (errorSound) errorSound->play();
+        media->playError();
 
         QTimer::singleShot(3000, [this, originalText]() {
             ui->labelInstruction_Transfer->setText(originalText);
@@ -1919,7 +1833,7 @@ void MainWindow::handleTransferOk()
         handleTransferResponse(reply, originalText);
     });
 
-    if (buttonSound) buttonSound->play();
+    media->playButton();
 }
 
 
@@ -1942,7 +1856,7 @@ void MainWindow::handleTransferResponse(QNetworkReply *reply, const QString &ori
         qDebug() << "Transfer completed successfully!";
         qDebug() << "Backend response:" << reply->readAll();
 
-        if (successSound) successSound->play();
+        media->playSuccess();
 
         ui->labelInstruction_Transfer->setText(msgTransferSuccess);
         ui->labelInstruction_Transfer->setStyleSheet("color: green; font-weight: bold;");
@@ -1960,7 +1874,7 @@ void MainWindow::handleTransferResponse(QNetworkReply *reply, const QString &ori
         QByteArray responseData = reply->readAll();
         qDebug() << "Transfer failed:" << responseData;
 
-        if (errorSound) errorSound->play();
+        media->playError();
 
         ui->labelInstruction_Transfer->setText(msgTransferFailed);
         ui->labelInstruction_Transfer->setStyleSheet("color: red; font-weight: bold;");
