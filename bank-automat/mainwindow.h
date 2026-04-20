@@ -53,6 +53,8 @@
 // =====================================================
 #include <QLabel>
 
+
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -74,7 +76,7 @@ protected:
 private slots:
 
     void handleTransferOk();
-    void handleTransferResponse(QNetworkReply *reply);
+    void handleTransferResponse(QNetworkReply *reply, const QString &originalText);
     void on_btnContrast_clicked();
     void onOkClicked();
     void onClearClicked();
@@ -115,6 +117,8 @@ private:
     QString accountMode;
     bool isDualCard;
     void handleCreditDebitClick();
+
+    void resetTransferForm();
 
 
     // =====================================================
@@ -273,6 +277,15 @@ private:
     QString formatMoney(double amount) const;
     void setAmountLabel(QLabel *label, double amount);
 
+
+    // =====================================================
+    // Transfers Page
+    // =====================================================
+    QString msgTransferSuccess;
+    QString msgTransferFailed;
+    QString msgTransferMissingPhone;
+    QString msgTransferMissingAmount;
+    QString msgTransferInvalidAmount;
 };
 
 #endif // MAINWINDOW_H

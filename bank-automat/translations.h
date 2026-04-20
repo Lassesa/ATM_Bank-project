@@ -107,6 +107,12 @@ struct UiTexts {
     QString debitCardLabel;
     QString creditCardLabel;
 
+    QString msgTransferSuccess;
+    QString msgTransferFailed;
+    QString msgTransferMissingPhone;
+    QString msgTransferMissingAmount;
+    QString msgTransferInvalidAmount;
+
 };
 
 UiTexts getTexts(const QString &lang);
