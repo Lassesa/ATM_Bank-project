@@ -7,15 +7,30 @@ Tämä on Node.js-pohjainen REST API, joka toimii pankkiautomaattijärjestelmän
 * **Tietokanta ja CRUD:** Täydet hallintatyökalut asiakkaille, korteille ja tileille.
 * **Tietoturva:** Korttien PIN-koodit tallennetaan tietokantaan suojattuina bcrypt-algoritmilla.
 * **Autentikaatio:** Järjestelmä käyttää korttinumeroa ja PIN-koodia kirjautumiseen, mistä palautetaan JSON Web Token (JWT).
-* **Pankkilogiikka:** Rahansiirrot, kuten nostot ja tilisiirrot, on toteutettu tietokantatason proseduureilla (Stored Procedures). Ne hyödyntävät transaktioita ja katesuojaa, mikä varmistaa, että tili ei mene luvatta miinukselle ja tiedot pysyvät ehyinä virhetilanteissa.
+* **Pankkilogiikka:** Kaikki kriittiset rahaoperaatiot, kuten nostot ja tilisiirrot, on toteutettu tietokantatason proseduureilla. Tämä varmistaa transaktioiden atomisuuden, katesuojan ja tietojen eheyden.
+* **Älykäs pankkiautomaattilogiikka (ATM Vault):** Järjestelmä seuraa automaatin fyysistä rahamäärää reaaliajassa omasta tietokantataulustaan. 
+    * Kone tarkistaa ennen nostoa, onko automaatissa riittävästi seteleitä ja pystytäänkö summa muodostamaan olemassa olevilla nimellisarvoilla (esim. 150€ -> 1x100€ + 1x50€). 
+    * Noston yhteydessä automaatin saldo päivittyy automaattisesti, ja järjestelmä estää nostot, mikäli tarvittavia seteleitä ei ole saatavilla.
+* **Dual-Card -tuki:** Järjestelmä tukee yhdistelmäkortteja, joissa on sekä Debit- että Credit-ominaisuudet. Käyttäjä voi vaihtaa tilityyppiä lennosta saman istunnon aikana.
+* **Puhelinnumeropohjaiset siirrot:** Perinteisten tili-ID-siirtojen lisäksi varoja voidaan siirtää vastaanottajan puhelinnumeron perusteella, mikä tekee palvelusta käyttäjäystävällisemmän.
+* **Älykäs omistajuuden varmistus:** Backend tarkistaa dynaamisesti, että käyttäjällä on oikeus hallinnoida useita eri tilejä saman kortin kautta (esim. oikeus siirtää rahaa sekä Debit- että Credit-puolelta).
+* **Lahjoitustoiminto:** Järjestelmään on integroitu tuki kohdistetuille lahjoituksille, jotka hyödyntävät olemassa olevaa turvallista siirtolaitosta.
+
+## Helppokäyttöisyys ja käyttöliittymä
+
+Käyttöliittymä on suunniteltu huomioimaan erilaiset käyttäjätarpeet ja tarjoamaan miellyttävä käyttökokemus:
+
+* **Monikielisyys:** Sovellus tukee täyttä lokalisointia kolmelle kielelle: Suomi, Englanti ja Puola. Kieli on vaihdettavissa yhdellä painalluksella jokaisella sivulla.
+* **Kontrastitilat (Light/Dark Mode):** Käyttäjä voi valita visuaalisen teeman tarpeen mukaan. Saatavilla on selkeä vaalea teema sekä silmiä säästävä tumma tila.
+* **Interaktiiviset näppäinäänet:** Käyttökokemusta on parannettu äänipalautteella. Eri toiminnoille (kuten näppäinpainallukset, onnistuneet tapahtumat ja virhetilanteet) on omat tunnistettavat ääniefektinsä, mikä helpottaa laitteen käyttöä.
 
 ## Rakenne
 
 Sovellus noudattaa MVC-mallia (Model-View-Controller):
 
 * **Routes:** Reitit (esim. account.js, transaction.js) ottavat vastaan pyynnöt ja tarkistavat käyttäjän oikeudet.
-* **Models:** Tiedostot (esim. card_model.js) sisältävät varsinaiset SQL-kyselyt.
-* **Middleware:** authenticateToken.js tarkistaa jokaisen suojatun pyynnön yhteydessä, että mukana on voimassa oleva JWT-token.
+* **Models:** Tiedostot (esim. card_model.js, transaction_handler_model.js) sisältävät SQL-rajapinnan ja kutsuvat tietokannan proseduureja.
+* **Middleware:** Reittien yhteyteen toteutettu tarkistuslogiikka varmistaa, että vain kirjautuneet käyttäjät, joilla on voimassa oleva JWT-token, pääsevät tekemään tilitapahtumia.
 
  ## Tietokannan ER-malli
 <img width="786" height="1193" alt="bank_model" src="https://github.com/user-attachments/assets/4139010b-c342-4a0d-ac71-67a00c607e52" />
