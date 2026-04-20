@@ -125,7 +125,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->amountInput->setText("0 €");
 
     // Set application window icon
-    this->setWindowIcon(QIcon(":/logo.svg"));
+    this->setWindowIcon(QIcon(":/logo.png"));
 
     // Set initial keypad mode
     currentMode = PinMode;
