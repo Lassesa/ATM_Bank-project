@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>logo.svg</file>
         <file>logo.png</file>
+        <file>logo.icns</file>
         <file>sounds/keypad.wav</file>
         <file>sounds/ok.wav</file>
         <file>sounds/cancel.wav</file>
