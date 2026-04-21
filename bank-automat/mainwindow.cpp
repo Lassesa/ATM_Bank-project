@@ -63,9 +63,14 @@ MainWindow::MainWindow(QWidget *parent)
         this->setWindowIcon(QIcon(":/logo.png"));
     #endif
 
-    // Setup for media
+    // Setup for media - including Idle Video
     media = new Media(this);
     media->setupVideo(ui->videoContainer);
+    media->setupIdleVideo(ui->idleVideoContainer);
+
+
+
+    showIdlePage();
 
     // Create network manager for backend API calls
     networkManager = new QNetworkAccessManager(this);
@@ -76,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pinTimer, &QTimer::timeout, this, &MainWindow::resetToWelcome);
     exitTimer = new QTimer(this);
     exitTimer->setSingleShot(true);
-    connect(exitTimer, &QTimer::timeout, this, &MainWindow::resetToWelcome);
+    connect(exitTimer, &QTimer::timeout, this, &MainWindow::returnToIdleFromExit);
 
     inactivityTimer = new QTimer(this);
     inactivityTimer->setInterval(30000); // // 30 seconds
@@ -161,8 +166,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->btnContrast->setCheckable(true);
     ui->btnContrast->setText("CO");
 
-    // Show welcome page at startup
-    ui->display->setCurrentWidget(ui->page01_Welcome);
+    // DO NOT Show welcome page at startup --- TO BE LOOP
+    // ui->display->setCurrentWidget(ui->page01_Welcome);
 
     // Start RFID / serial reader
     setupSerialReader();
@@ -243,51 +248,101 @@ void MainWindow::connectSignals()
     connect(ui->num_9, &QPushButton::clicked, this, [this]() { handleDigit("9"); });*/
 
     connect(ui->num_0, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("0");
         media->playKeypad();
     });
 
     connect(ui->num_1, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("1");
         media->playKeypad();
     });
 
     connect(ui->num_2, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("2");
         media->playKeypad();
     });
 
     connect(ui->num_3, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("3");
         media->playKeypad();
     });
 
     connect(ui->num_4, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("4");
         media->playKeypad();
     });
 
     connect(ui->num_5, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("5");
         media->playKeypad();
     });
 
     connect(ui->num_6, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("6");
         media->playKeypad();
     });
 
     connect(ui->num_7, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("7");
         media->playKeypad();
     });
 
     connect(ui->num_8, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("8");
         media->playKeypad();
     });
 
     connect(ui->num_9, &QPushButton::clicked, this, [this]() {
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            media->playKeypad();
+            leaveIdleToWelcome();
+            return;
+        }
         handleDigit("9");
         media->playKeypad();
     });
@@ -300,6 +355,11 @@ void MainWindow::connectSignals()
     connect(ui->button_2yellow_CLEAR, &QPushButton::clicked, this, [this]() {
 
         media->playClear();
+
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            leaveIdleToWelcome();
+            return;
+        }
 
         if (ui->display->currentWidget() == ui->page02_Pin) {
             QString text = ui->pinInput->text();
@@ -347,12 +407,21 @@ void MainWindow::connectSignals()
 
         media->playCancel();
 
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            leaveIdleToWelcome();
+            return;
+        }
+
         QWidget *current = ui->display->currentWidget();
 
-        if (current == ui->page02_Pin || current == ui->page01_Welcome || current == ui->page11_Time) {
+        if (current == ui->page02_Pin || current == ui->page11_Time) {
             ui->pinInput->clear();
             ui->display->setCurrentWidget(ui->page08_Exit);
             exitTimer->start(5000);
+        }
+        else if (current == ui->page01_Welcome) {
+            ui->pinInput->clear();
+            showIdlePage();
         }
         else if (current == ui->page03_Main) {
             ui->display->setCurrentWidget(ui->page08_Exit);
@@ -383,6 +452,11 @@ void MainWindow::connectSignals()
     connect(ui->button_3green_OK, &QPushButton::clicked, this, [this]() {
 
         media->playOk();
+
+        if (ui->display->currentWidget() == ui->page00_Idle) {
+            leaveIdleToWelcome();
+            return;
+        }
 
         if (ui->display->currentWidget() == ui->page01_Welcome) {
 
@@ -486,9 +560,7 @@ void MainWindow::connectSignals()
     });
 
     connect(ui->btn_main_choice_7, &QPushButton::clicked, this, [this]() {
-
         media->playButton();
-
         showPage(ui->page08_Exit);
         exitTimer->start(5000);
     });
@@ -556,29 +628,13 @@ void MainWindow::connectSignals()
     connect(ui->btn_amount_choice_3, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
     connect(ui->btn_amount_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
 
-
-
     // -----------------------------
-    // Transactions menu buttons
+    // STOP VIDEO  buttons
     // -----------------------------
 
-/*
-    connect(ui->Transactions_btn_choice_next, &QPushButton::clicked, this, [this]() {
+    connect(ui->btnIdleStart, &QPushButton::clicked, this, &MainWindow::leaveIdleToWelcome);
 
-        if (buttonSound)
-            buttonSound->play();
 
-        showPage(ui->page04_Withdraw);
-    });
-
-    connect(ui->Transactions_btn_choice_previous, &QPushButton::clicked, this, [this]() {
-
-        if (buttonSound)
-            buttonSound->play();
-
-        showPage(ui->page04_Withdraw);
-    });
-*/
 }
 
 
@@ -874,7 +930,10 @@ void MainWindow::readCardData()
 
         ui->labelInstruction_PIN->setText(texts.msgPinCover);
 
+        media->stopIdleVideo();
+        ui->idleVideoContainer->hide();
         ui->display->setCurrentWidget(ui->page01_Welcome);
+
         ui->labelInstruction->setText(texts.msgCardDetected);
 
         ui->CardNumberDisplay->setText(currentCardUid);
@@ -1436,25 +1495,24 @@ void MainWindow::resetToWelcome()
     UiTexts texts = getTexts(currentLanguage);
     ui->labelInstruction_PIN->setText(texts.msgPinCover);
 
-    // Return to the welcome page
-    ui->display->setCurrentWidget(ui->page01_Welcome);
+    // Return to the welcome page ->> idle video
+    // ui->display->setCurrentWidget(ui->page01_Welcome);
+    ui->idleVideoContainer->show();
+    showIdlePage();
 }
 
 void MainWindow::resetInactivity()
 {
-    // If the timeout warning page is open, return to the main menu
     if (ui->display->currentWidget() == ui->page11_Time) {
         autoLogoutTimer->stop();
         ui->display->setCurrentWidget(ui->page03_Main);
-        inactivityTimer->start(30000); // Restart the 30-second inactivity timer
+        inactivityTimer->start(30000);
         qDebug() << "Palattu aikakatkaisusta napin painalluksella";
         return;
     }
 
-    // If the user is logged in, reset the inactivity timer
     if (inactivityTimer->isActive()) {
         inactivityTimer->start(30000);
-        //qDebug() << "Ajastin resetoitu napin painalluksesta";
     }
 }
 
@@ -1989,4 +2047,57 @@ void MainWindow::updateDateTime()
     QString dateTimeString = QDateTime::currentDateTime().toString("dd.MM.yyyy HH:mm:ss");
 
     ui->labelDateTime->setText(dateTimeString);
+}
+
+/*
+ * VIDEO MAINOS in LOOP
+ */
+void MainWindow::showIdlePage()
+{
+    if (ui->display->currentWidget() != ui->page00_Idle) {
+        ui->display->setCurrentWidget(ui->page00_Idle);
+    }
+
+    ui->idleVideoContainer->show();
+    media->playIdleVideo();
+}
+
+
+void MainWindow::leaveIdleToWelcome()
+{
+    media->stopIdleVideo();
+    ui->idleVideoContainer->hide();
+
+    if (ui->display->currentWidget() != ui->page01_Welcome) {
+        ui->display->setCurrentWidget(ui->page01_Welcome);
+    }
+}
+
+void MainWindow::returnToIdleFromExit()
+{
+    exitTimer->stop();
+    pinTimer->stop();
+    inactivityTimer->stop();
+    autoLogoutTimer->stop();
+
+    ui->pinInput->clear();
+    ui->CardNumberDisplay->clear();
+    currentCardUid.clear();
+    sessionToken.clear();
+    webToken.clear();
+
+    accountId = 0;
+    activeAccountId = 0;
+    debitAccountId = 0;
+    creditAccountId = 0;
+    accountMode = "debit";
+    isDualCard = false;
+
+    clearAccountsPage();
+    resetDonationSelection();
+    resetTransferForm();
+    selectedAccountType = DebitAccount;
+    updateCreditDebitButton();
+
+    showIdlePage();
 }

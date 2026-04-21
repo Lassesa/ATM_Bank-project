@@ -274,6 +274,13 @@ private:
     QString msgTransferMissingPhone;
     QString msgTransferMissingAmount;
     QString msgTransferInvalidAmount;
+
+    // =====================================================
+    // Idle Video
+    // =====================================================
+    void showIdlePage();
+    void leaveIdleToWelcome();
+    void returnToIdleFromExit();
 };
 
 #endif // MAINWINDOW_H
