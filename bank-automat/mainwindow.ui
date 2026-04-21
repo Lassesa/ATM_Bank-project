@@ -33,7 +33,7 @@
      <enum>QFrame::Shape::NoFrame</enum>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>8</number>
     </property>
     <widget class="QWidget" name="page01_Welcome">
      <widget class="QWidget" name="layoutWidget">
@@ -799,7 +799,7 @@
       </property>
       <layout class="QGridLayout" name="welcomeTextLayout_Other">
        <item row="1" column="0">
-        <widget class="QLabel" name="labelInstruction_Other">
+        <widget class="QLabel" name="labelKajInstruction">
          <property name="text">
           <string>Access more features and settings</string>
          </property>
@@ -812,6 +812,77 @@
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>130</y>
+        <width>661</width>
+        <height>141</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="4" column="1">
+        <widget class="QPushButton" name="btn_kajCoinSell">
+         <property name="text">
+          <string>sell</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="btn_kajCoinBuy">
+         <property name="text">
+          <string>buy</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QLineEdit" name="labelKajCoinAmount">
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+         <property name="placeholderText">
+          <string>Enter amount</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QLabel" name="labelKajCoinBalance">
+         <property name="text">
+          <string>coinbalance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="labelKajCoinsOwn">
+         <property name="text">
+          <string>kajbalance</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelKajCoinPriceTitle">
+         <property name="text">
+          <string>KajCoin Price</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QLabel" name="labelKajCoinEur">
+         <property name="text">
+          <string>EUR</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="labelKajCoinPrice">
+         <property name="text">
+          <string>coinprice</string>
          </property>
         </widget>
        </item>

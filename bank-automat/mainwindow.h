@@ -55,7 +55,11 @@
 // =====================================================
 #include <QLabel>
 
-
+// =====================================================
+// KajCoin
+// =====================================================
+#include <QRandomGenerator>
+#include <ctime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -91,6 +95,12 @@ private slots:
     void resetDonationSelection();
     void makeDonationRequest(int amount, const QString &charity);
     void on_btnConfirmTransfer_clicked();
+
+    // KajCoin
+    void on_btnBuyKaj_clicked();
+    void on_btnSellKaj_clicked();
+    void handleKajTradeResponse(QNetworkReply *reply);
+
 private:
     // =====================================================
     // Input Mode
@@ -269,6 +279,17 @@ private:
     QString msgTransferMissingPhone;
     QString msgTransferMissingAmount;
     QString msgTransferInvalidAmount;
+
+    // =====================================================
+    // KajCoin
+    // =====================================================
+    double kajCoinPrice;
+    double myKajCoins;
+    void makeKajCoinTradeRequest(double euroChange, double kajChange);
+    void updateKajCoinUI();
+    double currentBalance = 0.0;
+    QTimer *kajCoinTimer;
+    void updateTimerTimeout();
 };
 
 #endif // MAINWINDOW_H

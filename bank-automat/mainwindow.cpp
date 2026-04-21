@@ -82,6 +82,13 @@ MainWindow::MainWindow(QWidget *parent)
     autoLogoutTimer->setSingleShot(true);
     connect(autoLogoutTimer, &QTimer::timeout, this, &MainWindow::resetToWelcome);
 
+    //KajCoin
+    kajCoinPrice = static_cast<double>(QRandomGenerator::global()->bounded(5000, 10001));
+    srand(static_cast<uint>(time(nullptr)));
+    kajCoinTimer = new QTimer(this);
+    connect(kajCoinTimer, &QTimer::timeout, this, &MainWindow::updateTimerTimeout);
+    kajCoinTimer->start(5000);
+
     QList<QPushButton *> allButtons = this->findChildren<QPushButton *>();
     for(QPushButton* btn : allButtons) {
         btn->setFocusPolicy(Qt::NoFocus);
@@ -552,6 +559,10 @@ void MainWindow::connectSignals()
     connect(ui->btn_amount_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
 
 
+    connect(ui->btn_kajCoinBuy, &QPushButton::clicked, this, &MainWindow::on_btnBuyKaj_clicked);
+    connect(ui->btn_kajCoinSell, &QPushButton::clicked, this, &MainWindow::on_btnSellKaj_clicked);
+
+
 
     // -----------------------------
     // Transactions menu buttons
@@ -631,7 +642,7 @@ void MainWindow::setLanguage(const QString &lang)
     ui->labelInstruction_Exit->setText(texts.exitInstruction);
 
     ui->labelWelcome_Other->setText(texts.otherTitle);
-    ui->labelInstruction_Other->setText(texts.otherInstruction);
+    ui->labelKajInstruction->setText(texts.otherInstruction);
 
     ui->btn_main_choice_1->setText(texts.mainChoice1);
     ui->btn_main_choice_2->setText(texts.mainChoice2);
@@ -691,6 +702,11 @@ void MainWindow::setLanguage(const QString &lang)
     msgTransferMissingPhone = texts.msgTransferMissingPhone;
     msgTransferMissingAmount = texts.msgTransferMissingAmount;
     msgTransferInvalidAmount = texts.msgTransferInvalidAmount;
+
+    ui->labelKajCoinAmount->setPlaceholderText(texts.KajCoinAmountPlaceholder);
+    ui->btn_kajCoinBuy->setText(texts.kajCoinBuy);
+    ui->btn_kajCoinSell->setText(texts.kajCoinSell);
+    ui->labelKajCoinPriceTitle->setText(texts.kajCoinPriceTitle);
 
     updateCreditDebitButton();
     updateAccountsPage();
@@ -752,6 +768,17 @@ void MainWindow::handleDigit(const QString &digit)
                 ui->PhoneNumberInput_Transfer->text() + digit
                 );
         }
+    }
+    else if (ui->display->currentWidget() == ui->page09_Other) {
+        // text() palauttaa vain käyttäjän kirjoittaman tekstin,
+        // placeholderia ei lasketa mukaan!
+        QString currentText = ui->labelKajCoinAmount->text();
+
+        if (currentText == "0") {
+            currentText = "";
+        }
+
+        ui->labelKajCoinAmount->setText(currentText + digit);
     }
 }
 
@@ -1071,9 +1098,18 @@ void MainWindow::updateBalanceDisplay()
             QJsonObject obj = jsonDoc.object();
 
             if (obj.contains("account_balance")) {
-                double balance = obj.value("account_balance").toVariant().toDouble();
-                ui->Balance_Amount->setText(QString::number(balance, 'f', 2) + " €");
-                qDebug() << "Saldo päivitetty ID:lle" << activeAccountId << ":" << balance;
+                // Tallenna bäkäriltä tullut arvo luokan muuttujaan
+                this->currentBalance = obj.value("account_balance").toVariant().toDouble();
+
+                if(obj.contains("kajcoin_balance")) {
+                    this->myKajCoins = obj.value("kajcoin_balance").toVariant().toDouble();
+                }
+
+                // Päivitä kaikki käyttöliittymän kentät kerralla
+                ui->Balance_Amount->setText(QString::number(this->currentBalance, 'f', 2) + " €");
+                updateKajCoinUI(); // Tämä päivittää KajCoin-sivun labelit
+
+                qDebug() << "Saldo tallennettu muistiin:" << this->currentBalance;
             }
         } else {
             qDebug() << "Saldon haku epäonnistui:" << reply->errorString();
@@ -1976,4 +2012,121 @@ void MainWindow::resetTransferForm()
     ui->PhoneNumberInput_Transfer->clear();
     ui->amountInput_Transfer->clear();
     ui->PhoneNumberInput_Transfer->setFocus();
+}
+
+// KajCoin
+void MainWindow::makeKajCoinTradeRequest(double euroChange, double kajChange)
+{
+    QJsonObject jsonObj;
+    // MUUTA TÄMÄ RIVI: vaihda "id" -> "id_account"
+    jsonObj.insert("id_account", activeAccountId);
+    jsonObj.insert("euro_change", euroChange);
+    jsonObj.insert("kaj_change", kajChange);
+
+    QUrl site_url("http://localhost:3000/transaction/trade-kajcoin");
+    QNetworkRequest request(site_url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", "Bearer " + webToken);
+
+    QNetworkReply *reply = networkManager->post(request, QJsonDocument(jsonObj).toJson());
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        this->handleKajTradeResponse(reply);
+    });
+}
+
+void MainWindow::on_btnBuyKaj_clicked()
+{
+    // Luetaan kentästä EUROmäärä (esim. 50 €)
+    double eurosToSpend = ui->labelKajCoinAmount->text().toDouble();
+
+    if (eurosToSpend <= 0) {
+        ui->labelKajInstruction->setText("Syötä eurosumma!");
+        return;
+    }
+
+    // Tarkistetaan, onko tilillä tarpeeksi euroja
+    if (this->currentBalance >= eurosToSpend) {
+        // Lasketaan kuinka monta kolikkoa tuolla rahalla saa
+        double kajToReceive = eurosToSpend / kajCoinPrice;
+
+        qDebug() << "Ostetaan" << eurosToSpend << "eurolla" << kajToReceive << "kolikkoa.";
+
+        // Lähetetään pyyntö: eurot vähenee syötetyn summan verran, coinit lisääntyvät lasketun verran
+        makeKajCoinTradeRequest(-eurosToSpend, kajToReceive);
+    } else {
+        ui->labelKajInstruction->setText("Tilillä ei ole tarpeeksi rahaa!");
+        ui->labelKajCoinAmount->clear();
+    }
+}
+
+void MainWindow::on_btnSellKaj_clicked()
+{
+    // Luetaan kuinka monta EUROA käyttäjä haluaa saada (esim. 100 €)
+    double eurosToGet = ui->labelKajCoinAmount->text().toDouble();
+
+    if (eurosToGet <= 0) return;
+
+    // Lasketaan, kuinka monta kolikkoa pitää myydä, jotta saa tuon summan
+    double kajToSell = eurosToGet / kajCoinPrice;
+
+    // Tarkistetaan, onko käyttäjällä tarpeeksi kolikoita lompakossa
+    if (this->myKajCoins >= kajToSell) {
+        qDebug() << "Myydään" << kajToSell << "kolikkoa, jotta saadaan" << eurosToGet << "euroa.";
+
+        // Lähetetään pyyntö: eurot lisääntyvät, coinit vähenevät
+        makeKajCoinTradeRequest(eurosToGet, -kajToSell);
+    } else {
+        ui->labelKajInstruction->setText("Sinulla ei ole tarpeeksi KajCoineja!");
+        ui->labelKajCoinAmount->clear();
+    }
+}
+
+void MainWindow::handleKajTradeResponse(QNetworkReply *reply)
+{
+    if (reply->error() == QNetworkReply::NoError) {
+        qDebug() << "KajCoin kauppa onnistui!";
+
+        // 1. Tyhjennetään syötekenttä, jotta uuden summan voi kirjoittaa heti
+        ui->labelKajCoinAmount->clear();
+
+        // 2. Asetetaan fokuso takaisin kenttään (käyttäjä voi heti kirjoittaa)
+        ui->labelKajCoinAmount->setFocus();
+
+        updateBalanceDisplay();
+        updateTransactionsDisplay();
+        media->playSuccess();
+    } else {
+        qDebug() << "Virhe:" << reply->errorString();
+    }
+    reply->deleteLater();
+}
+
+
+
+void MainWindow::updateKajCoinUI()
+{
+    // Päivitetään hinta (oletetaan että labelin nimi on labelKajPrice)
+    ui->labelKajCoinPrice->setText(QString::number(kajCoinPrice, 'f', 2) + " €");
+
+    // Päivitetään käyttäjän omat KajCoinit (labelKajCoinsOwn)
+    ui->labelKajCoinsOwn->setText(QString::number(myKajCoins, 'f', 4) + " KAJ");
+
+    // Päivitetään tilin saldo (labelKajAccountBalance)
+    ui->labelKajCoinBalance->setText(QString::number(currentBalance, 'f', 2) + " €");
+}
+
+
+void MainWindow::updateTimerTimeout() {
+    // Arvotaan kerroin väliltä 0.90 (lasku 10%) ja 1.10 (nousu 10%)
+    double multiplier = 0.90 + (QRandomGenerator::global()->generateDouble() * 0.20);
+
+    kajCoinPrice *= multiplier;
+
+    // Suojat
+    if (kajCoinPrice < 1.0) kajCoinPrice = 1.0;
+
+    qDebug() << "VOLATILITEETTIÄ! Kerroin:" << multiplier << "Hinta:" << kajCoinPrice;
+    updateKajCoinUI();
+    updateBalanceDisplay();
 }

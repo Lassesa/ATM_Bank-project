@@ -204,5 +204,34 @@ router.get('/me/:id', function(request, response) {
     });
 });
 
+router.post('/trade-kajcoin', function(request, response) {
+    // 1. Luetaan data bodysta
+    const { id_account, euro_change, kaj_change } = request.body;
+    
+    // DEBUG-tulostus bäkkerin konsoliin:
+    console.log("KajCoin-kutsu vastaanotettu:", { id_account, euro_change, kaj_change });
+
+    if (!id_account) {
+        console.log("VIRHE: id_account puuttuu pyynnöstä!");
+        return response.status(400).json({ error: "id_account missing" });
+    }
+
+    // 2. Kutsutaan handleria
+    transactionHandler.tradeKajCoin({ id_account, euro_change, kaj_change }, function(err, dbResult) {
+        if (err) {
+            console.log("Tietokantavirhe KajCoin-kaupassa:", err);
+            response.status(500).json(err);
+        } else {
+            console.log("Tietokanta vastasi:", dbResult);
+            // Tarkistetaan palauttiko proseduuri Success-viestin
+            if (dbResult && dbResult[0] && dbResult[0][0]) {
+                response.json(dbResult[0][0]);
+            } else {
+                response.json({ message: "Success" }); 
+            }
+        }
+    });
+});
+
 
 module.exports = router;

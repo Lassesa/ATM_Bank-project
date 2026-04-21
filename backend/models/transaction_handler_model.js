@@ -28,6 +28,22 @@ const transactionHandler = {
         );
     },
 
+        //trade Kaj
+    tradeKajCoin(data, callback) {
+        console.log("=== KAJCOIN TRADE DEBUG ===");
+    console.log("ID:", data.id_account);
+    console.log("EURO:", data.euro_change);
+    console.log("KAJ:", data.kaj_change);
+
+    // Varmistetaan, että arvot eivät ole tyhjiä
+    const id = data.id_account || data.idaccount;
+        return db.query(
+            "CALL trade_kajcoin(?, ?, ?)",
+            [data.id_account, data.euro_change, data.kaj_change],
+            callback
+        );
+    },
+
 };
 
 module.exports = transactionHandler;
