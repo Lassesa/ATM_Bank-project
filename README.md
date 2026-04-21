@@ -34,5 +34,6 @@ Sovellus noudattaa MVC-mallia (Model-View-Controller):
 * **Models:** Tiedostot (esim. card_model.js, transaction_handler_model.js) sisältävät SQL-rajapinnan ja kutsuvat tietokannan proseduureja.
 * **Middleware:** Reittien yhteyteen toteutettu tarkistuslogiikka varmistaa, että vain kirjautuneet käyttäjät, joilla on voimassa oleva JWT-token, pääsevät tekemään tilitapahtumia.
 
- ## Tietokannan ER-malli
-<img alt="bank_model" src="https://raw.githubusercontent.com/tvt25spo-bank/group_8/refs/heads/main/bank-automat/docs/bank_model.png?token=GHSAT0AAAAAADZD27UKEBANWS4OE6MDYA662PGD5JA" />
+  ## Tietokannan ER-malli
+<img width="933" height="923" alt="bank_model" src="https://github.com/user-attachments/assets/b7d1e28c-a1fe-4a46-bd33-d9b873cbb60c" />
+
