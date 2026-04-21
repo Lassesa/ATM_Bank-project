@@ -1,7 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>logo.svg</file>
+        <file>logo.png</file>
         <file>resources/logo.icns</file>
+        <file>resources/logo.ico</file>
         <file>sounds/keypad.wav</file>
         <file>sounds/ok.wav</file>
         <file>sounds/cancel.wav</file>

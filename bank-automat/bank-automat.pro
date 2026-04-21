@@ -35,3 +35,7 @@ QT += svg
 macx {
     ICON = resources/logo.icns
 }
+
+win32 {
+    RC_FILE = app_icon.rc
+}
