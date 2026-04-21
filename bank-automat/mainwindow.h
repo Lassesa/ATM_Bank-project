@@ -11,6 +11,8 @@
 #include <QString>
 #include <QWidget>
 #include <QKeyEvent>
+#include <QDateTime>
+#include <QTimer>
 
 // =====================================================
 // Qt Network / JSON
@@ -83,6 +85,8 @@ private slots:
     void onOkClicked();
     void onClearClicked();
     void onCancelClicked();
+    void updateDateTime();
+
 
     // Donations
     void on_btnConfirmDonation_clicked();
@@ -97,9 +101,10 @@ private:
     // =====================================================
     enum InputMode {
         PinMode,
-        AmountMode
-
+        AmountMode,
     };
+    QTimer *clockTimer;
+
 
     Media *media;
 

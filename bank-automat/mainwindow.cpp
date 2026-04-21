@@ -51,6 +51,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    clockTimer = new QTimer(this);
+    connect(clockTimer, &QTimer::timeout, this, &MainWindow::updateDateTime);
+    clockTimer->start(1000);
+    updateDateTime();
+
+
     // Setup for media
     media = new Media(this);
     media->setupVideo(ui->videoContainer);
@@ -1972,4 +1978,12 @@ void MainWindow::resetTransferForm()
     ui->PhoneNumberInput_Transfer->clear();
     ui->amountInput_Transfer->clear();
     ui->PhoneNumberInput_Transfer->setFocus();
+}
+
+void MainWindow::updateDateTime()
+{
+
+    QString dateTimeString = QDateTime::currentDateTime().toString("dd.MM.yyyy HH:mm:ss");
+
+    ui->labelDateTime->setText(dateTimeString);
 }

@@ -33,7 +33,7 @@
      <enum>QFrame::Shape::NoFrame</enum>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>10</number>
     </property>
     <widget class="QWidget" name="page01_Welcome">
      <widget class="QWidget" name="layoutWidget">
@@ -1359,7 +1359,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/logo.svg</pixmap>
+     <pixmap>:/logo.svg</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
@@ -1456,11 +1456,25 @@
      </item>
     </layout>
    </widget>
+   <widget class="QLabel" name="labelDateTime">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>40</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
    <zorder>display</zorder>
    <zorder>TouchPanel</zorder>
    <zorder>logo</zorder>
    <zorder>LanguageSelectionAndContrast</zorder>
    <zorder>foundersLabel</zorder>
+   <zorder>labelDateTime</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
@@ -1481,8 +1495,6 @@
   <tabstop>button_3green_OK</tabstop>
   <tabstop>num_5</tabstop>
  </tabstops>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
