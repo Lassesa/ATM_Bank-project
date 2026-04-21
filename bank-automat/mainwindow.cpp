@@ -51,6 +51,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    clockTimer = new QTimer(this);
+    connect(clockTimer, &QTimer::timeout, this, &MainWindow::updateDateTime);
+    clockTimer->start(1000);
+    updateDateTime();
+
     // Set application window icon
     #ifdef Q_OS_MAC
         this->setWindowIcon(QIcon(":/resources/logo.icns"));
@@ -1976,4 +1981,12 @@ void MainWindow::resetTransferForm()
     ui->PhoneNumberInput_Transfer->clear();
     ui->amountInput_Transfer->clear();
     ui->PhoneNumberInput_Transfer->setFocus();
+}
+
+void MainWindow::updateDateTime()
+{
+
+    QString dateTimeString = QDateTime::currentDateTime().toString("dd.MM.yyyy HH:mm:ss");
+
+    ui->labelDateTime->setText(dateTimeString);
 }
