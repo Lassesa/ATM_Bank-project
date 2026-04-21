@@ -51,6 +51,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Set application window icon
+    #ifdef Q_OS_MAC
+        this->setWindowIcon(QIcon(":/resources/logo.icns"));
+    #else
+        this->setWindowIcon(QIcon(":/logo.png"));
+    #endif
+
     // Setup for media
     media = new Media(this);
     media->setupVideo(ui->videoContainer);
@@ -126,9 +133,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Configure amount input field
     ui->amountInput->setText("0 €");
-
-    // Set application window icon
-    this->setWindowIcon(QIcon(":/logo.png"));
 
     // Set initial keypad mode
     currentMode = PinMode;
@@ -1209,7 +1213,7 @@ void MainWindow::makeWithdrawalRequest(int amount, QString description)
 
     QUrl url("http://localhost:3000" + path);
 
-    // Debug-varmistus konsoliin ennen lähetystä
+    // Debug-varmistus konsoliin ennen lähetystälo
     qDebug() << "--- NOSTO-LÄHETYS ALKAA ---";
     qDebug() << "Tila:" << accountMode;
     qDebug() << "URL:" << url.toString();
