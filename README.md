@@ -36,3 +36,5 @@ Sovellus noudattaa MVC-mallia (Model-View-Controller):
 
  ## Tietokannan ER-malli
 <img alt="bank_model" src="https://raw.githubusercontent.com/tvt25spo-bank/group_8/refs/heads/main/bank-automat/docs/bank_model.png?token=GHSAT0AAAAAADZD27UKEBANWS4OE6MDYA662PGD5JA" />
+
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/xbvoC6vmGSBaYfEfjR30Wf/Tilakaavio---SPO-08?node-id=0-1&embed-host=share" allowfullscreen></iframe>
