@@ -642,15 +642,18 @@ void MainWindow::connectSignals()
     connect(ui->btn_amount_choice_3, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
     connect(ui->btn_amount_choice_4, &QPushButton::clicked, this, &MainWindow::handleDonationAmountSelection);
 
-<<<<<<< HEAD
-=======
+
+    // -----------------------------
+    // Kaj Coins
+    // -----------------------------
+
+
 
     connect(ui->btn_kajCoinBuy, &QPushButton::clicked, this, &MainWindow::on_btnBuyKaj_clicked);
     connect(ui->btn_kajCoinSell, &QPushButton::clicked, this, &MainWindow::on_btnSellKaj_clicked);
 
 
 
->>>>>>> 8350eb92918bc839dce52a4024030c7c3fca60fb
     // -----------------------------
     // STOP VIDEO  buttons
     // -----------------------------

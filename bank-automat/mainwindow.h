@@ -286,15 +286,16 @@ private:
     QString msgTransferInvalidAmount;
 
     // =====================================================
-<<<<<<< HEAD
     // Idle Video
     // =====================================================
     void showIdlePage();
     void leaveIdleToWelcome();
     void returnToIdleFromExit();
-=======
+
+    // =====================================================
     // KajCoin
     // =====================================================
+
     double kajCoinPrice;
     double myKajCoins;
     void makeKajCoinTradeRequest(double euroChange, double kajChange);
@@ -302,7 +303,6 @@ private:
     double currentBalance = 0.0;
     QTimer *kajCoinTimer;
     void updateTimerTimeout();
->>>>>>> 8350eb92918bc839dce52a4024030c7c3fca60fb
 };
 
 #endif // MAINWINDOW_H
