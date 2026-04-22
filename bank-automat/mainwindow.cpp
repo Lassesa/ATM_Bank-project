@@ -2169,6 +2169,7 @@ void MainWindow::updateTimerTimeout() {
     qDebug() << "VOLATILITEETTIÄ! Kerroin:" << multiplier << "Hinta:" << kajCoinPrice;
     updateKajCoinUI();
     updateBalanceDisplay();
+}
 void MainWindow::updateDateTime()
 {
 
