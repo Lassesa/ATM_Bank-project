@@ -340,6 +340,13 @@ void MainWindow::connectSignals()
                 ui->PhoneNumberInput_Transfer->setText(text);
             }
         }
+        else if (ui->display->currentWidget() == ui->page09_Other) {
+            QString text = ui->labelKajCoinAmount->text();
+            if (!text.isEmpty()) {
+                text.chop(1);
+                ui->labelKajCoinAmount->setText(text);
+            }
+        }
     });
 
     // -----------------------------
@@ -2037,48 +2044,86 @@ void MainWindow::makeKajCoinTradeRequest(double euroChange, double kajChange)
 
 void MainWindow::on_btnBuyKaj_clicked()
 {
-    // Luetaan kentästä EUROmäärä (esim. 50 €)
+    // 1. Luetaan summa
     double eurosToSpend = ui->labelKajCoinAmount->text().toDouble();
 
+    // 2. Perustarkistus
     if (eurosToSpend <= 0) {
-        ui->labelKajInstruction->setText("Syötä eurosumma!");
+        ui->labelKajInstruction->setStyleSheet("color: orange;");
+        ui->labelKajInstruction->setText("Enter amount!");
         return;
     }
 
-    // Tarkistetaan, onko tilillä tarpeeksi euroja
+    // 3. Tarkistetaan onko rahaa
     if (this->currentBalance >= eurosToSpend) {
-        // Lasketaan kuinka monta kolikkoa tuolla rahalla saa
+        // Lasketaan määrä
         double kajToReceive = eurosToSpend / kajCoinPrice;
 
         qDebug() << "Ostetaan" << eurosToSpend << "eurolla" << kajToReceive << "kolikkoa.";
 
-        // Lähetetään pyyntö: eurot vähenee syötetyn summan verran, coinit lisääntyvät lasketun verran
+        // Tehdään kauppa bäkkeriin
         makeKajCoinTradeRequest(-eurosToSpend, kajToReceive);
-    } else {
-        ui->labelKajInstruction->setText("Tilillä ei ole tarpeeksi rahaa!");
+
+        // NÄYTETÄÄN ONNISTUMINEN (Vihreä teksti)
+        ui->labelKajInstruction->setStyleSheet("color: green; font-weight: bold;");
+        ui->labelKajInstruction->setText("+" + QString::number(kajToReceive, 'f', 4) + " KAJ");
+
+        // Tyhjennetään syöttökenttä heti oston jälkeen
         ui->labelKajCoinAmount->clear();
+
+        // (Valinnainen) Tyhjennetään ilmoitus 3 sekunnin päästä
+        QTimer::singleShot(3000, [this]() {
+            ui->labelKajInstruction->setStyleSheet("color: black; font-weight: normal;");
+            ui->labelKajInstruction->setText("Buy KajCoins!");
+        });
+
+    } else {
+        // VIRHE: Ei tarpeeksi rahaa (Punainen teksti)
+        ui->labelKajInstruction->setStyleSheet("color: red; font-weight: bold;");
+        ui->labelKajInstruction->setText("LOW BALANCE €");
     }
 }
 
 void MainWindow::on_btnSellKaj_clicked()
 {
-    // Luetaan kuinka monta EUROA käyttäjä haluaa saada (esim. 100 €)
-    double eurosToGet = ui->labelKajCoinAmount->text().toDouble();
+    // 1. Luetaan kentästä summa (tässä kohtaa se on EUROmäärä, jolla halutaan myydä)
+    double eurosToReceive = ui->labelKajCoinAmount->text().toDouble();
 
-    if (eurosToGet <= 0) return;
+    // 2. Perustarkistus
+    if (eurosToReceive <= 0) {
+        ui->labelKajInstruction->setStyleSheet("color: orange;");
+        ui->labelKajInstruction->setText("Enter amount!");
+        return;
+    }
 
-    // Lasketaan, kuinka monta kolikkoa pitää myydä, jotta saa tuon summan
-    double kajToSell = eurosToGet / kajCoinPrice;
+    // 3. Lasketaan kuinka monta kolikkoa tuo eurosumma vastaa
+    double kajToSell = eurosToReceive / kajCoinPrice;
 
-    // Tarkistetaan, onko käyttäjällä tarpeeksi kolikoita lompakossa
+    // 4. Tarkistetaan, onko lompakossa tarpeeksi kolikkoja
     if (this->myKajCoins >= kajToSell) {
-        qDebug() << "Myydään" << kajToSell << "kolikkoa, jotta saadaan" << eurosToGet << "euroa.";
 
-        // Lähetetään pyyntö: eurot lisääntyvät, coinit vähenevät
-        makeKajCoinTradeRequest(eurosToGet, -kajToSell);
-    } else {
-        ui->labelKajInstruction->setText("Sinulla ei ole tarpeeksi KajCoineja!");
+        qDebug() << "Myydään" << kajToSell << "kolikkoa, saadaan" << eurosToReceive << "euroa.";
+
+        // Lähetetään pyyntö: eurot lisääntyvät (+), coinit vähenevät (-)
+        makeKajCoinTradeRequest(eurosToReceive, -kajToSell);
+
+        // NÄYTETÄÄN ONNISTUMINEN (Vihreä teksti euroina)
+        ui->labelKajInstruction->setStyleSheet("color: green; font-weight: bold;");
+        ui->labelKajInstruction->setText("+" + QString::number(eurosToReceive, 'f', 2) + " €");
+
+        // Tyhjennetään syöttökenttä
         ui->labelKajCoinAmount->clear();
+
+        // Palautetaan ohjeteksti 3 sekunnin päästä
+        QTimer::singleShot(3000, [this]() {
+            ui->labelKajInstruction->setStyleSheet("color: black; font-weight: normal;");
+            ui->labelKajInstruction->setText("Sell KajCoins!");
+        });
+
+    } else {
+        // VIRHE: Ei tarpeeksi kolikoita (Punainen teksti)
+        ui->labelKajInstruction->setStyleSheet("color: red; font-weight: bold;");
+        ui->labelKajInstruction->setText("LOW BALANCE KAJ");
     }
 }
 
