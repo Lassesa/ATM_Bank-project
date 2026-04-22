@@ -90,12 +90,18 @@ void Media::stopMoreVideo()
 
 void Media::playIdleVideo()
 {
+    if (!idleVideoPlayer) return;
+
+    idleVideoPlayer->setPosition(0);
     idleVideoPlayer->play();
 }
 
 void Media::stopIdleVideo()
 {
-    idleVideoPlayer->stop();
+    if (!idleVideoPlayer) return;
+
+    idleVideoPlayer->pause();
+    idleVideoPlayer->setPosition(0);
 }
 
 void Media::playKeypad()   { keypadSound->play(); }
