@@ -29,8 +29,8 @@ UiTexts getTexts(const QString &lang)
         t.exitTitle = "Dziękujemy!";
         t.exitInstruction = "Pamiętaj, aby zabrać kartę";
 
-        t.otherTitle = "Inne usługi";
-        t.otherInstruction = "Dostęp do dodatkowych usług bankowych";
+        t.otherTitle = "KajCoin";
+        t.otherInstruction = "Kupuj KajCoiny!";
 
         t.mainChoice1 = "50 €";
         t.mainChoice2 = "100 €";
@@ -39,7 +39,7 @@ UiTexts getTexts(const QString &lang)
         t.mainChoice5 = "5 Przelew";
         t.mainChoice6 = "6 Darowizna";
         t.mainChoice7 = "7 Wyjście";
-        t.mainChoice8 = "8 Więcej";
+        t.mainChoice8 = "8 KajCoin";
 
         t.msgInvalidAmount = "BŁĄD: Kwota musi być wielokrotnością 10.";
         t.msgWithdrawSuccess = "Sukces! Proszę odebrać gotówkę.";
@@ -111,6 +111,11 @@ UiTexts getTexts(const QString &lang)
         t.msgTransferMissingAmount = "Wprowadź kwotę.";
         t.msgTransferInvalidAmount = "Nieprawidłowa kwota przelewu.";
 
+        t.KajCoinAmountPlaceholder = "Wpisz kwotę";
+        t.kajCoinBuy = "Kupuj";
+        t.kajCoinSell = "Sprzedaj";
+        t.kajCoinPriceTitle = "Wartość KajCoin";
+
 
     }
     else if (lang == "FI") {
@@ -139,8 +144,8 @@ UiTexts getTexts(const QString &lang)
         t.exitTitle = "Kiitos!";
         t.exitInstruction = "Muista ottaa korttisi";
 
-        t.otherTitle = "Muut palvelut";
-        t.otherInstruction = "Käytä muita pankkipalveluita";
+        t.otherTitle = "KajCoin";
+        t.otherInstruction = "Osta KajCoineja!";
 
         t.mainChoice1 = "50 €";
         t.mainChoice2 = "100 €";
@@ -149,7 +154,7 @@ UiTexts getTexts(const QString &lang)
         t.mainChoice5 = "5 Siirto";
         t.mainChoice6 = "6 Lahjoitus";
         t.mainChoice7 = "7 Poistu";
-        t.mainChoice8 = "8 Lisää";
+        t.mainChoice8 = "8 KajCoin";
 
         t.msgInvalidAmount = "VIRHE: Summan on oltava 10, 20, 50...";
         t.msgWithdrawSuccess = "Nosto onnistui! Otathan rahat.";
@@ -221,6 +226,11 @@ UiTexts getTexts(const QString &lang)
         t.msgTransferMissingAmount = "Syötä summa.";
         t.msgTransferInvalidAmount = "Virheellinen siirtosumma.";
 
+        t.KajCoinAmountPlaceholder = "Syötä summa";
+        t.kajCoinBuy = "Osta";
+        t.kajCoinSell = "Myy";
+        t.kajCoinPriceTitle = "KajCoinin arvo";
+
     }
     else {
         // ...English
@@ -249,8 +259,8 @@ UiTexts getTexts(const QString &lang)
         t.exitTitle = "Thank you!";
         t.exitInstruction = "Please remember to take your card";
 
-        t.otherTitle = "Other";
-        t.otherInstruction = "Access more features and settings";
+        t.otherTitle = "KajCoin";
+        t.otherInstruction = "Buy KajCoins!";
 
         t.mainChoice1 = "50 €";
         t.mainChoice2 = "100 €";
@@ -259,7 +269,7 @@ UiTexts getTexts(const QString &lang)
         t.mainChoice5 = "5 Transfer";
         t.mainChoice6 = "6 Donation";
         t.mainChoice7 = "7 Exit";
-        t.mainChoice8 = "8 More";
+        t.mainChoice8 = "8 KajCoin";
 
         t.msgInvalidAmount = "ERROR: Amount must be multiples of 10.";
         t.msgWithdrawSuccess = "Success! Please take your cash.";
@@ -331,6 +341,11 @@ UiTexts getTexts(const QString &lang)
         t.msgTransferMissingPhone = "Please enter phone number.";
         t.msgTransferMissingAmount = "Please enter amount.";
         t.msgTransferInvalidAmount = "Invalid transfer amount.";
+
+        t.KajCoinAmountPlaceholder = "Enter amount";
+        t.kajCoinBuy = "Buy";
+        t.kajCoinSell = "Sell";
+        t.kajCoinPriceTitle = "KajCoin price";
     }
 
     return t;

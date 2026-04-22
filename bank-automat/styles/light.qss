@@ -477,7 +477,8 @@ QPushButton#btn_donation_choice_2:pressed,
 QPushButton#btn_donation_choice_3:pressed,
 QPushButton#btn_donation_choice_4:pressed,
 QPushButton#Transactions_btn_choice_next:pressed,
-QPushButton#Transactions_btn_choice_previous:pressed {
+QPushButton#Transactions_btn_choice_previous:pressed
+{
     background: qlineargradient(
         x1:0, y1:0, x2:1, y2:1,
         stop:0 #DB2777,
@@ -558,4 +559,78 @@ QLabel#EmptyHolder4 {
     padding: 0px;
     margin: 0px;
     min-height: 4px;
+}
+
+/* KajCoin */
+QLineEdit#labelKajCoinAmount
+{
+    background-color: transparent;
+    border: none;
+    color: #AD1457;
+    font-size: 48px;
+    font-weight: 800;
+    font-family: "Segoe UI", "Arial";
+    padding: 0px;
+    margin: 0px;
+}
+
+QLabel#labelKajCoinEur{
+background-color: transparent;
+color: #C2185B;
+font-size: 26px;
+font-weight: 600;
+font-family: "Segoe UI", "Arial";
+padding: 0px;
+margin: 0px;
+}
+
+
+QLabel#labelKajCoinBalance,
+QLabel#labelKajCoinPrice,
+QLabel#labelKajCoinPriceTitle,
+QLabel#labelKajCoinsOwn
+{
+    font-size: 20px;
+    font-weight: 800;
+    color: #1E293B;
+    padding: 0px;
+    margin: 0px;
+}
+
+
+QPushButton#btnUpdateKaj,
+QPushButton#btn_kajCoinBuy,
+QPushButton#btn_kajCoinSell
+{
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #F472B6,
+        stop:1 #E83E6D
+    );
+    color: #FFFFFF;
+    border-radius: 16px;
+    padding: 16px;
+    font-weight: 800;
+}
+
+QPushButton#btnUpdateKaj:hover,
+QPushButton#btn_kajCoinBuy:hover,
+QPushButton#btn_kajCoinSell:hover
+{
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #FB7185,
+        stop:1 #EC4899
+    );
+}
+
+QPushButton#btnUpdateKaj:pressed,
+QPushButton#btn_kajCoinBuy:pressed,
+QPushButton#btn_kajCoinSell:pressed
+{
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #DB2777,
+        stop:1 #9D174D
+    );
 }

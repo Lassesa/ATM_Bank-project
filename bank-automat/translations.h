@@ -113,6 +113,12 @@ struct UiTexts {
     QString msgTransferMissingAmount;
     QString msgTransferInvalidAmount;
 
+    QString KajCoinAmountPlaceholder;
+
+    QString kajCoinBuy;
+    QString kajCoinSell;
+    QString kajCoinPriceTitle;
+
 };
 
 UiTexts getTexts(const QString &lang);
