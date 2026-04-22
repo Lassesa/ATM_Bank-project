@@ -286,8 +286,16 @@ private:
     QString msgTransferInvalidAmount;
 
     // =====================================================
+    // Idle Video
+    // =====================================================
+    void showIdlePage();
+    void leaveIdleToWelcome();
+    void returnToIdleFromExit();
+
+    // =====================================================
     // KajCoin
     // =====================================================
+
     double kajCoinPrice;
     double myKajCoins;
     void makeKajCoinTradeRequest(double euroChange, double kajChange);

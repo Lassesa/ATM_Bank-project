@@ -16,5 +16,6 @@
         <file>styles/light.qss</file>
         <file>styles/contrast.qss</file>
         <file>videos/video1.mp4</file>
+        <file>videos/idle.mp4</file>
     </qresource>
 </RCC>

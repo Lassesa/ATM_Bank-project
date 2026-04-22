@@ -15,7 +15,15 @@ class Media : public QObject
     Q_OBJECT
 public:
     explicit Media(QObject *parent = nullptr);
+
     void setupVideo(QWidget *container);
+    void setupIdleVideo(QWidget *container);
+
+    void playMoreVideo();
+    void stopMoreVideo();
+
+    void playIdleVideo();
+    void stopIdleVideo();
 
     // Sounds
     void playKeypad();
@@ -33,6 +41,9 @@ private:
     QAudioOutput *moreVideoAudio;
     QVideoWidget *moreVideoWidget;
 
+    QMediaPlayer *idleVideoPlayer;
+    QAudioOutput *idleVideoAudio;
+    QVideoWidget *idleVideoWidget;
 
     QSoundEffect *keypadSound;
     QSoundEffect *okSound;

@@ -5,7 +5,12 @@ Media::Media(QObject *parent) : QObject(parent)
     moreVideoPlayer = new QMediaPlayer(this);
     moreVideoAudio = new QAudioOutput(this);
     moreVideoPlayer->setAudioOutput(moreVideoAudio);
+    moreVideoWidget = nullptr;
 
+    idleVideoPlayer = new QMediaPlayer(this);
+    idleVideoAudio = new QAudioOutput(this);
+    idleVideoPlayer->setAudioOutput(idleVideoAudio);
+    idleVideoWidget = nullptr;
 
     keypadSound = new QSoundEffect(this);
     keypadSound->setSource(QUrl("qrc:/sounds/keypad.wav"));
@@ -59,6 +64,45 @@ void Media::setupVideo(QWidget *container)
     moreVideoPlayer->play();
 }
 
+void Media::setupIdleVideo(QWidget *container)
+{
+    idleVideoWidget = new QVideoWidget(container);
+    idleVideoWidget->setAspectRatioMode(Qt::IgnoreAspectRatio);
+    idleVideoPlayer->setVideoOutput(idleVideoWidget);
+    idleVideoPlayer->setLoops(QMediaPlayer::Infinite);
+
+    QVBoxLayout *videoLayout = new QVBoxLayout(container);
+    videoLayout->setContentsMargins(0, 0, 0, 0);
+    videoLayout->addWidget(idleVideoWidget);
+
+    idleVideoPlayer->setSource(QUrl("qrc:/videos/idle.mp4"));
+}
+
+void Media::playMoreVideo()
+{
+    moreVideoPlayer->play();
+}
+
+void Media::stopMoreVideo()
+{
+    moreVideoPlayer->stop();
+}
+
+void Media::playIdleVideo()
+{
+    if (!idleVideoPlayer) return;
+
+    idleVideoPlayer->setPosition(0);
+    idleVideoPlayer->play();
+}
+
+void Media::stopIdleVideo()
+{
+    if (!idleVideoPlayer) return;
+
+    idleVideoPlayer->pause();
+    idleVideoPlayer->setPosition(0);
+}
 
 void Media::playKeypad()   { keypadSound->play(); }
 void Media::playOk()       { okSound->play(); }

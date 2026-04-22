@@ -35,6 +35,34 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
+    <widget class="QWidget" name="page00_Idle">
+     <widget class="QWidget" name="idleVideoContainer" native="true">
+      <property name="geometry">
+       <rect>
+        <x>-11</x>
+        <y>-11</y>
+        <width>761</width>
+        <height>301</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnIdleStart">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>721</width>
+        <height>271</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </widget>
     <widget class="QWidget" name="page01_Welcome">
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
