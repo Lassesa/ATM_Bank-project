@@ -34,7 +34,16 @@ Sovellus noudattaa MVC-mallia (Model-View-Controller):
 * **Models:** Tiedostot (esim. card_model.js, transaction_handler_model.js) sisältävät SQL-rajapinnan ja kutsuvat tietokannan proseduureja.
 * **Middleware:** Reittien yhteyteen toteutettu tarkistuslogiikka varmistaa, että vain kirjautuneet käyttäjät, joilla on voimassa oleva JWT-token, pääsevät tekemään tilitapahtumia.
 
- ## Tietokannan ER-malli
-<img alt="bank_model" src="https://raw.githubusercontent.com/tvt25spo-bank/group_8/refs/heads/main/bank-automat/docs/bank_model.png?token=GHSAT0AAAAAADZD27UKEBANWS4OE6MDYA662PGD5JA" />
+  ## Tietokannan ER-malli
+<img width="933" height="923" alt="bank_model" src="https://github.com/user-attachments/assets/b7d1e28c-a1fe-4a46-bd33-d9b873cbb60c" />
 
-<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/xbvoC6vmGSBaYfEfjR30Wf/Tilakaavio---SPO-08?node-id=0-1&embed-host=share" allowfullscreen></iframe>
+
+ ## Järjestelmän toimintavirta
+ <img width="1173" height="745" alt="Screenshot 2026-04-21 at 16 54 27" src="https://github.com/user-attachments/assets/3e3c877e-4866-49b7-932a-f890e9e47568" />
+ <img width="1166" height="726" alt="Screenshot 2026-04-21 at 16 55 21" src="https://github.com/user-attachments/assets/e46ece42-1ac4-41cb-a267-43b3765dc1db" />
+ <img width="1160" height="1208" alt="Screenshot 2026-04-21 at 16 56 28" src="https://github.com/user-attachments/assets/a9a92b3b-bc3e-465a-bdb5-735b0024e0cc" />
+<img width="949" height="1048" alt="Screenshot 2026-04-21 at 16 57 29" src="https://github.com/user-attachments/assets/f023b8e8-f454-4d8f-b45f-ad5bc8a4306f" />
+ <img width="954" height="747" alt="Screenshot 2026-04-21 at 16 58 05" src="https://github.com/user-attachments/assets/4e76dfcc-c5f5-41bd-8179-1d6256a16880" />
+
+
+
