@@ -43,7 +43,10 @@ const account = {
 
     getBalance: function(id, callback) {
     return db.query('select * from account where idaccount = ?', [id], callback);
-}
+    }
+
+
+
 };
 
 module.exports = account;
