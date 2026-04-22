@@ -33,7 +33,7 @@
      <enum>QFrame::Shape::NoFrame</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>9</number>
     </property>
     <widget class="QWidget" name="page00_Idle">
      <widget class="QWidget" name="idleVideoContainer" native="true">
@@ -104,17 +104,13 @@
       </property>
       <layout class="QGridLayout" name="CardNumberGrid">
        <item row="0" column="0">
-        <widget class="QLabel" name="CardNumberText">
-         <property name="text">
-          <string>Card Number:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
         <widget class="QLineEdit" name="CardNumberDisplay">
+         <property name="cursor">
+          <cursorShape>ArrowCursor</cursorShape>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
@@ -862,13 +858,6 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QPushButton" name="btn_kajCoinBuy">
-         <property name="text">
-          <string>buy</string>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="0" colspan="2">
         <widget class="QLineEdit" name="labelKajCoinAmount">
          <property name="alignment">
@@ -879,24 +868,30 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="3">
-        <widget class="QLabel" name="labelKajCoinBalance">
+       <item row="4" column="0">
+        <widget class="QPushButton" name="btn_kajCoinBuy">
          <property name="text">
-          <string>coinbalance</string>
+          <string>buy</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="labelKajCoinsOwn">
+       <item row="0" column="1">
+        <widget class="QLabel" name="labelKajCoinPrice">
          <property name="text">
-          <string>kajbalance</string>
+          <string>coinprice</string>
          </property>
         </widget>
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="labelKajCoinPriceTitle">
+         <property name="layoutDirection">
+          <enum>Qt::LayoutDirection::RightToLeft</enum>
+         </property>
          <property name="text">
           <string>KajCoin Price</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
          </property>
         </widget>
        </item>
@@ -907,10 +902,29 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="labelKajCoinPrice">
+       <item row="4" column="3" colspan="2">
+        <widget class="QLabel" name="labelKajCoinBalance">
+         <property name="layoutDirection">
+          <enum>Qt::LayoutDirection::LeftToRight</enum>
+         </property>
          <property name="text">
-          <string>coinprice</string>
+          <string>coinbalance</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3" colspan="2">
+        <widget class="QLabel" name="labelKajCoinsOwn">
+         <property name="layoutDirection">
+          <enum>Qt::LayoutDirection::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>kajbalance</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
          </property>
         </widget>
        </item>
@@ -1458,7 +1472,7 @@
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="resources.qrc">:/logo.svg</pixmap>
+     <pixmap>:/logo.svg</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
@@ -1594,8 +1608,6 @@
   <tabstop>button_3green_OK</tabstop>
   <tabstop>num_5</tabstop>
  </tabstops>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

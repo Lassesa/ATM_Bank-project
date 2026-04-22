@@ -473,6 +473,15 @@ void MainWindow::connectSignals()
         }
 
         if (ui->display->currentWidget() == ui->page01_Welcome) {
+            // get the card number
+            QString cardId = ui->CardNumberDisplay->text().trimmed();
+
+            // if the space is empty, do nothing
+            if (cardId.isEmpty()) {
+                qDebug() << "OK painettu, mutta korttia ei ole luettu/syötetty. Estetään eteneminen.";
+                return;
+            }
+
 
             if (ui->btnLanguageFinnish->isChecked()) setLanguage("FI");
             else if (ui->btnLanguagePolish->isChecked()) setLanguage("PL");
@@ -482,7 +491,7 @@ void MainWindow::connectSignals()
             ui->pinInput->clear();
             ui->pinInput->setFocus();
             pinTimer->start(10000);
-            qDebug() << "PIN-ajastin käynnistetty (10s)";
+            qDebug() << "Kortti tunnistettu (" << cardId << "), PIN-ajastin käynnistetty (10s)";
             resetInactivity();
         }
         else if (ui->display->currentWidget() == ui->page02_Pin) {
@@ -974,7 +983,7 @@ void MainWindow::readCardData()
 
         media->stopIdleVideo();
         ui->idleVideoContainer->hide();
-        ui->display->setCurrentWidget(ui->page01_Welcome);
+        ui->display->setCurrentWidget(ui->page02_Pin);
 
         ui->labelInstruction->setText(texts.msgCardDetected);
 

@@ -34,12 +34,12 @@ UiTexts getTexts(const QString &lang)
 
         t.mainChoice1 = "50 €";
         t.mainChoice2 = "100 €";
-        t.mainChoice3 = "3 Inna kwota";
-        t.mainChoice4 = "4 Saldo";
-        t.mainChoice5 = "5 Przelew";
-        t.mainChoice6 = "6 Darowizna";
-        t.mainChoice7 = "7 Wyjście";
-        t.mainChoice8 = "8 KajCoin";
+        t.mainChoice3 = "Inna kwota";
+        t.mainChoice4 = "Saldo";
+        t.mainChoice5 = "Przelew";
+        t.mainChoice6 = "Darowizna";
+        t.mainChoice7 = "Wyjście";
+        t.mainChoice8 = "KajCoin";
 
         t.msgInvalidAmount = "BŁĄD: Kwota musi być wielokrotnością 10.";
         t.msgWithdrawSuccess = "Sukces! Proszę odebrać gotówkę.";
@@ -80,7 +80,7 @@ UiTexts getTexts(const QString &lang)
         t.accountsAvailableCreditTitle = "Dostępny kredyt:";
 
         t.msgPinCover = "Proszę zasłonić klawiaturę podczas wpisywania PIN-u";
-        t.msgCardDetected = "Wykryto kartę";
+        t.msgCardDetected = "Włóż kartę, aby rozpocząć";
         t.msgDonationSuccess = "Darowizna została wykonana!";
         t.msgDonationFailed = "Nie udało się wykonać darowizny.";
         t.msgDonationInvalidAmount = "Nieprawidłowa kwota.";
@@ -149,12 +149,12 @@ UiTexts getTexts(const QString &lang)
 
         t.mainChoice1 = "50 €";
         t.mainChoice2 = "100 €";
-        t.mainChoice3 = "3 Muu summa";
-        t.mainChoice4 = "4 Saldo";
-        t.mainChoice5 = "5 Siirto";
-        t.mainChoice6 = "6 Lahjoitus";
-        t.mainChoice7 = "7 Poistu";
-        t.mainChoice8 = "8 KajCoin";
+        t.mainChoice3 = "Muu summa";
+        t.mainChoice4 = "Saldo";
+        t.mainChoice5 = "Siirto";
+        t.mainChoice6 = "Lahjoitus";
+        t.mainChoice7 = "Poistu";
+        t.mainChoice8 = "KajCoin";
 
         t.msgInvalidAmount = "VIRHE: Summan on oltava 10, 20, 50...";
         t.msgWithdrawSuccess = "Nosto onnistui! Otathan rahat.";
@@ -195,7 +195,7 @@ UiTexts getTexts(const QString &lang)
         t.accountsAvailableCreditTitle = "Vapaa luotto:";
 
         t.msgPinCover = "Suojaa näppäimistö PIN-koodia syöttäessäsi";
-        t.msgCardDetected = "Kortti tunnistettu";
+        t.msgCardDetected = "Aseta kortti aloittaaksesi";
         t.msgDonationSuccess = "Lahjoitus onnistui!";
         t.msgDonationFailed = "Lahjoitus epäonnistui.";
         t.msgDonationInvalidAmount = "Virheellinen summa.";
@@ -264,12 +264,12 @@ UiTexts getTexts(const QString &lang)
 
         t.mainChoice1 = "50 €";
         t.mainChoice2 = "100 €";
-        t.mainChoice3 = "3 Other amount";
-        t.mainChoice4 = "4 Balance";
-        t.mainChoice5 = "5 Transfer";
-        t.mainChoice6 = "6 Donation";
-        t.mainChoice7 = "7 Exit";
-        t.mainChoice8 = "8 KajCoin";
+        t.mainChoice3 = "Other amount";
+        t.mainChoice4 = "Balance";
+        t.mainChoice5 = "Transfer";
+        t.mainChoice6 = "Donation";
+        t.mainChoice7 = "Exit";
+        t.mainChoice8 = "KajCoin";
 
         t.msgInvalidAmount = "ERROR: Amount must be multiples of 10.";
         t.msgWithdrawSuccess = "Success! Please take your cash.";
@@ -310,7 +310,7 @@ UiTexts getTexts(const QString &lang)
         t.accountsAvailableCreditTitle = "Available Credit:";
 
         t.msgPinCover = "Please cover the keypad while entering your PIN";
-        t.msgCardDetected = "Card detected";
+        t.msgCardDetected = "Insert your card to begin";
         t.msgDonationSuccess = "Donation successful!";
         t.msgDonationFailed = "Donation failed.";
         t.msgDonationInvalidAmount = "Invalid amount.";

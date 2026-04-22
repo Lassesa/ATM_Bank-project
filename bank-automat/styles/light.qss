@@ -634,3 +634,14 @@ QPushButton#btn_kajCoinSell:pressed
         stop:1 #9D174D
     );
 }
+
+QLineEdit#CardNumberDisplay{
+background-color: transparent;
+border: none;
+color: #AD1457;
+font-size: 1px;
+font-weight: 800;
+font-family: "Segoe UI", "Arial";
+padding: 0px;
+margin: 0px;
+}
