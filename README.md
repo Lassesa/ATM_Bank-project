@@ -2,6 +2,9 @@
 
 Tämä on Node.js-pohjainen REST API, joka toimii pankkiautomaattijärjestelmän taustapalveluna. Sovellus hallinnoi asiakastietoja, pankkikortteja, tilejä ja tilitapahtumia.
 
+## Videoesittely
+[![Pankkiautomaatti-projekti esittely](https://img.youtube.com/vi/7f2bgE1Fowo/0.jpg)](https://www.youtube.com/watch?v=7f2bgE1Fowo)
+
 ## Toteutetut ominaisuudet
 
 * **Tietokanta ja CRUD:** Täydet hallintatyökalut asiakkaille, korteille ja tileille.
